@@ -1,0 +1,43 @@
+"""
+COPILOT-GENERATED AIRFLOW DAG
+job_name: {{ job_name }}
+schedule: {{ cron }}
+timezone: {{ timezone }}
+"""
+
+from __future__ import annotations
+
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+
+
+DEFAULT_ARGS = {
+    "owner": "{{ owner }}",
+    "depends_on_past": False,
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 3,
+    "retry_delay": timedelta(minutes=10),
+}
+
+
+with DAG(
+    dag_id="{{ job_name }}_pipeline",
+    default_args=DEFAULT_ARGS,
+    description="{{ job_description | default(job_name) }}",
+    schedule="{{ cron }}",
+    start_date=datetime(2025, 1, 1),
+    catchup=False,
+    tags=["copilot", "{{ environment }}"],
+) as dag:
+
+    run_pyspark_job = BashOperator(
+        task_id="run_pyspark_job",
+        bash_command=(
+            "spark-submit "
+            "--conf spark.app.name={{ job_name }} "
+            "jobs/pyspark/src/{{ job_name }}.py "
+            "--env {{ environment }}"
+        ),
+    )

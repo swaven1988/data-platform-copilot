@@ -1,0 +1,23 @@
+[project]
+name = "data-platform-copilot"
+version = "0.1.0"
+description = "Enterprise-grade GenAI Copilot for Data Platform Engineering"
+requires-python = ">=3.10"
+
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "pydantic",
+  "streamlit",
+  "jinja2",
+  "pyyaml",
+  "requests"
+]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I"]
+
+[tool.black]
+line-length = 100
+

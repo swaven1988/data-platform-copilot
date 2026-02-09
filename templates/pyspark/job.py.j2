@@ -1,0 +1,74 @@
+"""
+COPILOT-GENERATED
+job_name: {{ job_name }}
+source: {{ source_identifier }}
+target: {{ target_identifier }}
+partition_column: {{ partition_column }}
+write_mode: {{ write_mode }}
+"""
+
+import argparse
+import sys
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+
+
+def parse_args():
+    p = argparse.ArgumentParser(description="{{ job_description | default(job_name) }}")
+    p.add_argument("--env", required=True, help="Environment name (dev/qa/prod)")
+    p.add_argument("--run_date", required=False, help="Run date override (YYYY-MM-DD)")
+    return p.parse_args()
+
+
+def main():
+    args = parse_args()
+    spark = (
+        SparkSession.builder
+        .appName("{{ job_name }}")
+        .getOrCreate()
+    )
+
+    try:
+        # Example read
+        df = spark.table("{{ source_identifier }}")
+
+        # TODO: Replace with real transformation logic
+        df_out = df.withColumn("copilot_run_ts", F.current_timestamp())
+
+        # Example write patterns
+        {% if write_mode == "overwrite" %}
+        (df_out
+            .write
+            .mode("overwrite")
+            .format("iceberg")
+            .saveAsTable("{{ target_identifier }}")
+        )
+        {% elif write_mode == "append" %}
+        (df_out
+            .write
+            .mode("append")
+            .format("iceberg")
+            .saveAsTable("{{ target_identifier }}")
+        )
+        {% else %}
+        # merge/upsert is typically handled via SQL MERGE INTO for Iceberg
+        df_out.createOrReplaceTempView("staging_{{ job_name }}")
+        spark.sql("""
+        MERGE INTO {{ target_identifier }} t
+        USING staging_{{ job_name }} s
+        ON t.{{ partition_column }} = s.{{ partition_column }}
+        WHEN MATCHED THEN UPDATE SET *
+        WHEN NOT MATCHED THEN INSERT *
+        """)
+        {% endif %}
+
+        spark.stop()
+        return 0
+    except Exception as e:
+        print(f"[ERROR] Job failed: {e}", file=sys.stderr)
+        spark.stop()
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
