@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
-from typing import Optional, Tuple, Dict, Any
+from typing import Optional, Tuple, Dict, Any, List
 from datetime import datetime, timezone
 
 
@@ -89,6 +89,31 @@ def diff(repo_path: Path, base_ref: str, head_ref: str = "HEAD") -> str:
     raise RuntimeError(f"git diff failed: {err2 or err or out2 or out}")
 
 
+def diff_scoped(repo_path: Path, base_ref: str, head_ref: str = "HEAD", paths: Optional[List[str]] = None) -> str:
+    """
+    Scoped diff: git diff base..head -- <paths...>
+    Uses the same Windows-safe encoding rules as _run_git.
+    """
+    paths = [p for p in (paths or []) if p]
+    # Preferred: rev-range form
+    args = ["diff", f"{base_ref}..{head_ref}"]
+    if paths:
+        args += ["--", *paths]
+    rc, out, err = _run_git(repo_path, args)
+    if rc == 0:
+        return out or ""
+
+    # Fallback: two-ref form
+    args2 = ["diff", base_ref, head_ref]
+    if paths:
+        args2 += ["--", *paths]
+    rc2, out2, err2 = _run_git(repo_path, args2)
+    if rc2 == 0:
+        return out2 or ""
+
+    raise RuntimeError(f"git diff (scoped) failed: {err2 or err or out2 or out}")
+
+
 def read_baseline(repo_path: Path) -> Optional[str]:
     meta = repo_path / ".copilot" / "baseline.json"
     if not meta.exists():
@@ -108,6 +133,7 @@ def write_baseline(repo_path: Path, baseline_commit: str) -> None:
         json.dumps({"baseline_commit": baseline_commit}, indent=2),
         encoding="utf-8",
     )
+
 
 def remote_exists(repo_path: Path, remote_name: str) -> bool:
     rc, out, err = _run_git(repo_path, ["remote"])
@@ -171,6 +197,20 @@ def diff_name_only(repo_path: Path, from_ref: str, to_ref: str) -> list[str]:
     return out.splitlines() if out else []
 
 
+def diff_name_only_scoped(repo_path: Path, from_ref: str, to_ref: str, paths: Optional[List[str]] = None) -> list[str]:
+    """
+    Scoped name-only diff: git diff --name-only from..to -- <paths...>
+    """
+    paths = [p for p in (paths or []) if p]
+    args = ["diff", "--name-only", f"{from_ref}..{to_ref}"]
+    if paths:
+        args += ["--", *paths]
+    rc, out, err = _run_git(repo_path, args)
+    if rc != 0:
+        raise RuntimeError(f"git diff --name-only (scoped) failed: {err or out}")
+    return out.splitlines() if out else []
+
+
 def read_upstream(repo_path: Path) -> Optional[Dict[str, Any]]:
     meta = repo_path / ".copilot" / "upstream.json"
     if not meta.exists():
@@ -191,3 +231,40 @@ def write_upstream(repo_path: Path, data: Dict[str, Any]) -> None:
 def now_utc_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
+def diff_name_status_scoped(repo_path: Path, from_ref: str, to_ref: str, paths: Optional[List[str]] = None) -> List[Dict[str, str]]:
+    """
+    Scoped name/status diff: git diff --name-status from..to -- <paths...>
+    Returns: [{"status": "A|M|D", "path": "..."}, ...]
+    """
+    paths = [p for p in (paths or []) if p]
+    args = ["diff", "--name-status", f"{from_ref}..{to_ref}"]
+    if paths:
+        args += ["--", *paths]
+    rc, out, err = _run_git(repo_path, args)
+    if rc != 0:
+        raise RuntimeError(f"git diff --name-status (scoped) failed: {err or out}")
+
+    items: List[Dict[str, str]] = []
+    for line in (out.splitlines() if out else []):
+        # format: "M\tpath" or "A\tpath" or "D\tpath"
+        parts = line.split("\t", 1)
+        if len(parts) != 2:
+            continue
+        status, path = parts[0].strip(), parts[1].strip()
+        if not status or not path:
+            continue
+        items.append({"status": status, "path": path})
+    return items
+
+
+def show_file_at_ref(repo_path: Path, ref: Optional[str], file_path: str) -> Optional[str]:
+    """
+    Returns file contents for ref:file_path using git show.
+    If ref is None OR file doesn't exist at ref, returns None.
+    """
+    if not ref:
+        return None
+    rc, out, err = _run_git(repo_path, ["show", f"{ref}:{file_path}"])
+    if rc != 0:
+        return None
+    return out if out is not None else ""

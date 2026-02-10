@@ -3,7 +3,8 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.core.git_ops.repo_manager import (
     git_status, read_baseline, diff,
-    add_or_set_remote, fetch_remote, get_ref, ahead_behind, diff_name_only,
+    add_or_set_remote, fetch_remote, get_ref, ahead_behind,
+    diff_name_only_scoped, diff_scoped,
     read_upstream, write_upstream, now_utc_iso
 )
 
@@ -11,6 +12,12 @@ router = APIRouter(prefix="/repo", tags=["Repo"])
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 WORKSPACE_ROOT = PROJECT_ROOT / "workspace"
+
+def _parse_paths(paths: str) -> list[str]:
+    include = [p.strip() for p in (paths or "").split(",") if p.strip()]
+    # Always exclude metadata folder from upstream drift/diff
+    include = [p for p in include if p != ".copilot" and not p.startswith(".copilot")]
+    return include
 
 
 @router.get("/status")
@@ -154,14 +161,9 @@ def upstream_status(
             }
 
         ab = ahead_behind(repo_dir, "HEAD", remote_ref)
-        changed_vs_upstream = diff_name_only(repo_dir, remote_ref, "HEAD")  # upstream -> workspace
-
-        include = [p.strip() for p in paths.split(",") if p.strip()]
-        if include:
-            changed_vs_upstream = [
-                f for f in changed_vs_upstream
-                if any(f == inc or f.startswith(f"{inc}/") or f.startswith(inc) for inc in include)
-            ]
+        include = _parse_paths(paths)
+        changed_vs_upstream = diff_name_only_scoped(repo_dir, remote_ref, "HEAD", paths=include)
+        changed_vs_upstream = [f for f in changed_vs_upstream if not f.startswith(".copilot/")]
 
         return {
             "job_name": job_name,
@@ -178,14 +180,18 @@ def upstream_status(
 
 @router.get("/upstream/diff")
 def upstream_diff(
-    job_name: str = Query(...), 
+    job_name: str = Query(...),
+    paths: str = Query("jobs,dags,configs", description="Comma-separated path prefixes to include"),
     direction: str = Query("upstream_to_workspace"),
     max_chars: int = Query(20000, ge=1000, le=500000),
-    ):
+):
     """
     direction:
       - upstream_to_workspace: git diff upstream_ref..HEAD
       - workspace_to_upstream: git diff HEAD..upstream_ref
+    paths:
+      - comma-separated scope prefixes, e.g. jobs,dags,configs
+      - .copilot is always excluded
     """
     try:
         repo_dir = WORKSPACE_ROOT / job_name
@@ -203,15 +209,29 @@ def upstream_diff(
         branch = cfg.get("branch", "main")
         upstream_ref = cfg.get("remote_ref", f"{remote}/{branch}")
 
+        include = _parse_paths(paths)
+
         if direction == "workspace_to_upstream":
-            d = diff(repo_dir, "HEAD", upstream_ref)
+            d = diff_scoped(repo_dir, "HEAD", upstream_ref, paths=include)
         else:
-            d = diff(repo_dir, upstream_ref, "HEAD")
+            d = diff_scoped(repo_dir, upstream_ref, "HEAD", paths=include)
+
         truncated = False
+        original_len = len(d or "")
         if d and len(d) > max_chars:
             d = d[:max_chars] + "\n\n... (truncated) ..."
             truncated = True
 
-        return {"job_name": job_name, "upstream_ref": upstream_ref, "direction": direction, "diff": d, "diff_truncated": truncated, "max_chars": max_chars}
+        return {
+            "job_name": job_name,
+            "upstream_ref": upstream_ref,
+            "direction": direction,
+            "paths": include,
+            "diff": d,
+            "diff_truncated": truncated,
+            "max_chars": max_chars,
+            "diff_len": original_len,
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
