@@ -4,5 +4,5 @@
   "spark.dynamicAllocation.maxExecutors": "50",
   "spark.dynamicAllocation.minExecutors": "2",
   "spark.sql.adaptive.enabled": "true",
-  "spark.sql.shuffle.partitions": "400"
+  "spark.sql.shuffle.partitions": "200"
 }
