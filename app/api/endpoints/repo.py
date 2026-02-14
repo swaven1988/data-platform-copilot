@@ -5,8 +5,12 @@ from app.core.git_ops.repo_manager import (
     git_status, read_baseline, diff,
     add_or_set_remote, fetch_remote, get_ref, ahead_behind,
     diff_name_only_scoped, diff_scoped,
-    read_upstream, write_upstream, now_utc_iso
+    read_upstream, write_upstream, now_utc_iso,
+    is_dirty, hard_reset, write_baseline, append_audit
 )
+
+import subprocess
+
 
 router = APIRouter(prefix="/repo", tags=["Repo"])
 
@@ -232,6 +236,136 @@ def upstream_diff(
             "max_chars": max_chars,
             "diff_len": original_len,
         }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/upstream/switch")
+def upstream_switch(
+    job_name: str = Query(...),
+    repo_url: str = Query(...),
+    branch: str = Query("main"),
+    mode: str = Query("replace", description="replace|rebaseline|reset"),
+    force: bool = Query(False, description="Only used for reset mode to allow dirty repos"),
+    clean_untracked: bool = Query(False, description="Only used for reset mode; runs git clean -fd after reset"),
+):
+    """
+    Upstream switching modes:
+      - replace: update upstream remote/branch (baseline unchanged)
+      - rebaseline: replace + set baseline to current HEAD
+      - reset: replace + hard reset workspace to upstream ref + baseline = new HEAD (destructive)
+    """
+    try:
+        repo_dir = WORKSPACE_ROOT / job_name
+        if not repo_dir.exists():
+            raise FileNotFoundError(f"Workspace repo not found: {repo_dir}")
+
+        mode = (mode or "").strip().lower()
+        if mode not in {"replace", "rebaseline", "reset"}:
+            raise ValueError("Invalid mode. Allowed: replace, rebaseline, reset")
+
+        old_cfg = read_upstream(repo_dir) or {}
+        old_baseline = read_baseline(repo_dir)
+        old_head = get_ref(repo_dir, "HEAD")
+
+        # Guard for reset
+        if mode == "reset" and is_dirty(repo_dir) and not force:
+            raise ValueError("Workspace has uncommitted changes (dirty). Use force=true or commit/stash first.")
+
+        remote_name = "upstream"
+        add_or_set_remote(repo_dir, remote_name, repo_url)
+
+        cfg = {
+            "remote": remote_name,
+            "repo_url": repo_url,
+            "branch": branch,
+            "connected_at": old_cfg.get("connected_at") or now_utc_iso(),
+            "switched_at": now_utc_iso(),
+        }
+        write_upstream(repo_dir, cfg)
+
+        # Fetch and persist ref metadata
+        _ = fetch_remote(repo_dir, remote_name)
+        cfg["last_fetch_at"] = now_utc_iso()
+        cfg["remote_ref"] = f"{remote_name}/{branch}"
+        try:
+            cfg["remote_ref_commit"] = get_ref(repo_dir, cfg["remote_ref"])
+        except Exception:
+            cfg["remote_ref_commit"] = None
+        write_upstream(repo_dir, cfg)
+
+        # Apply mode effects
+        new_head = old_head
+        if mode == "rebaseline":
+            write_baseline(repo_dir, old_head)
+        elif mode == "reset":
+            upstream_ref = cfg["remote_ref"]
+            hard_reset(repo_dir, upstream_ref, clean_untracked=clean_untracked)
+            new_head = get_ref(repo_dir, "HEAD")
+            write_baseline(repo_dir, new_head)
+
+        append_audit(
+            repo_dir,
+            "upstream_switch",
+            {
+                "job_name": job_name,
+                "mode": mode,
+                "force": force,
+                "clean_untracked": clean_untracked,
+                "old_upstream": old_cfg,
+                "new_upstream": cfg,
+                "old_head": old_head,
+                "new_head": new_head,
+                "old_baseline": old_baseline,
+                "new_baseline": read_baseline(repo_dir),
+            },
+        )
+
+        return {
+            "job_name": job_name,
+            "mode": mode,
+            "workspace_head": new_head,
+            "baseline_commit": read_baseline(repo_dir),
+            "upstream": cfg,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/refs")
+def repo_refs(job_name: str = Query(...), upstream_ref: str = Query("upstream/main")):
+    try:
+        repo_dir = WORKSPACE_ROOT / job_name
+        if not repo_dir.exists():
+            raise FileNotFoundError(f"Workspace repo not found: {repo_dir}")
+
+        def rev(ref: str) -> str:
+            r = subprocess.run(
+                ["git", "-C", str(repo_dir), "rev-parse", ref],
+                capture_output=True,
+                text=True,
+            )
+            if r.returncode != 0:
+                raise ValueError((r.stderr or r.stdout or "").strip() or f"Failed to rev-parse {ref}")
+            return r.stdout.strip()
+
+        workspace_head = rev("HEAD")
+
+        upstream_head = None
+        upstream_error = None
+        try:
+            upstream_head = rev(upstream_ref)
+        except Exception as e:
+            upstream_error = str(e)
+
+        return {
+            "job_name": job_name,
+            "workspace_head": workspace_head,
+            "upstream_ref": upstream_ref,
+            "upstream_head": upstream_head,
+            "upstream_error": upstream_error,
+        }
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

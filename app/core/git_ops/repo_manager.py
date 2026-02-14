@@ -231,6 +231,7 @@ def write_upstream(repo_path: Path, data: Dict[str, Any]) -> None:
 def now_utc_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
+
 def diff_name_status_scoped(repo_path: Path, from_ref: str, to_ref: str, paths: Optional[List[str]] = None) -> List[Dict[str, str]]:
     """
     Scoped name/status diff: git diff --name-status from..to -- <paths...>
@@ -246,7 +247,6 @@ def diff_name_status_scoped(repo_path: Path, from_ref: str, to_ref: str, paths: 
 
     items: List[Dict[str, str]] = []
     for line in (out.splitlines() if out else []):
-        # format: "M\tpath" or "A\tpath" or "D\tpath"
         parts = line.split("\t", 1)
         if len(parts) != 2:
             continue
@@ -259,12 +259,45 @@ def diff_name_status_scoped(repo_path: Path, from_ref: str, to_ref: str, paths: 
 
 def show_file_at_ref(repo_path: Path, ref: Optional[str], file_path: str) -> Optional[str]:
     """
-    Returns file contents for ref:file_path using git show.
-    If ref is None OR file doesn't exist at ref, returns None.
+    Return file contents at a git ref using: git show <ref>:<path>
+    If ref is None/empty -> returns None.
     """
     if not ref:
         return None
     rc, out, err = _run_git(repo_path, ["show", f"{ref}:{file_path}"])
     if rc != 0:
         return None
-    return out if out is not None else ""
+    return out
+
+
+# ----------------------------
+# Upstream switching helpers
+# ----------------------------
+
+def is_dirty(repo_path: Path) -> bool:
+    try:
+        return bool(git_status(repo_path).get("dirty"))
+    except Exception:
+        return False
+
+
+def hard_reset(repo_path: Path, ref: str, clean_untracked: bool = False) -> None:
+    """
+    HARD reset workspace to a given ref. Optional clean to remove untracked files/dirs.
+    """
+    rc, out, err = _run_git(repo_path, ["reset", "--hard", ref])
+    if rc != 0:
+        raise RuntimeError(f"git reset --hard failed: {err or out}")
+    if clean_untracked:
+        rc2, out2, err2 = _run_git(repo_path, ["clean", "-fd"])
+        if rc2 != 0:
+            raise RuntimeError(f"git clean -fd failed: {err2 or out2}")
+
+
+def append_audit(repo_path: Path, event: str, payload: Dict[str, Any]) -> None:
+    meta_dir = repo_path / ".copilot"
+    meta_dir.mkdir(parents=True, exist_ok=True)
+    audit = meta_dir / "audit.log"
+    row = {"ts": now_utc_iso(), "event": event, **payload}
+    with audit.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row) + "\n")

@@ -196,9 +196,14 @@ def build_sync_plan(
         "unchanged": sum(1 for i in items if i["classification"] == "unchanged"),
     }
 
+    resolved_baseline_ref = baseline_ref or base_ref or "upstream/main"
+
     plan_id = str(uuid4())
+    baseline_ref_effective = baseline_ref or base_ref or "upstream/main"
+
     plan = {
         "plan_id": plan_id,
+        "baseline_ref": baseline_ref_effective,   # ✅ correct key
         "created_at": now_utc_iso(),
         "upstream": {
             "remote": cfg.get("remote"),
@@ -209,11 +214,12 @@ def build_sync_plan(
             "last_fetch_at": cfg.get("last_fetch_at"),
         },
         "workspace": {"head": ws_head},
-        "baseline": {"ref": baseline_ref},
+        "baseline": {"ref": baseline_ref},        # keep raw baseline if you want
         "scopes": scopes,
         "summary": summary,
         "items": items,
     }
+
 
     # persist plan
     plan_path(repo_dir, plan_id).write_text(json.dumps(plan, indent=2), encoding="utf-8")
