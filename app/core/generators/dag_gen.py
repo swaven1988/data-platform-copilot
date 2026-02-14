@@ -1,26 +1,81 @@
-from pathlib import Path
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from __future__ import annotations
+
+from typing import Dict
+
 from app.core.spec_schema import CopilotSpec
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-TEMPLATES_DIR = PROJECT_ROOT / "templates"
 
+def generate_airflow_dag(spec: CopilotSpec) -> Dict[str, str]:
+    """
+    Canonical Airflow DAG generator.
 
-def render_airflow_dag(spec: CopilotSpec) -> str:
-    env = Environment(
-        loader=FileSystemLoader(str(TEMPLATES_DIR)),
-        autoescape=select_autoescape(enabled_extensions=()),
-        trim_blocks=True,
-        lstrip_blocks=True,
+    Returns:
+      {"dags/<job_name>_pipeline.py": "<python code>"}
+    """
+    dag_id = f"{spec.job_name}_pipeline"
+    dag_file = f"dags/{dag_id}.py"
+
+    # Keep it simple: BashOperator spark-submit.
+    # Enterprise can swap to SparkSubmitOperator / LivyOperator / K8sPodOperator later.
+    cmd = (
+        "spark-submit "
+        "--properties-file configs/spark_conf_default.json "
+        f"jobs/pyspark/src/{spec.job_name}.py "
+        f"--env {spec.env}"
     )
 
-    template = env.get_template("airflow/dag.py.j2")
+    code = f'''\
+"""
+COPILOT-GENERATED AIRFLOW DAG
+job_name: {spec.job_name}
+preset: {spec.preset}
+schedule: {spec.schedule}
+timezone: {spec.timezone}
+"""
 
-    return template.render(
-        job_name=spec.job.name,
-        job_description=spec.job.description,
-        cron=spec.schedule.cron,
-        timezone=spec.schedule.timezone,
-        owner=spec.metadata.owner,
-        environment=spec.metadata.environment,
+from __future__ import annotations
+
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+
+
+DEFAULT_ARGS = {{
+    "owner": {spec.owner!r},
+    "depends_on_past": False,
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 3,
+    "retry_delay": timedelta(minutes=10),
+}}
+
+
+with DAG(
+    dag_id={dag_id!r},
+    default_args=DEFAULT_ARGS,
+    description={spec.description!r},
+    schedule={spec.schedule!r},
+    start_date=datetime(2025, 1, 1),
+    catchup=False,
+    tags={list(spec.tags or [])!r},
+) as dag:
+
+    run_spark_job = BashOperator(
+        task_id="run_spark_job",
+        bash_command={cmd!r},
     )
+'''
+    return {dag_file: code}
+
+
+# -------------------------------------------------------------------
+# Stable public API surface (V1 + V2)
+# -------------------------------------------------------------------
+def render_airflow_dag(spec: CopilotSpec) -> Dict[str, str]:
+    """Build V1 compatibility entrypoint."""
+    return generate_airflow_dag(spec)
+
+
+def render_airflow_dag_v2(spec: CopilotSpec) -> Dict[str, str]:
+    """Build V2 compatibility entrypoint."""
+    return generate_airflow_dag(spec)

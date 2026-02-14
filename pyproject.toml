@@ -21,3 +21,16 @@ select = ["E", "F", "I"]
 [tool.black]
 line-length = 100
 
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["workspace", ".venv", "dist", "build", ".git"]
+pythonpath = ["."]
+addopts = "-q"
+
+[project.optional-dependencies]
+dev = [
+    "fastapi",
+    "starlette",
+]
