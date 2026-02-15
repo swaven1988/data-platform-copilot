@@ -1,0 +1,1731 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Data Platform Copilot API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/build/history": {
+      "get": {
+        "tags": [
+          "Build"
+        ],
+        "summary": "Build History",
+        "operationId": "build_history_build_history_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/build/": {
+      "post": {
+        "tags": [
+          "Build"
+        ],
+        "summary": "Build Pipeline",
+        "operationId": "build_pipeline_build__post",
+        "parameters": [
+          {
+            "name": "base_ref",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "upstream/main",
+              "title": "Base Ref"
+            }
+          },
+          {
+            "name": "include_intelligence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Intelligence"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/build/v2": {
+      "post": {
+        "tags": [
+          "Build"
+        ],
+        "summary": "Build Pipeline V2",
+        "operationId": "build_pipeline_v2_build_v2_post",
+        "parameters": [
+          {
+            "name": "base_ref",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "upstream/main",
+              "title": "Base Ref"
+            }
+          },
+          {
+            "name": "include_intelligence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Intelligence"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuildV2Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/build/intent": {
+      "post": {
+        "tags": [
+          "Build"
+        ],
+        "summary": "Build From Intent",
+        "operationId": "build_from_intent_build_intent_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuildIntentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo/status": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Repo Status",
+        "operationId": "repo_status_repo_status_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo/diff": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Repo Diff",
+        "operationId": "repo_diff_repo_diff_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo/upstream/connect": {
+      "post": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Upstream Connect",
+        "description": "Attach upstream remote + persist config (per workspace job).",
+        "operationId": "upstream_connect_repo_upstream_connect_post",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          },
+          {
+            "name": "repo_url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repo Url"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "main",
+              "title": "Branch"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo/upstream/fetch": {
+      "post": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Upstream Fetch",
+        "description": "Fetch upstream refs based on saved upstream.json.",
+        "operationId": "upstream_fetch_repo_upstream_fetch_post",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo/upstream/status": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Upstream Status",
+        "description": "Show ahead/behind vs upstream branch + file drift summary.",
+        "operationId": "upstream_status_repo_upstream_status_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          },
+          {
+            "name": "paths",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated path prefixes to include (e.g., app,ui,copilot_spec.yaml)",
+              "default": "jobs,dags,configs",
+              "title": "Paths"
+            },
+            "description": "Comma-separated path prefixes to include (e.g., app,ui,copilot_spec.yaml)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo/upstream/diff": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Upstream Diff",
+        "description": "direction:\n  - upstream_to_workspace: git diff upstream_ref..HEAD\n  - workspace_to_upstream: git diff HEAD..upstream_ref\npaths:\n  - comma-separated scope prefixes, e.g. jobs,dags,configs\n  - .copilot is always excluded",
+        "operationId": "upstream_diff_repo_upstream_diff_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          },
+          {
+            "name": "paths",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated path prefixes to include",
+              "default": "jobs,dags,configs",
+              "title": "Paths"
+            },
+            "description": "Comma-separated path prefixes to include"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "upstream_to_workspace",
+              "title": "Direction"
+            }
+          },
+          {
+            "name": "max_chars",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500000,
+              "minimum": 1000,
+              "default": 20000,
+              "title": "Max Chars"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo/upstream/switch": {
+      "post": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Upstream Switch",
+        "description": "Upstream switching modes:\n  - replace: update upstream remote/branch (baseline unchanged)\n  - rebaseline: replace + set baseline to current HEAD\n  - reset: replace + hard reset workspace to upstream ref + baseline = new HEAD (destructive)",
+        "operationId": "upstream_switch_repo_upstream_switch_post",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          },
+          {
+            "name": "repo_url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repo Url"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "main",
+              "title": "Branch"
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "replace|rebaseline|reset",
+              "default": "replace",
+              "title": "Mode"
+            },
+            "description": "replace|rebaseline|reset"
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only used for reset mode to allow dirty repos",
+              "default": false,
+              "title": "Force"
+            },
+            "description": "Only used for reset mode to allow dirty repos"
+          },
+          {
+            "name": "clean_untracked",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only used for reset mode; runs git clean -fd after reset",
+              "default": false,
+              "title": "Clean Untracked"
+            },
+            "description": "Only used for reset mode; runs git clean -fd after reset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo/refs": {
+      "get": {
+        "tags": [
+          "Repo"
+        ],
+        "summary": "Repo Refs",
+        "operationId": "repo_refs_repo_refs_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          },
+          {
+            "name": "upstream_ref",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "upstream/main",
+              "title": "Upstream Ref"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sync/plan": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "summary": "Sync Plan",
+        "operationId": "sync_plan_sync_plan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Sync Plan Sync Plan Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sync/plan/{plan_id}": {
+      "get": {
+        "tags": [
+          "Sync"
+        ],
+        "summary": "Get Plan",
+        "operationId": "get_plan_sync_plan__plan_id__get",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          },
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Plan Sync Plan  Plan Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sync/apply": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "summary": "Sync Apply",
+        "operationId": "sync_apply_sync_apply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncApplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Sync Apply Sync Apply Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/build/plans": {
+      "get": {
+        "tags": [
+          "Build (Plan APIs)"
+        ],
+        "summary": "Get Plans",
+        "operationId": "get_plans_build_plans_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Job Name"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Plans Build Plans Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/build/plan/{plan_id}": {
+      "get": {
+        "tags": [
+          "Build (Plan APIs)"
+        ],
+        "summary": "Get Plan",
+        "operationId": "get_plan_build_plan__plan_id__get",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          },
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Plan Build Plan  Plan Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/build/events": {
+      "get": {
+        "tags": [
+          "Build (Plan APIs)"
+        ],
+        "summary": "Get Events",
+        "operationId": "get_events_build_events_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Job Name"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2000,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Events Build Events Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugins/resolve": {
+      "get": {
+        "summary": "Resolve Plugins",
+        "operationId": "resolve_plugins_plugins_resolve_get",
+        "parameters": [
+          {
+            "name": "intent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Intent"
+            }
+          },
+          {
+            "name": "enabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Enabled"
+            }
+          },
+          {
+            "name": "disabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Disabled"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugins": {
+      "get": {
+        "summary": "List Plugins",
+        "operationId": "list_plugins_plugins_get",
+        "parameters": [
+          {
+            "name": "enabled_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Enabled Only"
+            }
+          },
+          {
+            "name": "enabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Enabled"
+            }
+          },
+          {
+            "name": "disabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Disabled"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache/stats": {
+      "get": {
+        "summary": "Cache Stats",
+        "operationId": "cache_stats_cache_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/advisors/run": {
+      "post": {
+        "summary": "Run Advisors",
+        "operationId": "run_advisors_advisors_run_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvisorsRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdvisorsRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/execution/graph": {
+      "get": {
+        "summary": "Get Execution Graph",
+        "operationId": "get_execution_graph_execution_graph_get",
+        "parameters": [
+          {
+            "name": "intent",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Intent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/analyze": {
+      "get": {
+        "summary": "Analyze",
+        "operationId": "analyze_intelligence_analyze_get",
+        "parameters": [
+          {
+            "name": "base_ref",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "upstream/main",
+              "title": "Base Ref"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/prioritize": {
+      "post": {
+        "summary": "Prioritize Advisors",
+        "operationId": "prioritize_advisors_intelligence_prioritize_post",
+        "parameters": [
+          {
+            "name": "base_ref",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "upstream/main",
+              "title": "Base Ref"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "title": "Resolved Advisors"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdvisorFindingModel": {
+        "properties": {
+          "plugin": {
+            "type": "string",
+            "title": "Plugin"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plugin",
+          "level",
+          "code",
+          "message"
+        ],
+        "title": "AdvisorFindingModel"
+      },
+      "AdvisorsRunConfigModel": {
+        "properties": {
+          "enabled": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled",
+            "description": "Allowlist. If set, only these run."
+          },
+          "disabled": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Disabled"
+          },
+          "options": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Options"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "AdvisorsRunConfigModel"
+      },
+      "AdvisorsRunRequest": {
+        "properties": {
+          "context": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Context"
+          },
+          "advisors": {
+            "$ref": "#/components/schemas/AdvisorsRunConfigModel"
+          }
+        },
+        "type": "object",
+        "title": "AdvisorsRunRequest"
+      },
+      "AdvisorsRunResponse": {
+        "properties": {
+          "plugin_fingerprint": {
+            "type": "string",
+            "title": "Plugin Fingerprint"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/AdvisorFindingModel"
+            },
+            "type": "array",
+            "title": "Findings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plugin_fingerprint",
+          "findings"
+        ],
+        "title": "AdvisorsRunResponse"
+      },
+      "BuildIntentRequest": {
+        "properties": {
+          "requirement": {
+            "type": "string",
+            "minLength": 3,
+            "title": "Requirement"
+          },
+          "job_name_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Name Hint"
+          },
+          "defaults": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Defaults"
+          },
+          "write_spec_yaml": {
+            "type": "boolean",
+            "title": "Write Spec Yaml",
+            "default": true
+          },
+          "dry_run": {
+            "type": "boolean",
+            "title": "Dry Run",
+            "default": false
+          },
+          "explain": {
+            "type": "boolean",
+            "title": "Explain",
+            "default": false
+          },
+          "options": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Options"
+          },
+          "advisors": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Advisors"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "requirement"
+        ],
+        "title": "BuildIntentRequest"
+      },
+      "BuildV2Request": {
+        "properties": {
+          "spec": {
+            "$ref": "#/components/schemas/CopilotSpec"
+          },
+          "write_spec_yaml": {
+            "type": "boolean",
+            "title": "Write Spec Yaml",
+            "default": true
+          },
+          "job_name_override": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Name Override"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec"
+        ],
+        "title": "BuildV2Request",
+        "description": "Build V2: UI sends a full spec (no need for copilot_spec.yaml)."
+      },
+      "CopilotSpec": {
+        "properties": {
+          "job_name": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_\\-]+$",
+            "title": "Job Name"
+          },
+          "preset": {
+            "type": "string",
+            "enum": [
+              "generic",
+              "enterprise_a",
+              "enterprise_b"
+            ],
+            "title": "Preset",
+            "default": "generic"
+          },
+          "owner": {
+            "type": "string",
+            "title": "Owner",
+            "default": "data-platform"
+          },
+          "env": {
+            "type": "string",
+            "title": "Env",
+            "default": "dev"
+          },
+          "schedule": {
+            "type": "string",
+            "title": "Schedule",
+            "default": "0 6 * * *"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone",
+            "default": "UTC"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": "Example Spark pipeline generated by Copilot"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "source_table": {
+            "type": "string",
+            "title": "Source Table",
+            "default": "raw_db.source_table"
+          },
+          "target_table": {
+            "type": "string",
+            "title": "Target Table",
+            "default": "curated_db.target_table"
+          },
+          "partition_column": {
+            "type": "string",
+            "title": "Partition Column",
+            "default": "data_dt"
+          },
+          "write_mode": {
+            "type": "string",
+            "enum": [
+              "merge",
+              "append",
+              "overwrite"
+            ],
+            "title": "Write Mode",
+            "default": "merge"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "pyspark",
+              "scala"
+            ],
+            "title": "Language",
+            "default": "pyspark"
+          },
+          "spark_dynamic_allocation": {
+            "type": "boolean",
+            "title": "Spark Dynamic Allocation",
+            "default": true
+          },
+          "spark_conf_overrides": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Spark Conf Overrides"
+          },
+          "dq_enabled": {
+            "type": "boolean",
+            "title": "Dq Enabled",
+            "default": false
+          },
+          "troubleshoot_enabled": {
+            "type": "boolean",
+            "title": "Troubleshoot Enabled",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_name"
+        ],
+        "title": "CopilotSpec"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "SyncApplyRequest": {
+        "properties": {
+          "job_name": {
+            "type": "string",
+            "title": "Job Name"
+          },
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "apply_safe_auto": {
+            "type": "boolean",
+            "title": "Apply Safe Auto",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_name",
+          "plan_id"
+        ],
+        "title": "SyncApplyRequest"
+      },
+      "SyncPlanRequest": {
+        "properties": {
+          "job_name": {
+            "type": "string",
+            "title": "Job Name",
+            "description": "Workspace job name under workspace/<job_name>"
+          },
+          "paths": {
+            "type": "string",
+            "title": "Paths",
+            "description": "Comma-separated scope prefixes to include",
+            "default": "jobs,dags,configs"
+          },
+          "max_diff_chars": {
+            "type": "integer",
+            "maximum": 500000.0,
+            "minimum": 1000.0,
+            "title": "Max Diff Chars",
+            "default": 200000
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_name"
+        ],
+        "title": "SyncPlanRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
