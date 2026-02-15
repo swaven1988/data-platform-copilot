@@ -4348,13 +4348,11 @@
         "properties": {
           "job_name": {
             "type": "string",
-            "title": "Job Name",
-            "description": "Workspace job name under workspace/<job_name>"
+            "title": "Job Name"
           },
           "paths": {
             "type": "string",
             "title": "Paths",
-            "description": "Comma-separated scope prefixes to include",
             "default": "jobs,dags,configs"
           },
           "max_diff_chars": {
