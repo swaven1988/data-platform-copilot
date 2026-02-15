@@ -19,6 +19,8 @@ from app.plugins.advisors._internal.config import AdvisorsRunConfig
 from app.plugins.advisors._internal.types import AdvisorFinding, AdvisorPlugin
 from app.plugins.advisors._internal.graph import AdvisorNode, AdvisorExecutionGraph
 
+import logging
+import time
 
 @dataclass(frozen=True)
 class PluginInfo:
@@ -71,9 +73,17 @@ class PluginRegistry:
 
     def run(self, *, context: Dict[str, Any], cfg: AdvisorsRunConfig) -> List[AdvisorFinding]:
         from .resolver import resolve_advisors
-        from .graph import AdvisorNode, AdvisorExecutionGraph
 
+        log = logging.getLogger(__name__)
+
+        t0_total = time.perf_counter()
         findings: List[AdvisorFinding] = []
+
+        # Ensure advisor_outputs exists and is a dict
+        ao = context.setdefault("advisor_outputs", {})
+        if not isinstance(ao, dict):
+            ao = {}
+            context["advisor_outputs"] = ao
 
         cache_key = make_cache_key(
             intent=getattr(cfg, "intent", None),
@@ -83,25 +93,54 @@ class PluginRegistry:
             plugins_fingerprint=self.fingerprint,
         )
 
+        cache_hit = False
         if not getattr(cfg, "force", False):
+            t0_cache = time.perf_counter()
             cached = _RUN_CACHE.get(cache_key)
+            t1_cache = time.perf_counter()
+
             if cached is not None:
+                cache_hit = True
                 context["plan"] = cached.plan
+
+                ao["__meta__"] = {
+                    **(ao.get("__meta__", {}) if isinstance(ao.get("__meta__"), dict) else {}),
+                    "cache": "hit",
+                    "cache_lookup_ms": int(round((t1_cache - t0_cache) * 1000)),
+                    "total_ms": int(round((time.perf_counter() - t0_total) * 1000)),
+                    "plugins_fingerprint": self.fingerprint,
+                }
+
+                log.debug(
+                    "advisors.run cache=hit lookup_ms=%s findings=%s",
+                    ao["__meta__"]["cache_lookup_ms"],
+                    len(cached.findings or []),
+                )
                 return list(cached.findings)
 
+            # cache miss
+            ao["__meta__"] = {
+                **(ao.get("__meta__", {}) if isinstance(ao.get("__meta__"), dict) else {}),
+                "cache": "miss",
+                "cache_lookup_ms": int(round((t1_cache - t0_cache) * 1000)),
+                "plugins_fingerprint": self.fingerprint,
+            }
+
+        # Resolve advisors
+        t0_resolve = time.perf_counter()
         plugins, _skipped = resolve_advisors(
             self,
             intent=getattr(cfg, "intent", None),
             paths=getattr(cfg, "paths", None),
             cfg=cfg,
         )
+        t1_resolve = time.perf_counter()
 
+        # Build graph
+        t0_graph = time.perf_counter()
         graph = AdvisorExecutionGraph()
         name_to_plugin: Dict[str, Any] = {}
 
-        context.setdefault("advisor_outputs", {})
-
-        # Build execution graph from resolved plugins
         for p in (plugins or []):
             pname = getattr(p, "name", None) or type(p).__name__
             name_to_plugin[pname] = p
@@ -115,24 +154,30 @@ class PluginRegistry:
             priority = getattr(p, "priority", 100)
             graph.add_node(AdvisorNode(name=pname, phase=phase, priority=priority, depends_on=deps))
 
+        t1_graph = time.perf_counter()
 
-        # Now compute execution order
+        # Topological sort timing
+        t0_sort = time.perf_counter()
         order = graph.topological_sort()
+        t1_sort = time.perf_counter()
 
+        # Execute in order
         for pname in order:
             plugin = name_to_plugin.get(pname)
             if plugin is None:
-                findings.append(AdvisorFinding(
+                f = AdvisorFinding(
                     code="advisor.failed",
                     severity="warn",
                     message="Advisor dependency missing from resolved plugin set.",
                     data={"advisor": pname},
-                ))
-                context["advisor_outputs"][pname] = {"findings": []}
+                )
+                findings.append(f)
+                ao[pname] = {"findings": [f], "duration_ms": 0}
                 continue
 
             opts = cfg.plugin_options(getattr(plugin, "name", pname))
 
+            t0_inv = time.perf_counter()
             try:
                 out = self._invoke(plugin, context=context, options=opts) or []
             except Exception as e:
@@ -142,13 +187,46 @@ class PluginRegistry:
                     message=f"Advisor execution failed: {e}",
                     data={"advisor": getattr(plugin, "name", pname)},
                 )]
+            t1_inv = time.perf_counter()
 
-            context["advisor_outputs"][pname] = {"findings": out}
+            ao[pname] = {
+                "findings": out,
+                "duration_ms": int(round((t1_inv - t0_inv) * 1000)),
+            }
             findings.extend(out)
 
+        # Persist cache
         _RUN_CACHE.set(cache_key, findings, context.get("plan"))
-        return findings
 
+        # Final meta timings
+        meta = ao.get("__meta__", {})
+        if not isinstance(meta, dict):
+            meta = {}
+
+        meta.update({
+            "cache": meta.get("cache") or ("hit" if cache_hit else "miss"),
+            "resolve_ms": int(round((t1_resolve - t0_resolve) * 1000)),
+            "graph_build_ms": int(round((t1_graph - t0_graph) * 1000)),
+            "toposort_ms": int(round((t1_sort - t0_sort) * 1000)),
+            "plugin_count": len(order),
+            "finding_count": len(findings),
+            "total_ms": int(round((time.perf_counter() - t0_total) * 1000)),
+            "plugins_fingerprint": self.fingerprint,
+        })
+        ao["__meta__"] = meta
+
+        log.debug(
+            "advisors.run cache=%s resolve_ms=%s graph_ms=%s sort_ms=%s plugins=%s findings=%s total_ms=%s",
+            meta.get("cache"),
+            meta.get("resolve_ms"),
+            meta.get("graph_build_ms"),
+            meta.get("toposort_ms"),
+            meta.get("plugin_count"),
+            meta.get("finding_count"),
+            meta.get("total_ms"),
+        )
+
+        return findings
 
 
     def get(self, name: str):

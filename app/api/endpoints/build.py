@@ -30,6 +30,13 @@ from app.plugins.advisors._internal.registry import PluginRegistry
 from app.plugins.advisors._internal.config import AdvisorsRunConfig
 from app.core.intelligence.engine_facade import IntelligenceFacade
 
+from app.api.models.build_responses import (
+    BuildV2Response,
+    BuildIntentDryRunResponse,
+    BuildIntentBuildResponse,
+)
+from app.api.models.build_responses import BuildV2Response
+
 from datetime import datetime
 
 
@@ -121,6 +128,39 @@ def _build_intent_plan_preview(spec_obj: Any, base_ref: str) -> Dict[str, Any]:
         "job_name": job_name,
         "language": language,
         "kind": "intent_preview",
+    }
+
+@router.get("/build/{job_name}/runtime")
+def get_build_runtime(job_name: str):
+    """
+    Returns runtime metadata for the latest build of a job.
+    """
+    workspace_root = Path(__file__).resolve().parents[3] / "workspace"
+    job_dir = workspace_root / job_name
+    meta_file = job_dir / ".copilot_meta.json"
+
+    if not meta_file.exists():
+        return {
+            "job_name": job_name,
+            "message": "No build metadata found",
+        }
+
+    meta = json.loads(meta_file.read_text(encoding="utf-8"))
+    current_id = meta.get("current_build_id")
+
+    if not current_id:
+        return {
+            "job_name": job_name,
+            "message": "No builds registered yet",
+        }
+
+    builds = meta.get("builds", [])
+    current_build = next((b for b in builds if b.get("build_id") == current_id), None)
+
+    return {
+        "job_name": job_name,
+        "current_build_id": current_id,
+        "build": current_build,
     }
 
 # ----------------------------
@@ -346,7 +386,8 @@ def build_from_intent(req: BuildIntentRequest):
             if include_intelligence:
                 resp = IntelligenceFacade.analyze_and_inject(resp, base_ref=base_ref)
 
-            return resp
+            return BuildIntentDryRunResponse(**resp).model_dump()
+
 
         # -------------------------
         # PLAN ONLY
@@ -400,7 +441,7 @@ def build_from_intent(req: BuildIntentRequest):
         if include_intelligence:
             resp = IntelligenceFacade.analyze_and_inject(resp, base_ref=base_ref)
 
-        return resp
+        return BuildIntentBuildResponse(**resp).model_dump()
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

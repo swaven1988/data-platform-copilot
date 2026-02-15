@@ -1,6 +1,14 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Set
+from typing import Dict, List
 from collections import defaultdict, deque
+
+
+PHASE_ORDER = {
+    "preflight": 10,
+    "build": 20,
+    "advise": 30,
+    "post": 40,
+}
 
 
 @dataclass
@@ -36,7 +44,7 @@ class AdvisorExecutionGraph:
             sorted(
                 [n for n, d in in_degree.items() if d == 0],
                 key=lambda n: (
-                    self.nodes[n].phase,
+                    PHASE_ORDER.get(self.nodes[n].phase, 999),
                     self.nodes[n].priority,
                     self.nodes[n].name,
                 ),

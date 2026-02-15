@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional, Literal
 
@@ -30,7 +30,7 @@ class BuildEvent:
     spec_hash: str
     plan_id: Optional[str] = None
     step_id: Optional[str] = None
-    payload: Dict[str, Any] = None  # type: ignore
+    payload: Dict[str, Any] = field(default_factory=dict)
 
     @staticmethod
     def mk(

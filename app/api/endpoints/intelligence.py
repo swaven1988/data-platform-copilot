@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Body
 from typing import List, Dict
+from app.core.intelligence.intelligence_engine import IntelligenceEngine
 from app.core.intelligence.intelligence_pipeline import IntelligencePipeline
+
 
 router = APIRouter()
 

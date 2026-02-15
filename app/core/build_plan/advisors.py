@@ -74,10 +74,28 @@ def run_plan_advisors(
         ctx: Dict[str, Any] = {"plan": plan, "spec": None}
         adv_findings: List[AdvisorFinding] = reg.run(context=ctx, cfg=cfg) or []
 
+        # Updated plan (advisors may mutate it)
         plan = ctx.get("plan", plan)
+
+        # 🔹 Capture advisor execution runtime metadata
+        advisor_meta = (
+            ctx.get("advisor_outputs", {}).get("__meta__")
+            if isinstance(ctx.get("advisor_outputs"), dict)
+            else None
+        )
+
+        if isinstance(advisor_meta, dict):
+            plan = replace(
+                plan,
+                metadata={
+                    **(plan.metadata or {}),
+                    "advisor_runtime": advisor_meta,
+                },
+            )
 
         for f in adv_findings:
             findings.append(_finding_to_dict(f))
+
 
     else:
         # Manual advisors list supplied. Normalize strings -> plugin instances.
