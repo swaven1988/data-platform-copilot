@@ -149,12 +149,6 @@ pip install -r requirements.txt
 pytest -q
 uvicorn app.main:app --reload
 
-### 🔥 Why this works better:
-- No broken box drawing
-- No alignment issues
-- Renders perfectly on GitHub
-- Clean and professional
-
 ## 📄 License
 MIT License
 
