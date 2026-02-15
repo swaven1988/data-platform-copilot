@@ -45,6 +45,47 @@
         }
       }
     },
+    "/build/build/{job_name}/runtime": {
+      "get": {
+        "tags": [
+          "Build"
+        ],
+        "summary": "Get Build Runtime",
+        "description": "Returns runtime metadata for the latest build of a job.",
+        "operationId": "get_build_runtime_build_build__job_name__runtime_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/build/": {
       "post": {
         "tags": [
@@ -1326,6 +1367,47 @@
         }
       }
     },
+    "/api/v1/build/build/{job_name}/runtime": {
+      "get": {
+        "tags": [
+          "Build"
+        ],
+        "summary": "Get Build Runtime",
+        "description": "Returns runtime metadata for the latest build of a job.",
+        "operationId": "get_build_runtime_api_v1_build_build__job_name__runtime_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/build/": {
       "post": {
         "tags": [
@@ -2578,6 +2660,47 @@
           {
             "name": "job_name",
             "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/build/build/{job_name}/runtime": {
+      "get": {
+        "tags": [
+          "Build"
+        ],
+        "summary": "Get Build Runtime",
+        "description": "Returns runtime metadata for the latest build of a job.",
+        "operationId": "get_build_runtime_api_v2_build_build__job_name__runtime_get",
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "string",
