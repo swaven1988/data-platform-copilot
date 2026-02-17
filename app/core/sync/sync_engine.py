@@ -1,5 +1,3 @@
-# app/core/sync/sync_engine.py
-
 from __future__ import annotations
 
 import hashlib
@@ -58,6 +56,85 @@ def is_ancestor(repo_dir: Path, ancestor_ref: str, descendant_ref: str) -> bool:
 
 
 # --------------------------------------------------------------------------------------
+# Stage 5: Drift Risk Engine (additive metadata only; no behavior change)
+# --------------------------------------------------------------------------------------
+
+
+def compute_sync_risk(
+    *,
+    topology_kind: str,
+    histories_related: bool,
+    baseline_ref: Optional[str],
+    baseline_valid: bool,
+    baseline_is_ancestor_of_ws: bool,
+    baseline_is_ancestor_of_up: bool,
+) -> Dict[str, Any]:
+    """Compute deterministic drift risk for a sync plan.
+
+    This is additive metadata only; it must NOT change planning/apply behavior.
+    """
+    base_scores = {
+        "workspace_behind_linear": 1,
+        "workspace_ahead_linear": 2,
+        "diverged": 6,
+        "unrelated_histories": 10,
+    }
+
+    score = base_scores.get(topology_kind, 5)
+    reasons: List[str] = []
+
+    if not histories_related:
+        reasons.append("unrelated_histories")
+        score = max(score, 10)
+
+    if baseline_ref:
+        if not baseline_valid:
+            reasons.append("baseline_invalid")
+            score = max(score, 8)
+        if not baseline_is_ancestor_of_ws:
+            reasons.append("baseline_not_ancestor_of_workspace")
+            score = max(score, 8)
+        if not baseline_is_ancestor_of_up:
+            reasons.append("baseline_not_ancestor_of_upstream")
+            score = max(score, 7)
+    else:
+        reasons.append("no_baseline")
+        score = max(score, 3)
+
+    if topology_kind == "diverged":
+        reasons.append("diverged_histories")
+        score = max(score, 6)
+
+    score = max(0, min(10, int(score)))
+
+    if score <= 2:
+        severity = "LOW"
+    elif score <= 5:
+        severity = "MEDIUM"
+    elif score <= 7:
+        severity = "HIGH"
+    elif score <= 9:
+        severity = "CRITICAL"
+    else:
+        severity = "BLOCKING"
+
+    auto_apply_allowed = (
+        severity == "LOW"
+        and histories_related
+        and topology_kind in ("workspace_ahead_linear", "workspace_behind_linear")
+        and (not baseline_ref or baseline_is_ancestor_of_ws)
+        and (not baseline_ref or baseline_is_ancestor_of_up)
+    )
+
+    return {
+        "score": score,
+        "severity": severity,
+        "reasons": sorted(set(reasons)),
+        "auto_apply_allowed": auto_apply_allowed,
+    }
+
+
+# --------------------------------------------------------------------------------------
 # Utils
 # --------------------------------------------------------------------------------------
 
@@ -66,131 +143,50 @@ def now_utc_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def sha256_text(s: Optional[str]) -> Optional[str]:
-    if s is None:
+def sha256_text(txt: Optional[str]) -> Optional[str]:
+    if txt is None:
         return None
-    return hashlib.sha256(s.encode("utf-8", errors="replace")).hexdigest()
+    return hashlib.sha256(txt.encode("utf-8", errors="replace")).hexdigest()
 
 
-def ensure_copilot_dirs(repo_dir: Path) -> Path:
-    copilot_dir = repo_dir / ".copilot"
-    copilot_dir.mkdir(parents=True, exist_ok=True)
-    (copilot_dir / "plans").mkdir(parents=True, exist_ok=True)
-    return copilot_dir
+def sha256_bytes(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+
+def plan_root(repo_dir: Path) -> Path:
+    return repo_dir / ".copilot" / "plans"
 
 
 def plan_path(repo_dir: Path, plan_id: str) -> Path:
-    return ensure_copilot_dirs(repo_dir) / "plans" / f"{plan_id}.json"
+    return plan_root(repo_dir) / f"{plan_id}.json"
 
 
 def audit_log_path(repo_dir: Path) -> Path:
-    return ensure_copilot_dirs(repo_dir) / "audit.log"
+    return repo_dir / ".copilot" / "audit.log"
 
 
 def write_audit(repo_dir: Path, event: Dict[str, Any]) -> None:
-    """
-    Append one JSON line into .copilot/audit.log
-    """
-    p = audit_log_path(repo_dir)
-    line = json.dumps(event, ensure_ascii=False)
-    with p.open("a", encoding="utf-8") as f:
-        f.write(line + "\n")
+    audit_log_path(repo_dir).parent.mkdir(parents=True, exist_ok=True)
+    with audit_log_path(repo_dir).open("a", encoding="utf-8") as f:
+        f.write(json.dumps(event, ensure_ascii=False, sort_keys=True) + "\n")
 
 
 def parse_paths(paths: str) -> List[str]:
-    include = [p.strip() for p in (paths or "").split(",") if p.strip()]
-    include = [p for p in include if p != ".copilot" and not p.startswith(".copilot")]
-    return include
+    p = [x.strip() for x in (paths or "").split(",") if x.strip()]
+    if not p:
+        return ["jobs", "dags", "configs"]
+    return p
 
 
-def _scope_for_path(path: str, scopes: List[str]) -> str:
+def _scope_for_path(rel_path: str, scopes: List[str]) -> str:
+    rel = rel_path.replace("\\", "/")
     for s in scopes:
-        if path == s or path.startswith(f"{s}/"):
-            return s
-    return "other"
-
-
-# --------------------------------------------------------------------------------------
-# Classification
-# --------------------------------------------------------------------------------------
-
-
-def classify_file(
-    repo_dir: Path,
-    baseline_ref: Optional[str],
-    upstream_ref: str,
-    ws_ref: str,
-    path: str,
-    status: str,
-) -> Dict[str, Any]:
-    """
-    Direction-aware classification for upstream -> workspace, where name-status comes from:
-      git diff --name-status upstream_ref..HEAD
-
-    Status meaning in that diff:
-      A: file exists only in workspace (added in HEAD)
-      D: file exists only in upstream (deleted in workspace)
-      M: file exists in both but differs
-
-    Rules (MVP safe):
-      - A => manual (workspace-only file; never delete automatically)
-      - D => safe_auto (restore from upstream into workspace)
-      - M => baseline-aware:
-            if workspace changed since baseline AND upstream differs => conflict
-            if only upstream differs vs baseline => safe_auto
-            if only workspace differs vs baseline => manual
-    """
-    base_txt = show_file_at_ref(repo_dir, baseline_ref, path) if baseline_ref else None
-    up_txt = show_file_at_ref(repo_dir, upstream_ref, path)
-    ws_txt = show_file_at_ref(repo_dir, ws_ref, path)
-
-    base_h = sha256_text(base_txt)
-    up_h = sha256_text(up_txt)
-    ws_h = sha256_text(ws_txt)
-
-    if status == "A":
-        return {
-            "hashes": {"baseline": base_h, "upstream": up_h, "workspace": ws_h},
-            "classification": "manual",
-            "reason": "workspace_only_file",
-        }
-
-    if status == "D":
-        return {
-            "hashes": {"baseline": base_h, "upstream": up_h, "workspace": ws_h},
-            "classification": "safe_auto",
-            "reason": "missing_in_workspace_restore_from_upstream",
-        }
-
-    # M (or anything else): baseline-aware
-    if up_txt is None:
-        return {
-            "hashes": {"baseline": base_h, "upstream": up_h, "workspace": ws_h},
-            "classification": "manual",
-            "reason": "upstream_missing_content",
-        }
-
-    up_changed = (up_h != base_h)
-    ws_changed = (ws_h != base_h)
-
-    if up_changed and not ws_changed:
-        classification = "safe_auto"
-        reason = "upstream_changed_only"
-    elif ws_changed and not up_changed:
-        classification = "manual"
-        reason = "workspace_changed_only"
-    elif up_changed and ws_changed:
-        classification = "conflict"
-        reason = "both_changed_since_baseline"
-    else:
-        classification = "unchanged"
-        reason = "no_change"
-
-    return {
-        "hashes": {"baseline": base_h, "upstream": up_h, "workspace": ws_h},
-        "classification": classification,
-        "reason": reason,
-    }
+        s2 = s.strip().strip("/")
+        if not s2:
+            continue
+        if rel == s2 or rel.startswith(s2 + "/"):
+            return s2
+    return scopes[0] if scopes else "jobs"
 
 
 # --------------------------------------------------------------------------------------
@@ -269,6 +265,18 @@ def build_sync_plan(
     else:
         baseline_ref_effective = upstream_head
 
+    # Recommended action is advisory only.
+    if not histories_related:
+        recommended_action = "reset_or_rebaseline_required"
+    elif topology_kind == "diverged":
+        recommended_action = "manual_resolution_required"
+    elif topology_kind == "workspace_behind_linear":
+        recommended_action = "safe_auto_apply_possible"
+    elif topology_kind == "workspace_ahead_linear":
+        recommended_action = "workspace_ahead_review_then_apply"
+    else:
+        recommended_action = "manual_review"
+
     # --- diff ---
     start_diff = time.perf_counter()
     name_status = diff_name_status_scoped(repo_dir, upstream_ref, ws_ref, paths=scopes)
@@ -283,7 +291,6 @@ def build_sync_plan(
         status = rec["status"]
 
         if not histories_related:
-            # Unrelated histories: never auto-apply. Provide hashes for UX/debug.
             base_txt = show_file_at_ref(repo_dir, baseline_ref, path) if baseline_ref else None
             up_txt = show_file_at_ref(repo_dir, upstream_ref, path)
             ws_txt = show_file_at_ref(repo_dir, ws_ref, path)
@@ -298,54 +305,65 @@ def build_sync_plan(
                         "upstream": sha256_text(up_txt),
                         "workspace": sha256_text(ws_txt),
                     },
-                    "classification": "manual",
-                    "reason": "unrelated_histories_requires_reset_or_rebaseline",
+                    "apply_mode": "manual",
+                    "reason": "unrelated_histories",
                 }
             )
             continue
 
-        cls = classify_file(repo_dir, baseline_ref_effective, upstream_ref, ws_ref, path, status)
+        base_txt = show_file_at_ref(repo_dir, baseline_ref_effective, path) if baseline_ref_effective else None
+        up_txt = show_file_at_ref(repo_dir, upstream_ref, path)
+        ws_txt = show_file_at_ref(repo_dir, ws_ref, path)
+
+        h_base = sha256_text(base_txt)
+        h_up = sha256_text(up_txt)
+        h_ws = sha256_text(ws_txt)
+
+        # Conservative modes:
+        # - If diverged, force manual (even if per-file hashes suggest a safe overwrite).
+        # - Otherwise allow safe_auto only when workspace matches baseline and upstream changed.
+        if topology_kind == "diverged":
+            apply_mode = "manual"
+            reason = "diverged"
+        else:
+            if h_ws == h_base and h_up != h_base:
+                apply_mode = "safe_auto"
+                reason = "workspace_clean_upstream_changed"
+            else:
+                apply_mode = "manual"
+                reason = "requires_manual_review"
+
         items.append(
             {
                 "path": path,
                 "scope": _scope_for_path(path, scopes),
                 "status": status,
-                **cls,
+                "hashes": {"baseline": h_base, "upstream": h_up, "workspace": h_ws},
+                "apply_mode": apply_mode,
+                "reason": reason,
             }
         )
 
     end_classify = time.perf_counter()
 
+    safe_auto = [x for x in items if x.get("apply_mode") == "safe_auto"]
+    manual = [x for x in items if x.get("apply_mode") != "safe_auto"]
+
     summary = {
-        "files_total": len(items),
-        "safe_auto": sum(1 for i in items if i["classification"] == "safe_auto"),
-        "manual": sum(1 for i in items if i["classification"] == "manual"),
-        "conflicts": sum(1 for i in items if i["classification"] == "conflict"),
-        "unchanged": sum(1 for i in items if i["classification"] == "unchanged"),
+        "total_items": len(items),
+        "safe_auto_items": len(safe_auto),
+        "manual_items": len(manual),
+        "recommended_action": recommended_action,
     }
 
-    recommended_action = "sync_ok"
-    if not histories_related:
-        recommended_action = "reset_or_rebaseline_required"
-    elif baseline_ref and not baseline_is_ancestor_of_ws:
-        recommended_action = "rebaseline_recommended"
-    elif baseline_ref and baseline_is_ancestor_of_ws and not baseline_is_ancestor_of_up:
-        recommended_action = "baseline_not_in_upstream_use_merge_base"
-
-    plan_id = str(uuid4())
+    plan_id = uuid4().hex
 
     plan = {
         "plan_id": plan_id,
-        "baseline_ref": baseline_ref_effective,  # what we actually used for classification
+        "baseline_ref": baseline_ref_effective,  # what we actually planned against
+        "upstream_ref": upstream_ref,
         "created_at": now_utc_iso(),
-        "upstream": {
-            "remote": cfg.get("remote"),
-            "repo_url": cfg.get("repo_url"),
-            "branch": cfg.get("branch"),
-            "ref": upstream_ref,
-            "head": upstream_head,
-            "last_fetch_at": cfg.get("last_fetch_at"),
-        },
+        "upstream": {"head": upstream_head},
         "workspace": {"head": ws_head},
         "baseline": {"ref": baseline_ref},  # raw baseline as stored
         "scopes": scopes,
@@ -362,25 +380,37 @@ def build_sync_plan(
             "baseline_is_ancestor_of_up": baseline_is_ancestor_of_up,
             "recommended_action": recommended_action,
         },
+        "risk": compute_sync_risk(
+            topology_kind=topology_kind,
+            histories_related=histories_related,
+            baseline_ref=baseline_ref,
+            baseline_valid=baseline_valid,
+            baseline_is_ancestor_of_ws=baseline_is_ancestor_of_ws,
+            baseline_is_ancestor_of_up=baseline_is_ancestor_of_up,
+        ),
         "profiling": {
             "total_seconds": round(time.perf_counter() - start_total, 6),
             "diff_seconds": round(end_diff - start_diff, 6),
-            "classification_seconds": round(end_classify - start_classify, 6),
-            "files_evaluated": len(items),
+            "classify_seconds": round(end_classify - start_classify, 6),
         },
     }
 
-    plan_path(repo_dir, plan_id).write_text(json.dumps(plan, indent=2), encoding="utf-8")
+    plan_root(repo_dir).mkdir(parents=True, exist_ok=True)
+    plan_file = plan_path(repo_dir, plan_id)
+    plan_file.write_text(json.dumps(plan, indent=2, sort_keys=True), encoding="utf-8")
 
     write_audit(
         repo_dir,
         {
             "ts": now_utc_iso(),
-            "event": "sync_plan",
+            "action": "sync.plan",
             "plan_id": plan_id,
-            "scopes": scopes,
+            "upstream_ref": upstream_ref,
+            "ws_head": ws_head,
+            "upstream_head": upstream_head,
+            "baseline_ref_effective": baseline_ref_effective,
+            "topology_kind": topology_kind,
             "summary": summary,
-            "topology": plan["topology"],
         },
     )
 
@@ -400,84 +430,61 @@ def load_plan(repo_dir: Path, plan_id: str) -> Dict[str, Any]:
 
 
 def apply_plan(repo_dir: Path, plan_id: str, apply_safe_auto: bool = True) -> Dict[str, Any]:
-    """
-    Apply only safe_auto items from a plan:
-      - For D or M in upstream_ref..HEAD diff: write upstream version into working tree
-      - Never delete workspace-only files automatically
-    Then commit a single "copilot: sync apply" commit.
-    """
     plan = load_plan(repo_dir, plan_id)
 
-    # Hard guard: if histories are unrelated, do NOT apply anything.
-    topo = plan.get("topology") or {}
-    if topo.get("histories_related") is False:
-        raise ValueError("Cannot apply plan: unrelated histories. Use /repo/upstream/switch?mode=reset or mode=rebaseline.")
+    ws_ref = "HEAD"
+    upstream_ref = plan.get("upstream_ref")
+    if not upstream_ref:
+        raise ValueError("Plan missing upstream_ref")
 
-    upstream_ref = plan["upstream"]["ref"]
-    planned_upstream_head = plan["upstream"]["head"]
-    current_upstream_head = get_ref(repo_dir, upstream_ref)
-    if planned_upstream_head != current_upstream_head:
-        raise ValueError(
-            f"Plan is stale: upstream head changed from {planned_upstream_head} to {current_upstream_head}. Re-run /sync/plan."
-        )
+    # stale plan detection
+    current_ws_head = get_ref(repo_dir, ws_ref)
+    current_up_head = get_ref(repo_dir, upstream_ref)
 
-    applied: List[str] = []
-    skipped: List[Dict[str, str]] = []
+    if plan.get("workspace", {}).get("head") != current_ws_head:
+        raise ValueError("Stale plan: workspace HEAD changed since plan creation.")
+    if plan.get("upstream", {}).get("head") != current_up_head:
+        raise ValueError("Stale plan: upstream HEAD changed since plan creation.")
 
-    for item in plan["items"]:
-        path = item["path"]
-        classification = item["classification"]
-        status = item["status"]
+    items = plan.get("items", [])
+    applied: List[Dict[str, Any]] = []
+    skipped: List[Dict[str, Any]] = []
 
-        if classification != "safe_auto":
-            skipped.append({"path": path, "reason": item.get("reason", classification)})
-            continue
+    for item in items:
+        mode = item.get("apply_mode")
+        path = item.get("path")
 
-        if not apply_safe_auto:
-            skipped.append({"path": path, "reason": "safe_auto_not_applied"})
-            continue
-
-        abs_path = repo_dir / path
-        abs_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # For upstream_ref..HEAD diff:
-        #   D => missing in workspace, present in upstream => RESTORE from upstream
-        #   M => differs => WRITE upstream version
-        if status in ("D", "M"):
-            content = show_file_at_ref(repo_dir, upstream_ref, path)
-            if content is None:
-                skipped.append({"path": path, "reason": "upstream_missing_content"})
+        if mode == "safe_auto" and apply_safe_auto:
+            # overwrite workspace with upstream version
+            up_txt = show_file_at_ref(repo_dir, upstream_ref, path)
+            if up_txt is None:
+                skipped.append({**item, "skip_reason": "missing_upstream_content"})
                 continue
-            abs_path.write_text(content, encoding="utf-8", errors="replace")
-            applied.append(path)
+
+            out_path = repo_dir / path
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(up_txt, encoding="utf-8")
+
+            applied.append({**item, "applied": True})
         else:
-            skipped.append({"path": path, "reason": f"unsupported_status_for_apply:{status}"})
-
-    # commit if something changed
-    from app.core.git_ops.repo_manager import commit_all  # local import to avoid circulars
-
-    commit_sha = None
-    if applied:
-        commit_sha = commit_all(repo_dir, f"copilot: sync apply ({plan_id})")
-
-    result = {
-        "plan_id": plan_id,
-        "applied_count": len(applied),
-        "applied": applied,
-        "skipped_count": len(skipped),
-        "skipped": skipped,
-        "commit": commit_sha,
-    }
+            skipped.append({**item, "applied": False})
 
     write_audit(
         repo_dir,
         {
             "ts": now_utc_iso(),
-            "event": "sync_apply",
+            "action": "sync.apply",
             "plan_id": plan_id,
-            "result": {"applied": len(applied), "skipped": len(skipped)},
-            "commit": commit_sha,
+            "applied_count": len(applied),
+            "skipped_count": len(skipped),
+            "apply_safe_auto": bool(apply_safe_auto),
         },
     )
 
-    return result
+    return {
+        "plan_id": plan_id,
+        "applied_count": len(applied),
+        "skipped_count": len(skipped),
+        "applied": applied,
+        "skipped": skipped,
+    }
