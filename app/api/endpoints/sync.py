@@ -1,9 +1,11 @@
+# app/api/endpoints/sync.py
+
 from __future__ import annotations
 
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from typing import Dict, Any
 
 from app.core.sync.sync_engine import build_sync_plan, apply_plan, load_plan, parse_paths
 
@@ -14,8 +16,8 @@ WORKSPACE_ROOT = PROJECT_ROOT / "workspace"
 
 
 class SyncPlanRequest(BaseModel):
-    job_name: str = Field(..., description="Workspace job name under workspace/<job_name>")
-    paths: str = Field("jobs,dags,configs", description="Comma-separated scope prefixes to include")
+    job_name: str
+    paths: str = "jobs,dags,configs"
     max_diff_chars: int = Field(200000, ge=1000, le=500000)
 
 
@@ -33,8 +35,7 @@ def sync_plan(req: SyncPlanRequest) -> Dict[str, Any]:
             raise FileNotFoundError(f"Workspace repo not found: {repo_dir}")
 
         scopes = parse_paths(req.paths)
-        plan = build_sync_plan(repo_dir, scopes=scopes, max_diff_chars=req.max_diff_chars)
-        return plan
+        return build_sync_plan(repo_dir, scopes=scopes, max_diff_chars=req.max_diff_chars)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -56,7 +57,6 @@ def sync_apply(req: SyncApplyRequest) -> Dict[str, Any]:
         repo_dir = WORKSPACE_ROOT / req.job_name
         if not repo_dir.exists():
             raise FileNotFoundError(f"Workspace repo not found: {repo_dir}")
-
         return apply_plan(repo_dir, req.plan_id, apply_safe_auto=req.apply_safe_auto)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

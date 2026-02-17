@@ -2,11 +2,22 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, Query
 
 from app.core.git_ops.repo_manager import (
-    git_status, read_baseline, diff,
-    add_or_set_remote, fetch_remote, get_ref, ahead_behind,
-    diff_name_only_scoped, diff_scoped,
-    read_upstream, write_upstream, now_utc_iso,
-    is_dirty, hard_reset, write_baseline, append_audit
+    git_status,
+    read_baseline,
+    diff,
+    add_or_set_remote,
+    fetch_remote,
+    get_ref,
+    ahead_behind,
+    diff_name_only_scoped,
+    diff_scoped,
+    read_upstream,
+    write_upstream,
+    now_utc_iso,
+    is_dirty,
+    hard_reset,
+    write_baseline,
+    append_audit,
 )
 
 import subprocess
@@ -17,9 +28,9 @@ router = APIRouter(prefix="/repo", tags=["Repo"])
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 WORKSPACE_ROOT = PROJECT_ROOT / "workspace"
 
+
 def _parse_paths(paths: str) -> list[str]:
     include = [p.strip() for p in (paths or "").split(",") if p.strip()]
-    # Always exclude metadata folder from upstream drift/diff
     include = [p for p in include if p != ".copilot" and not p.startswith(".copilot")]
     return include
 
@@ -62,10 +73,12 @@ def repo_diff(job_name: str = Query(...)):
 
 
 @router.post("/upstream/connect")
-def upstream_connect(job_name: str = Query(...), repo_url: str = Query(...), branch: str = Query("main")):
-    """
-    Attach upstream remote + persist config (per workspace job).
-    """
+def upstream_connect(
+    job_name: str = Query(...),
+    repo_url: str = Query(...),
+    branch: str = Query("main"),
+):
+    """Attach upstream remote + persist config (per workspace job)."""
     try:
         repo_dir = WORKSPACE_ROOT / job_name
         if not repo_dir.exists():
@@ -82,16 +95,18 @@ def upstream_connect(job_name: str = Query(...), repo_url: str = Query(...), bra
         }
         write_upstream(repo_dir, cfg)
 
-        return {"job_name": job_name, "upstream": cfg, "note": "Upstream connected. Run /repo/upstream/fetch next."}
+        return {
+            "job_name": job_name,
+            "upstream": cfg,
+            "note": "Upstream connected. Run /repo/upstream/fetch next.",
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/upstream/fetch")
 def upstream_fetch(job_name: str = Query(...)):
-    """
-    Fetch upstream refs based on saved upstream.json.
-    """
+    """Fetch upstream refs based on saved upstream.json."""
     try:
         repo_dir = WORKSPACE_ROOT / job_name
         if not repo_dir.exists():
@@ -102,7 +117,7 @@ def upstream_fetch(job_name: str = Query(...)):
             raise ValueError("No upstream config found. Call /repo/upstream/connect first.")
 
         remote = cfg.get("remote", "upstream")
-        _ = fetch_remote(repo_dir, remote)
+        fetch_remote(repo_dir, remote)
 
         cfg["last_fetch_at"] = now_utc_iso()
 
@@ -123,7 +138,10 @@ def upstream_fetch(job_name: str = Query(...)):
 @router.get("/upstream/status")
 def upstream_status(
     job_name: str = Query(...),
-    paths: str = Query("jobs,dags,configs", description="Comma-separated path prefixes to include (e.g., app,ui,copilot_spec.yaml)"),
+    paths: str = Query(
+        "jobs,dags,configs",
+        description="Comma-separated path prefixes to include (e.g., app,ui,copilot_spec.yaml)",
+    ),
 ):
     """
     Show ahead/behind vs upstream branch + file drift summary.
@@ -204,10 +222,18 @@ def upstream_diff(
 
         cfg = read_upstream(repo_dir)
         if not cfg:
-            return {"job_name": job_name, "diff": "", "note": "No upstream config found. Call /repo/upstream/connect first."}
+            return {
+                "job_name": job_name,
+                "diff": "",
+                "note": "No upstream config found. Call /repo/upstream/connect first.",
+            }
 
         if not cfg.get("last_fetch_at"):
-            return {"job_name": job_name, "diff": "", "note": "Upstream connected but not fetched yet. Call /repo/upstream/fetch first."}
+            return {
+                "job_name": job_name,
+                "diff": "",
+                "note": "Upstream connected but not fetched yet. Call /repo/upstream/fetch first.",
+            }
 
         remote = cfg.get("remote", "upstream")
         branch = cfg.get("branch", "main")
@@ -239,6 +265,7 @@ def upstream_diff(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.post("/upstream/switch")
 def upstream_switch(
     job_name: str = Query(...),
@@ -267,7 +294,6 @@ def upstream_switch(
         old_baseline = read_baseline(repo_dir)
         old_head = get_ref(repo_dir, "HEAD")
 
-        # Guard for reset
         if mode == "reset" and is_dirty(repo_dir) and not force:
             raise ValueError("Workspace has uncommitted changes (dirty). Use force=true or commit/stash first.")
 
@@ -283,8 +309,7 @@ def upstream_switch(
         }
         write_upstream(repo_dir, cfg)
 
-        # Fetch and persist ref metadata
-        _ = fetch_remote(repo_dir, remote_name)
+        fetch_remote(repo_dir, remote_name)
         cfg["last_fetch_at"] = now_utc_iso()
         cfg["remote_ref"] = f"{remote_name}/{branch}"
         try:
@@ -293,7 +318,6 @@ def upstream_switch(
             cfg["remote_ref_commit"] = None
         write_upstream(repo_dir, cfg)
 
-        # Apply mode effects
         new_head = old_head
         if mode == "rebaseline":
             write_baseline(repo_dir, old_head)
@@ -368,4 +392,3 @@ def repo_refs(job_name: str = Query(...), upstream_ref: str = Query("upstream/ma
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
