@@ -1,5 +1,3 @@
-# app/api/endpoints/sync.py
-
 from __future__ import annotations
 
 from pathlib import Path
@@ -7,7 +5,13 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from typing import Dict, Any
 
-from app.core.sync.sync_engine import build_sync_plan, apply_plan, load_plan, parse_paths
+from app.core.sync.sync_engine import (
+    apply_plan,
+    build_sync_plan,
+    load_plan,
+    parse_paths,
+    simulate_rebase_for_plan,
+)
 
 router = APIRouter(prefix="/sync", tags=["Sync"])
 
@@ -25,6 +29,11 @@ class SyncApplyRequest(BaseModel):
     job_name: str
     plan_id: str
     apply_safe_auto: bool = True
+
+
+class SyncRebaseSimulateRequest(BaseModel):
+    job_name: str
+    plan_id: str
 
 
 @router.post("/plan")
@@ -58,5 +67,16 @@ def sync_apply(req: SyncApplyRequest) -> Dict[str, Any]:
         if not repo_dir.exists():
             raise FileNotFoundError(f"Workspace repo not found: {repo_dir}")
         return apply_plan(repo_dir, req.plan_id, apply_safe_auto=req.apply_safe_auto)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/rebase/simulate")
+def simulate_rebase(req: SyncRebaseSimulateRequest) -> Dict[str, Any]:
+    try:
+        repo_dir = WORKSPACE_ROOT / req.job_name
+        if not repo_dir.exists():
+            raise FileNotFoundError(f"Workspace repo not found: {repo_dir}")
+        return simulate_rebase_for_plan(repo_dir, req.plan_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

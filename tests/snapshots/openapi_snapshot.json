@@ -380,6 +380,24 @@
         "title": "SyncPlanRequest",
         "type": "object"
       },
+      "SyncRebaseSimulateRequest": {
+        "properties": {
+          "job_name": {
+            "title": "Job Name",
+            "type": "string"
+          },
+          "plan_id": {
+            "title": "Plan Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_name",
+          "plan_id"
+        ],
+        "title": "SyncRebaseSimulateRequest",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -1788,6 +1806,49 @@
         ]
       }
     },
+    "/api/v1/sync/rebase/simulate": {
+      "post": {
+        "operationId": "simulate_rebase_api_v1_sync_rebase_simulate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncRebaseSimulateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Simulate Rebase Api V1 Sync Rebase Simulate Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate Rebase",
+        "tags": [
+          "Sync"
+        ]
+      }
+    },
     "/api/v2/advisors/run": {
       "post": {
         "operationId": "run_advisors_api_v2_advisors_run_post",
@@ -3110,6 +3171,49 @@
         ]
       }
     },
+    "/api/v2/sync/rebase/simulate": {
+      "post": {
+        "operationId": "simulate_rebase_api_v2_sync_rebase_simulate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncRebaseSimulateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Simulate Rebase Api V2 Sync Rebase Simulate Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate Rebase",
+        "tags": [
+          "Sync"
+        ]
+      }
+    },
     "/build/": {
       "post": {
         "operationId": "build_pipeline_build__post",
@@ -4405,6 +4509,49 @@
           }
         },
         "summary": "Get Plan",
+        "tags": [
+          "Sync"
+        ]
+      }
+    },
+    "/sync/rebase/simulate": {
+      "post": {
+        "operationId": "simulate_rebase_sync_rebase_simulate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncRebaseSimulateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Simulate Rebase Sync Rebase Simulate Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate Rebase",
         "tags": [
           "Sync"
         ]

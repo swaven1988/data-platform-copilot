@@ -4,6 +4,7 @@ import hashlib
 import json
 import subprocess
 import time
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -135,6 +136,159 @@ def compute_sync_risk(
 
 
 # --------------------------------------------------------------------------------------
+# Stage 6: Safe Auto-Rebase Simulation (no workspace mutation; uses temp worktree)
+# --------------------------------------------------------------------------------------
+
+
+def _rev_parse(repo_dir: Path, ref: str) -> str:
+    rc, out, err = _run_git(repo_dir, ["rev-parse", ref])
+    if rc != 0 or not out:
+        raise ValueError(f"git rev-parse failed for {ref}: {err or out}")
+    return out.strip()
+
+
+def _rev_list_count(repo_dir: Path, rev_range: str) -> int:
+    rc, out, err = _run_git(repo_dir, ["rev-list", "--count", rev_range])
+    if rc != 0 or not out:
+        raise ValueError(f"git rev-list failed for {rev_range}: {err or out}")
+    try:
+        return int(out.strip())
+    except Exception:
+        raise ValueError(f"Unexpected rev-list output for {rev_range}: {out!r}")
+
+
+def _worktree_add_detach(repo_dir: Path, worktree_dir: Path, checkout_ref: str) -> None:
+    worktree_dir.parent.mkdir(parents=True, exist_ok=True)
+    if worktree_dir.exists():
+        shutil.rmtree(worktree_dir, ignore_errors=True)
+    rc, _, err = _run_git(repo_dir, ["worktree", "add", "--detach", str(worktree_dir), checkout_ref])
+    if rc != 0:
+        raise ValueError(f"git worktree add failed: {err}")
+
+
+def _worktree_remove(repo_dir: Path, worktree_dir: Path) -> None:
+    _run_git(repo_dir, ["worktree", "remove", "--force", str(worktree_dir)])
+    shutil.rmtree(worktree_dir, ignore_errors=True)
+
+
+def simulate_rebase_for_plan(repo_dir: Path, plan_id: str) -> Dict[str, Any]:
+    """Simulate a rebase for a previously computed sync plan.
+
+    - Predict if replaying workspace commits onto upstream would succeed.
+    - Never mutate the primary workspace repo state.
+    - Uses a temporary detached worktree under .copilot/tmp/worktrees.
+    """
+    plan = load_plan(repo_dir, plan_id)
+
+    ws_ref = "HEAD"
+    upstream_ref = plan.get("upstream_ref")
+    if not upstream_ref:
+        raise ValueError("Plan missing upstream_ref")
+
+    # stale plan detection (same semantics as apply)
+    current_ws_head = get_ref(repo_dir, ws_ref)
+    current_up_head = get_ref(repo_dir, upstream_ref)
+    if plan.get("workspace", {}).get("head") != current_ws_head:
+        raise ValueError("Stale plan: workspace HEAD changed since plan creation.")
+    if plan.get("upstream", {}).get("head") != current_up_head:
+        raise ValueError("Stale plan: upstream HEAD changed since plan creation.")
+
+    topo = plan.get("topology", {}) or {}
+    kind = topo.get("kind") or "unknown"
+    mb_wu = topo.get("merge_base_ws_up")
+
+    if kind == "unrelated_histories" or not mb_wu:
+        return {
+            "plan_id": plan_id,
+            "would_succeed": False,
+            "conflicts": [],
+            "commits_to_replay": 0,
+            "workspace_head": current_ws_head,
+            "upstream_head": current_up_head,
+            "merge_base_ws_up": mb_wu,
+            "recommendation": "reset_or_rebaseline_required",
+            "topology": topo,
+            "risk": plan.get("risk"),
+        }
+
+    commits_to_replay = _rev_list_count(repo_dir, f"{mb_wu}..{ws_ref}")
+
+    if commits_to_replay == 0:
+        return {
+            "plan_id": plan_id,
+            "would_succeed": True,
+            "conflicts": [],
+            "commits_to_replay": 0,
+            "workspace_head": current_ws_head,
+            "upstream_head": current_up_head,
+            "merge_base_ws_up": mb_wu,
+            "recommendation": "safe_auto_apply_possible",
+            "topology": topo,
+            "risk": plan.get("risk"),
+        }
+
+    tmp_root = repo_dir / ".copilot" / "tmp" / "worktrees"
+    tmp_dir = tmp_root / f"rebase_sim_{plan_id}_{uuid4().hex[:8]}"
+
+    t0 = time.perf_counter()
+    try:
+        _worktree_add_detach(repo_dir, tmp_dir, current_ws_head)
+
+        # Replay workspace-only commits (mb..HEAD) onto upstream_ref (in temp worktree).
+        rc, out, err = _run_git(tmp_dir, ["rebase", "--onto", upstream_ref, mb_wu, "HEAD"])
+
+        conflicts: List[str] = []
+        if rc != 0:
+            _rc2, out2, _err2 = _run_git(tmp_dir, ["diff", "--name-only", "--diff-filter=U"])
+            if out2:
+                conflicts = [x for x in out2.splitlines() if x.strip()]
+
+            _run_git(tmp_dir, ["rebase", "--abort"])
+            would_succeed = False
+            recommendation = "manual_resolution_required"
+        else:
+            _run_git(tmp_dir, ["reset", "--hard", current_ws_head])
+            would_succeed = True
+            recommendation = "safe_auto_rebase_possible"
+
+        write_audit(
+            repo_dir,
+            {
+                "ts": now_utc_iso(),
+                "action": "sync.rebase_simulate",
+                "plan_id": plan_id,
+                "workspace_head": current_ws_head,
+                "upstream_head": current_up_head,
+                "merge_base_ws_up": mb_wu,
+                "commits_to_replay": commits_to_replay,
+                "would_succeed": would_succeed,
+                "conflicts_count": len(conflicts),
+                "elapsed_seconds": round(time.perf_counter() - t0, 6),
+                "stderr_sample": (err or "")[:4000],
+                "stdout_sample": (out or "")[:4000],
+            },
+        )
+
+        return {
+            "plan_id": plan_id,
+            "would_succeed": would_succeed,
+            "conflicts": conflicts,
+            "commits_to_replay": commits_to_replay,
+            "workspace_head": current_ws_head,
+            "upstream_head": current_up_head,
+            "merge_base_ws_up": mb_wu,
+            "recommendation": recommendation,
+            "topology": topo,
+            "risk": plan.get("risk"),
+        }
+    finally:
+        try:
+            _worktree_remove(repo_dir, tmp_dir)
+        except Exception:
+            pass
+
+
+# --------------------------------------------------------------------------------------
 # Utils
 # --------------------------------------------------------------------------------------
 
@@ -199,14 +353,6 @@ def build_sync_plan(
     scopes: List[str],
     max_diff_chars: int = 200000,
 ) -> Dict[str, Any]:
-    """
-    Build a deterministic plan for upstream -> workspace sync.
-    Uses:
-      - upstream ref from .copilot/upstream.json (requires last_fetch_at)
-      - baseline from .copilot/baseline.json (if present)
-      - workspace HEAD
-      - merge-base intelligence for topology + safe fallbacks
-    """
     _ = max_diff_chars  # reserved for future diff-preview limiting
     start_total = time.perf_counter()
 
@@ -224,7 +370,6 @@ def build_sync_plan(
 
     baseline_ref = read_baseline(repo_dir)
 
-    # --- topology ---
     mb_wu = merge_base(repo_dir, ws_ref, upstream_ref)
     histories_related = mb_wu is not None
 
@@ -254,10 +399,6 @@ def build_sync_plan(
     mb_bu = merge_base(repo_dir, baseline_ref, upstream_ref) if baseline_ref else None
     mb_bw = merge_base(repo_dir, baseline_ref, ws_ref) if baseline_ref else None
 
-    # Effective baseline for planning:
-    # - prefer baseline if it is an ancestor of workspace
-    # - else fall back to merge-base(WS,UP) when histories are related
-    # - else fall back to upstream_head (forces conservative hashing, no auto-apply anyway)
     if baseline_ref and baseline_is_ancestor_of_ws:
         baseline_ref_effective = baseline_ref
     elif mb_wu:
@@ -265,7 +406,6 @@ def build_sync_plan(
     else:
         baseline_ref_effective = upstream_head
 
-    # Recommended action is advisory only.
     if not histories_related:
         recommended_action = "reset_or_rebaseline_required"
     elif topology_kind == "diverged":
@@ -277,12 +417,10 @@ def build_sync_plan(
     else:
         recommended_action = "manual_review"
 
-    # --- diff ---
     start_diff = time.perf_counter()
     name_status = diff_name_status_scoped(repo_dir, upstream_ref, ws_ref, paths=scopes)
     end_diff = time.perf_counter()
 
-    # --- classify ---
     start_classify = time.perf_counter()
     items: List[Dict[str, Any]] = []
 
@@ -319,9 +457,6 @@ def build_sync_plan(
         h_up = sha256_text(up_txt)
         h_ws = sha256_text(ws_txt)
 
-        # Conservative modes:
-        # - If diverged, force manual (even if per-file hashes suggest a safe overwrite).
-        # - Otherwise allow safe_auto only when workspace matches baseline and upstream changed.
         if topology_kind == "diverged":
             apply_mode = "manual"
             reason = "diverged"
@@ -360,12 +495,12 @@ def build_sync_plan(
 
     plan = {
         "plan_id": plan_id,
-        "baseline_ref": baseline_ref_effective,  # what we actually planned against
+        "baseline_ref": baseline_ref_effective,
         "upstream_ref": upstream_ref,
         "created_at": now_utc_iso(),
         "upstream": {"head": upstream_head},
         "workspace": {"head": ws_head},
-        "baseline": {"ref": baseline_ref},  # raw baseline as stored
+        "baseline": {"ref": baseline_ref},
         "scopes": scopes,
         "summary": summary,
         "items": items,
@@ -437,7 +572,6 @@ def apply_plan(repo_dir: Path, plan_id: str, apply_safe_auto: bool = True) -> Di
     if not upstream_ref:
         raise ValueError("Plan missing upstream_ref")
 
-    # stale plan detection
     current_ws_head = get_ref(repo_dir, ws_ref)
     current_up_head = get_ref(repo_dir, upstream_ref)
 
@@ -455,7 +589,6 @@ def apply_plan(repo_dir: Path, plan_id: str, apply_safe_auto: bool = True) -> Di
         path = item.get("path")
 
         if mode == "safe_auto" and apply_safe_auto:
-            # overwrite workspace with upstream version
             up_txt = show_file_at_ref(repo_dir, upstream_ref, path)
             if up_txt is None:
                 skipped.append({**item, "skip_reason": "missing_upstream_content"})
