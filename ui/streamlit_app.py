@@ -152,10 +152,12 @@ tab_build, tab_build_v2, tab_intent, tab_sync, tab_dq, tab_stage8, tab_trouble, 
         "Build (Intent)",
         "Sync Project",
         "Add DQ",
+        "Stage 8",        # <-- missing tab added
         "Troubleshoot",
         "Validate",
     ]
 )
+
 
 # ----------------------------
 # Tab: Build (kept as your main Build UI)
