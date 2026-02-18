@@ -327,6 +327,11 @@ def upstream_switch(
             new_head = get_ref(repo_dir, "HEAD")
             write_baseline(repo_dir, new_head)
 
+            # If clean_untracked=true, git clean -fd can remove untracked control-plane files
+            # under .copilot/ (including upstream.json). Re-persist upstream config deterministically.
+            write_upstream(repo_dir, cfg)
+
+
         append_audit(
             repo_dir,
             "upstream_switch",
