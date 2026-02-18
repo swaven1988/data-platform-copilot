@@ -1586,22 +1586,57 @@
             }
           },
           {
+            "description": "Optional if .copilot/upstream.json already exists",
             "in": "query",
             "name": "repo_url",
-            "required": true,
+            "required": false,
             "schema": {
-              "title": "Repo Url",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Repo Url"
             }
           },
           {
+            "description": "Optional if .copilot/upstream.json already exists",
             "in": "query",
             "name": "branch",
             "required": false,
             "schema": {
-              "default": "main",
-              "title": "Branch",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Branch"
+            }
+          },
+          {
+            "description": "Optional if .copilot/upstream.json already exists",
+            "in": "query",
+            "name": "remote",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Remote"
             }
           },
           {
@@ -2951,22 +2986,57 @@
             }
           },
           {
+            "description": "Optional if .copilot/upstream.json already exists",
             "in": "query",
             "name": "repo_url",
-            "required": true,
+            "required": false,
             "schema": {
-              "title": "Repo Url",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Repo Url"
             }
           },
           {
+            "description": "Optional if .copilot/upstream.json already exists",
             "in": "query",
             "name": "branch",
             "required": false,
             "schema": {
-              "default": "main",
-              "title": "Branch",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Branch"
+            }
+          },
+          {
+            "description": "Optional if .copilot/upstream.json already exists",
+            "in": "query",
+            "name": "remote",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Remote"
             }
           },
           {
@@ -4294,22 +4364,57 @@
             }
           },
           {
+            "description": "Optional if .copilot/upstream.json already exists",
             "in": "query",
             "name": "repo_url",
-            "required": true,
+            "required": false,
             "schema": {
-              "title": "Repo Url",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Repo Url"
             }
           },
           {
+            "description": "Optional if .copilot/upstream.json already exists",
             "in": "query",
             "name": "branch",
             "required": false,
             "schema": {
-              "default": "main",
-              "title": "Branch",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Branch"
+            }
+          },
+          {
+            "description": "Optional if .copilot/upstream.json already exists",
+            "in": "query",
+            "name": "remote",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional if .copilot/upstream.json already exists",
+              "title": "Remote"
             }
           },
           {

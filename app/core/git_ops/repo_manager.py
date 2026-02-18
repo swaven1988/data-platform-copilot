@@ -243,12 +243,23 @@ def write_upstream(repo_path: Path, data: Dict[str, Any]) -> None:
 # ---------------------------------------------------------------------
 
 def hard_reset(repo_path: Path, ref: str, clean_untracked: bool = False) -> None:
+    """
+    Hard reset to ref. If clean_untracked is True, run a conservative clean that
+    preserves .copilot/ metadata (upstream.json, baseline.json, audit.log, plans/).
+    """
     get_ref(repo_path, ref)
+
     rc, _, err = _run_git(repo_path, ["reset", "--hard", ref])
     if rc != 0:
         raise RuntimeError(err)
+
     if clean_untracked:
-        rc2, _, err2 = _run_git(repo_path, ["clean", "-fd"])
+        # Preserve Copilot metadata.
+        # NOTE: git clean exclusions are matched against repo root paths.
+        rc2, _, err2 = _run_git(
+            repo_path,
+            ["clean", "-fd", "-e", ".copilot", "-e", ".copilot/**"],
+        )
         if rc2 != 0:
             raise RuntimeError(err2)
 

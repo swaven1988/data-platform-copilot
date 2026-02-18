@@ -269,8 +269,9 @@ def upstream_diff(
 @router.post("/upstream/switch")
 def upstream_switch(
     job_name: str = Query(...),
-    repo_url: str = Query(...),
-    branch: str = Query("main"),
+    repo_url: str | None = Query(None, description="Optional if .copilot/upstream.json already exists"),
+    branch: str | None = Query(None, description="Optional if .copilot/upstream.json already exists"),
+    remote: str | None = Query(None, description="Optional if .copilot/upstream.json already exists"),
     mode: str = Query("replace", description="replace|rebaseline|reset"),
     force: bool = Query(False, description="Only used for reset mode to allow dirty repos"),
     clean_untracked: bool = Query(False, description="Only used for reset mode; runs git clean -fd after reset"),
@@ -291,19 +292,27 @@ def upstream_switch(
             raise ValueError("Invalid mode. Allowed: replace, rebaseline, reset")
 
         old_cfg = read_upstream(repo_dir) or {}
+        # Resolve params from existing upstream.json if caller didn't provide them
+        resolved_repo_url = (repo_url or "").strip() or (old_cfg.get("repo_url") or "").strip()
+        resolved_branch = (branch or "").strip() or (old_cfg.get("branch") or "main")
+        resolved_remote = (remote or "").strip() or (old_cfg.get("remote") or "upstream")
+
+        if not resolved_repo_url:
+            raise ValueError("repo_url is required (or connect upstream first so .copilot/upstream.json exists).")
+
         old_baseline = read_baseline(repo_dir)
         old_head = get_ref(repo_dir, "HEAD")
 
         if mode == "reset" and is_dirty(repo_dir) and not force:
             raise ValueError("Workspace has uncommitted changes (dirty). Use force=true or commit/stash first.")
 
-        remote_name = "upstream"
-        add_or_set_remote(repo_dir, remote_name, repo_url)
+        remote_name = resolved_remote
+        add_or_set_remote(repo_dir, remote_name, resolved_repo_url)
 
         cfg = {
             "remote": remote_name,
-            "repo_url": repo_url,
-            "branch": branch,
+            "repo_url": resolved_repo_url,
+            "branch": resolved_branch,
             "connected_at": old_cfg.get("connected_at") or now_utc_iso(),
             "switched_at": now_utc_iso(),
         }
@@ -311,7 +320,7 @@ def upstream_switch(
 
         fetch_remote(repo_dir, remote_name)
         cfg["last_fetch_at"] = now_utc_iso()
-        cfg["remote_ref"] = f"{remote_name}/{branch}"
+        cfg["remote_ref"] = f"{remote_name}/{resolved_branch}"
         try:
             cfg["remote_ref_commit"] = get_ref(repo_dir, cfg["remote_ref"])
         except Exception:
