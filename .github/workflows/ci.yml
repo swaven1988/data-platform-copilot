@@ -29,6 +29,10 @@ jobs:
         run: |
           python -m pytest -q
 
+      - name: Packaging manifest drift gate
+        run: |
+          python tools/gen_packaging_manifest.py --check
+
       - name: Enforce OpenAPI snapshot test explicitly
         run: |
           python -m pytest -q tests/test_openapi_snapshot.py

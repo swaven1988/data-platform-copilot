@@ -1,4 +1,4 @@
-.PHONY: api ui snapshot verify-snapshot ci
+.PHONY: api ui snapshot verify-snapshot ci manifest-gen manifest-check
 
 api:
 	uvicorn app.api.main:app --reload --port 8001
@@ -16,6 +16,12 @@ snapshot:
 verify-snapshot:
 	@echo "Verifying OpenAPI snapshot..."
 	@python -m pytest tests/test_openapi_snapshot.py -q
+
+manifest-gen:
+	@python tools/gen_packaging_manifest.py
+
+manifest-check:
+	@python tools/gen_packaging_manifest.py --check
 
 ci:
 	@echo "Running CI checks..."

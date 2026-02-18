@@ -703,6 +703,45 @@ with tab_stage8:
         except Exception as e:
             st.error(str(e))
 
+with tab_stage10:
+    st.subheader("Stage 10 — Repro Compare + Release Verify + Manifest Drift Gate")
+
+    st.markdown("### Workspace Repro Compare")
+    col1, col2 = st.columns(2)
+    with col1:
+        job_a = st.text_input("job_a", value="example_pipeline")
+    with col2:
+        job_b = st.text_input("job_b", value="example_pipeline")
+
+    if st.button("Compare manifests"):
+        try:
+            resp = api_get("/workspace/repro/compare", params={"job_a": job_a, "job_b": job_b})
+            st.json(resp)
+        except Exception as e:
+            st.error(str(e))
+
+    st.markdown("### Release Tarball Verify (local path)")
+    tar_path = st.text_input("tarball_path", value="data-platform-copilot.tar.gz")
+    sha_path = st.text_input("expected_sha256 (paste)", value="")
+
+    require_manifest = st.checkbox("Require packaging_manifest.json inside tarball", value=True)
+
+    if st.button("Verify tarball"):
+        try:
+            payload = {
+                "tarball_path": tar_path,
+                "expected_sha256": sha_path.strip(),
+                "require_packaging_manifest": require_manifest,
+            }
+            resp = api_post("/release/verify/tarball", payload)
+            st.json(resp)
+        except Exception as e:
+            st.error(str(e))
+
+    st.markdown("### Packaging Manifest")
+    st.code("make manifest-gen  # generate packaging_manifest.json\nmake manifest-check  # drift gate", language="bash")
+
+
 # ----------------------------
 # Tab: Troubleshoot (placeholder)
 # ----------------------------
@@ -716,3 +755,4 @@ with tab_trouble:
 with tab_validate:
     st.header("Validate")
     st.info("Run linting, parsing, and DAG import checks (placeholder).")
+

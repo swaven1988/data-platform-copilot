@@ -1935,6 +1935,98 @@
                 }
             }
         },
+        "/workspace/repro/compare": {
+            "get": {
+                "tags": [
+                    "workspace"
+                ],
+                "summary": "Compare Workspace Repro Manifests",
+                "operationId": "compare_workspace_repro_manifests_workspace_repro_compare_get",
+                "parameters": [
+                    {
+                        "name": "job_a",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Job A"
+                        }
+                    },
+                    {
+                        "name": "job_b",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Job B"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReproCompareResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/release/verify/tarball": {
+            "post": {
+                "tags": [
+                    "release"
+                ],
+                "summary": "Verify Release Tarball",
+                "operationId": "verify_release_tarball_release_verify_tarball_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TarballVerifyRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TarballVerifyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/build/history": {
             "get": {
                 "tags": [
@@ -5952,6 +6044,64 @@
                 "type": "object",
                 "title": "HTTPValidationError"
             },
+            "ReproCompareResponse": {
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "title": "Kind"
+                    },
+                    "job_a": {
+                        "type": "string",
+                        "title": "Job A"
+                    },
+                    "job_b": {
+                        "type": "string",
+                        "title": "Job B"
+                    },
+                    "summary": {
+                        "additionalProperties": {
+                            "type": "integer"
+                        },
+                        "type": "object",
+                        "title": "Summary"
+                    },
+                    "added": {
+                        "items": {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Added"
+                    },
+                    "removed": {
+                        "items": {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Removed"
+                    },
+                    "changed": {
+                        "items": {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Changed"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "kind",
+                    "job_a",
+                    "job_b",
+                    "summary",
+                    "added",
+                    "removed",
+                    "changed"
+                ],
+                "title": "ReproCompareResponse"
+            },
             "SyncApplyRequest": {
                 "properties": {
                     "job_name": {
@@ -6017,6 +6167,76 @@
                     "plan_id"
                 ],
                 "title": "SyncRebaseSimulateRequest"
+            },
+            "TarballVerifyRequest": {
+                "properties": {
+                    "tarball_path": {
+                        "type": "string",
+                        "title": "Tarball Path",
+                        "description": "Local filesystem path to .tar.gz"
+                    },
+                    "expected_sha256": {
+                        "type": "string",
+                        "title": "Expected Sha256",
+                        "description": "Expected sha256 hex digest"
+                    },
+                    "require_packaging_manifest": {
+                        "type": "boolean",
+                        "title": "Require Packaging Manifest",
+                        "description": "If true, tarball must contain packaging_manifest.json at repo root",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "tarball_path",
+                    "expected_sha256"
+                ],
+                "title": "TarballVerifyRequest"
+            },
+            "TarballVerifyResponse": {
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "title": "Kind"
+                    },
+                    "tarball_path": {
+                        "type": "string",
+                        "title": "Tarball Path"
+                    },
+                    "expected_sha256": {
+                        "type": "string",
+                        "title": "Expected Sha256"
+                    },
+                    "actual_sha256": {
+                        "type": "string",
+                        "title": "Actual Sha256"
+                    },
+                    "sha256_match": {
+                        "type": "boolean",
+                        "title": "Sha256 Match"
+                    },
+                    "contains_packaging_manifest": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Contains Packaging Manifest"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "kind",
+                    "tarball_path",
+                    "expected_sha256",
+                    "actual_sha256",
+                    "sha256_match"
+                ],
+                "title": "TarballVerifyResponse"
             },
             "ValidationError": {
                 "properties": {
