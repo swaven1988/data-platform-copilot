@@ -4,6 +4,7 @@ from fastapi.responses import Response
 from app.api.versioning import is_unversioned_api_path
 
 from app.api.endpoints import build, repo, sync, intelligence
+from app.api.endpoints import semantic_diff, conflicts, remotes, impact_graph
 from app.api.plan_api import router as plan_router
 from app.api.routes import plugins as plugins_routes
 from app.api.routes import advisors as advisors_routes
@@ -35,6 +36,10 @@ async def add_deprecation_headers_for_unversioned(request: Request, call_next):
 # ------------------------------------------------------------
 app.include_router(build.router)
 app.include_router(repo.router)
+app.include_router(semantic_diff.router)
+app.include_router(conflicts.router)
+app.include_router(remotes.router)
+app.include_router(impact_graph.router)
 app.include_router(sync.router)
 app.include_router(plan_router)
 app.include_router(plugins_routes.router)
@@ -51,6 +56,10 @@ app.include_router(intelligence.router)
 for prefix in ("/api/v1", "/api/v2"):
     app.include_router(build.router, prefix=prefix)
     app.include_router(repo.router, prefix=prefix)
+    app.include_router(semantic_diff.router, prefix=prefix)
+    app.include_router(conflicts.router, prefix=prefix)
+    app.include_router(remotes.router, prefix=prefix)
+    app.include_router(impact_graph.router, prefix=prefix)
     app.include_router(sync.router, prefix=prefix)
     app.include_router(plan_router, prefix=prefix)
     app.include_router(plugins_routes.router, prefix=prefix)

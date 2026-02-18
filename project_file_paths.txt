@@ -9,11 +9,13 @@ app/api/endpoints/repo.py
 app/api/endpoints/sync.py
 app/api/execution.py
 app/api/main.py
+app/api/models/build_responses.py
 app/api/plan_api.py
 app/api/plugins_api.py
 app/api/routes/advisors.py
 app/api/routes/plugins.py
 app/api/schemas/advisors.py
+app/api/versioning.py
 app/core/build_plan/advisors.py
 app/core/build_plan/events.py
 app/core/build_plan/models.py
@@ -59,10 +61,10 @@ app/plugins/advisors/always_warn.py
 app/plugins/advisors/basic_checks.py
 copilot_spec.yaml
 docs/stage3_contract.md
-output.log
 project_file_paths.txt
 project_tree.txt
 pyproject.toml
+pytest.ini
 templates/airflow/dag.py.j2
 templates/pyspark/job.py.j2
 test.sh
@@ -70,10 +72,13 @@ tests/conftest.py
 tests/reports/latest_report.json
 tests/run_build_intent_tests.sh
 tests/snapshots/openapi_snapshot.json
+tests/test_api_versioning.py
+tests/test_build_v2_contract.py
 tests/test_cache_stats_api.py
 tests/test_execution_graph.py
 tests/test_graph_circular.py
 tests/test_graph_dependencies.py
+tests/test_intent_contract.py
 tests/test_openapi_snapshot.py
 tests/test_plugin_fingerprint.py
 tests/test_plugin_registry_filters.py
@@ -86,4 +91,3 @@ tests/test_resolver_phase_order.py
 tests/test_resolver_priority_order.py
 ui/.streamlit/streamlit.toml
 ui/streamlit_app.py
-upstream_diff_scoped.log

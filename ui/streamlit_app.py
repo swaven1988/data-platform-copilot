@@ -145,7 +145,7 @@ def _looks_like_yaml(s: str) -> bool:
 # ----------------------------
 # Tabs (NAMED) - prevents index mismatch bugs
 # ----------------------------
-tab_build, tab_build_v2, tab_intent, tab_sync, tab_dq, tab_trouble, tab_validate = st.tabs(
+tab_build, tab_build_v2, tab_intent, tab_sync, tab_dq, tab_stage8, tab_trouble, tab_validate = st.tabs(
     [
         "Build",
         "Build (v2)",
@@ -610,6 +610,96 @@ with tab_sync:
 with tab_dq:
     st.header("Add DQ")
     st.info("Generate Data Quality checks when required (placeholder).")
+
+# ----------------------------
+# Tab: Stage 8
+# ----------------------------
+with tab_stage8:
+    st.header("Stage 8")
+    st.caption("Semantic diff, conflict UX, remotes, advisor impact graph.")
+
+    st.subheader("Semantic Diff")
+    sd_job = st.text_input("job_name", value="", key="s8_sd_job")
+    col1, col2 = st.columns(2)
+    sd_ref_a = col1.text_input("ref_a", value="HEAD", key="s8_sd_a")
+    sd_ref_b = col2.text_input("ref_b", value="upstream/main", key="s8_sd_b")
+    sd_paths = st.text_input("paths (comma-separated, optional)", value="", key="s8_sd_paths")
+    if st.button("Run semantic diff"):
+        if not sd_job.strip():
+            st.error("job_name is required")
+        else:
+            try:
+                params = {"job_name": sd_job, "ref_a": sd_ref_a, "ref_b": sd_ref_b}
+                if sd_paths.strip():
+                    params["paths"] = sd_paths
+                data = api_get("/repo/semantic-diff", params=params)
+                st.json(data)
+            except Exception as e:
+                st.error(str(e))
+
+    st.divider()
+    st.subheader("Conflicts")
+    c_job = st.text_input("job_name (conflicts)", value="", key="s8_c_job")
+    colc1, colc2 = st.columns(2)
+    if colc1.button("Detect conflicts"):
+        try:
+            data = api_get("/repo/conflicts", params={"job_name": c_job})
+            st.json(data)
+        except Exception as e:
+            st.error(str(e))
+    if colc2.button("Conflict help"):
+        try:
+            data = api_get("/repo/conflicts/help", params={"job_name": c_job})
+            st.json(data)
+        except Exception as e:
+            st.error(str(e))
+
+    st.divider()
+    st.subheader("Remotes (Sources/Templates)")
+    r_job = st.text_input("job_name (remotes)", value="", key="s8_r_job")
+    if st.button("List remotes"):
+        try:
+            st.json(api_get("/repo/remotes", params={"job_name": r_job}))
+        except Exception as e:
+            st.error(str(e))
+
+    with st.expander("Add remote"):
+        r_name = st.text_input("name", value="", key="s8_r_name")
+        r_url = st.text_input("url", value="", key="s8_r_url")
+        if st.button("Add"):
+            try:
+                resp = requests.post(f"{API_URL}/repo/remotes/add", params={"job_name": r_job}, json={"name": r_name, "url": r_url}, timeout=30)
+                resp.raise_for_status()
+                st.json(resp.json())
+            except Exception as e:
+                st.error(str(e))
+
+    with st.expander("Fetch + Status"):
+        f_name = st.text_input("remote name", value="upstream", key="s8_f_name")
+        f_branch = st.text_input("branch", value="main", key="s8_f_branch")
+        colf1, colf2 = st.columns(2)
+        if colf1.button("Fetch"):
+            try:
+                resp = requests.post(f"{API_URL}/repo/remotes/fetch", params={"job_name": r_job}, json={"name": f_name}, timeout=30)
+                resp.raise_for_status()
+                st.json(resp.json())
+            except Exception as e:
+                st.error(str(e))
+        if colf2.button("Status"):
+            try:
+                st.json(api_get("/repo/remotes/status", params={"job_name": r_job, "name": f_name, "branch": f_branch}))
+            except Exception as e:
+                st.error(str(e))
+
+    st.divider()
+    st.subheader("Advisor Impact Graph")
+    ig_job = st.text_input("job_name (impact graph)", value="", key="s8_ig_job")
+    ig_plan = st.text_input("plan_id", value="", key="s8_ig_plan")
+    if st.button("Load impact graph"):
+        try:
+            st.json(api_get("/advisors/impact-graph", params={"job_name": ig_job, "plan_id": ig_plan}))
+        except Exception as e:
+            st.error(str(e))
 
 # ----------------------------
 # Tab: Troubleshoot (placeholder)
