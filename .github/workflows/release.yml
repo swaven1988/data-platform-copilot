@@ -43,7 +43,9 @@ jobs:
             app tests ui templates docs \
             .github \
             pyproject.toml README.md Makefile test.sh copilot_spec.yaml \
-            project_tree.txt project_file_paths.txt
+            project_tree.txt \
+            project_file_paths.txt \
+            packaging_manifest.json
 
       - name: SHA256
         run: |
@@ -56,3 +58,11 @@ jobs:
           files: |
             data-platform-copilot.tar.gz
             data-platform-copilot.tar.gz.sha256
+
+      - name: Generate SBOM
+        run: |
+          pip install cyclonedx-bom
+          cyclonedx-py -o sbom.json
+
+      - name: Verify packaging manifest
+        run: python tools/gen_packaging_manifest.py --check

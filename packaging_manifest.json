@@ -17,7 +17,7 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "sha256": "86affccf5c6104242c8c947d06db6265d9982ea300b70a3e202d0f0f8dbaa9ea"
+      "sha256": "9b8e73c4129eeb6e423ba99f8907ea061f28e3b54d9360adb136a21947291d0e"
     },
     {
       "path": "Makefile",
@@ -46,6 +46,10 @@
     {
       "path": "app/api/endpoints/conflicts.py",
       "sha256": "6bebbb557b28080f25dac5a40a3ead8f924258363655b2b408c6e85a5d21df4a"
+    },
+    {
+      "path": "app/api/endpoints/health.py",
+      "sha256": "f7750017967a1c3b4d714380055892a7a41ed8731f6413a4523777c8084f63bc"
     },
     {
       "path": "app/api/endpoints/impact_graph.py",
@@ -89,7 +93,7 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "0beea1d374daf34d612409a5425a8bca6834800303535cd83bb602810258a0d4"
+      "sha256": "40523d7746dad9db1bff817676abc6da95c6e2738e3649bbdd03cb341de90c63"
     },
     {
       "path": "app/api/models/build_responses.py",

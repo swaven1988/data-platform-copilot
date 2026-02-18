@@ -17,6 +17,8 @@ from app.api.endpoints.audit import router as audit_router
 from app.api.endpoints.repro_compare import router as repro_compare_router
 from app.api.endpoints.release_verify import router as release_verify_router
 
+from app.api.endpoints import health
+
 
 app = FastAPI(
     title="Data Platform Copilot API",
@@ -59,7 +61,7 @@ app.include_router(workspace_repro_router)
 app.include_router(audit_router)
 app.include_router(repro_compare_router)
 app.include_router(release_verify_router)
-
+app.include_router(health.router)
 
 
 
