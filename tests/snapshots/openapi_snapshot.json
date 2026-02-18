@@ -1811,6 +1811,130 @@
                 }
             }
         },
+        "/advisors/explain": {
+            "post": {
+                "tags": [
+                    "advisors"
+                ],
+                "summary": "Explain Advisor Finding",
+                "operationId": "explain_advisor_finding_advisors_explain_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExplainPayload"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExplainResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/workspace/repro/manifest": {
+            "get": {
+                "tags": [
+                    "workspace"
+                ],
+                "summary": "Get Workspace Repro Manifest",
+                "operationId": "get_workspace_repro_manifest_workspace_repro_manifest_get",
+                "parameters": [
+                    {
+                        "name": "job_name",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Job Name"
+                        }
+                    },
+                    {
+                        "name": "includes",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Comma-separated include dirs relative to workspace job root",
+                            "title": "Includes"
+                        },
+                        "description": "Comma-separated include dirs relative to workspace job root"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceReproResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/audit/architecture": {
+            "get": {
+                "tags": [
+                    "audit"
+                ],
+                "summary": "Audit Architecture",
+                "operationId": "audit_architecture_audit_architecture_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Audit Architecture Audit Architecture Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/build/history": {
             "get": {
                 "tags": [
@@ -5760,6 +5884,61 @@
                 ],
                 "title": "CopilotSpec"
             },
+            "ExplainPayload": {
+                "properties": {
+                    "advisor_name": {
+                        "type": "string",
+                        "title": "Advisor Name",
+                        "description": "Advisor/plugin name"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code",
+                        "description": "Finding code"
+                    },
+                    "finding": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Finding",
+                        "description": "Original finding payload from advisors"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "advisor_name",
+                    "code"
+                ],
+                "title": "ExplainPayload"
+            },
+            "ExplainResponse": {
+                "properties": {
+                    "advisor_name": {
+                        "type": "string",
+                        "title": "Advisor Name"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code"
+                    },
+                    "explanation": {
+                        "type": "string",
+                        "title": "Explanation"
+                    },
+                    "finding": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Finding"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "advisor_name",
+                    "code",
+                    "explanation",
+                    "finding"
+                ],
+                "title": "ExplainResponse"
+            },
             "HTTPValidationError": {
                 "properties": {
                     "detail": {
@@ -5878,6 +6057,48 @@
                     "type"
                 ],
                 "title": "ValidationError"
+            },
+            "WorkspaceReproResponse": {
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "title": "Kind"
+                    },
+                    "job_name": {
+                        "type": "string",
+                        "title": "Job Name"
+                    },
+                    "workspace_root": {
+                        "type": "string",
+                        "title": "Workspace Root"
+                    },
+                    "includes": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Includes"
+                    },
+                    "files": {
+                        "items": {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Files"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "kind",
+                    "job_name",
+                    "workspace_root",
+                    "includes",
+                    "files"
+                ],
+                "title": "WorkspaceReproResponse"
             }
         }
     }

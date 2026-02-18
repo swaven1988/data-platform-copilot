@@ -10,6 +10,10 @@ from app.api.routes import plugins as plugins_routes
 from app.api.routes import advisors as advisors_routes
 from app.api import execution
 
+from app.api.endpoints.advisor_explain import router as advisor_explain_router
+from app.api.endpoints.workspace_repro import router as workspace_repro_router
+from app.api.endpoints.audit import router as audit_router
+
 app = FastAPI(
     title="Data Platform Copilot API",
     version="0.1.0",
@@ -46,6 +50,10 @@ app.include_router(plugins_routes.router)
 app.include_router(advisors_routes.router)
 app.include_router(execution.router)
 app.include_router(intelligence.router)
+app.include_router(advisor_explain_router)
+app.include_router(workspace_repro_router)
+app.include_router(audit_router)
+
 
 
 # ------------------------------------------------------------

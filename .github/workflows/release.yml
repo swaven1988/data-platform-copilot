@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r requirements-dev.txt || true
+
+      - name: Test
+        run: |
+          python -m pytest -q
+
+      - name: Build tarball
+        run: |
+          tar -czf data-platform-copilot.tar.gz \
+            --exclude='**/__pycache__' \
+            --exclude='**/*.pyc' \
+            --exclude='**/.pytest_cache' \
+            --exclude='**/.mypy_cache' \
+            --exclude='**/.ruff_cache' \
+            --exclude='**/.venv' \
+            --exclude='**/workspace' \
+            --exclude='**/*.log' \
+            --exclude='**/*.tar.gz' \
+            app tests ui templates docs \
+            .github \
+            pyproject.toml README.md Makefile test.sh copilot_spec.yaml \
+            project_tree.txt project_file_paths.txt
+
+      - name: SHA256
+        run: |
+          sha256sum data-platform-copilot.tar.gz > data-platform-copilot.tar.gz.sha256
+          cat data-platform-copilot.tar.gz.sha256
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            data-platform-copilot.tar.gz
+            data-platform-copilot.tar.gz.sha256

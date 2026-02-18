@@ -1,4 +1,4 @@
-.PHONY: api ui snapshot verify-snapshot
+.PHONY: api ui snapshot verify-snapshot ci
 
 api:
 	uvicorn app.api.main:app --reload --port 8001
@@ -16,3 +16,7 @@ snapshot:
 verify-snapshot:
 	@echo "Verifying OpenAPI snapshot..."
 	@python -m pytest tests/test_openapi_snapshot.py -q
+
+ci:
+	@echo "Running CI checks..."
+	@python -m pytest -q
