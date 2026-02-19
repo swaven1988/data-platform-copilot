@@ -5,75 +5,65 @@ from typing import Optional
 
 from fastapi import Request
 
-from .models import Principal
+from app.core.auth.models import Principal
 
 
-class AuthError(RuntimeError):
+class AuthError(Exception):
     pass
 
 
-class AuthProvider:
-    def authenticate(self, request: Request) -> Optional[Principal]:
-        raise NotImplementedError
+class StaticTokenProvider:
+    def __init__(self):
+        self.admin_token = os.getenv("COPILOT_STATIC_ADMIN_TOKEN")
+        self.viewer_token = os.getenv("COPILOT_STATIC_VIEWER_TOKEN")
+        self.legacy_token = os.getenv("COPILOT_STATIC_TOKEN")
 
+        if not any([self.admin_token, self.viewer_token, self.legacy_token]):
+            raise AuthError(
+                "Missing static token config. "
+                "Set COPILOT_STATIC_ADMIN_TOKEN "
+                "or COPILOT_STATIC_VIEWER_TOKEN "
+                "or COPILOT_STATIC_TOKEN."
+            )
 
-class NoAuthProvider(AuthProvider):
-    def authenticate(self, request: Request) -> Optional[Principal]:
-        return Principal(subject="anonymous", roles=["admin"])
+    def _extract_token(self, request: Request) -> str:
+        # Defensive header extraction (case-safe + proxy-safe)
+        auth_header = (
+            request.headers.get("authorization")
+            or request.headers.get("Authorization")
+            or request.headers.get("x-forwarded-authorization")
+        )
 
+        if not auth_header:
+            raise AuthError("Authentication required")
 
-class StaticTokenProvider(AuthProvider):
-    """
-    Simple enterprise simulation:
-    - Requires Authorization: Bearer <token>
-    - Token must match COPILOT_ADMIN_TOKEN
-    - Principal role = admin
-    """
+        if not auth_header.startswith("Bearer "):
+            raise AuthError("Invalid authorization header")
 
-    def __init__(self, token: str):
-        self._token = token.strip()
-
-    def authenticate(self, request: Request) -> Optional[Principal]:
-        auth = (request.headers.get("authorization") or "").strip()
-        if not auth.lower().startswith("bearer "):
-            raise AuthError("Missing bearer token")
-        token = auth.split(" ", 1)[1].strip()
-        if not token or token != self._token:
-            raise AuthError("Invalid bearer token")
-        return Principal(subject="admin_token", roles=["admin"])
-
-
-class HeaderProvider(AuthProvider):
-    """
-    Trust boundary for reverse proxy:
-    - Reads X-Forwarded-User and X-Forwarded-Roles
-    - Example:
-      X-Forwarded-User: user@company.com
-      X-Forwarded-Roles: admin,user
-    """
+        return auth_header.replace("Bearer ", "").strip()
 
     def authenticate(self, request: Request) -> Optional[Principal]:
-        user = (request.headers.get("x-forwarded-user") or "").strip()
-        roles = (request.headers.get("x-forwarded-roles") or "").strip()
-        if not user:
-            raise AuthError("Missing x-forwarded-user")
-        role_list = [r.strip() for r in roles.split(",") if r.strip()] or ["user"]
-        return Principal(subject=user, roles=role_list)
+        token = self._extract_token(request)
+
+        if self.admin_token and token == self.admin_token:
+            return Principal(subject="admin", roles=["admin"])
+
+        if self.viewer_token and token == self.viewer_token:
+            return Principal(subject="viewer", roles=["viewer"])
+
+        if self.legacy_token and token == self.legacy_token:
+            return Principal(subject="legacy", roles=["admin"])
+
+        raise AuthError("Invalid bearer token")
 
 
-def get_auth_provider() -> AuthProvider:
-    mode = (os.getenv("COPILOT_AUTH_MODE", "none") or "none").strip().lower()
+def get_auth_provider():
+    mode = (os.getenv("COPILOT_AUTH_MODE") or "none").strip().lower()
 
     if mode == "none":
-        return NoAuthProvider()
+        return None
 
     if mode == "static_token":
-        token = (os.getenv("COPILOT_ADMIN_TOKEN", "") or "").strip()
-        if not token:
-            raise AuthError("COPILOT_ADMIN_TOKEN is not set for static_token auth mode")
-        return StaticTokenProvider(token=token)
+        return StaticTokenProvider()
 
-    if mode == "header":
-        return HeaderProvider()
-
-    raise AuthError(f"Unknown COPILOT_AUTH_MODE: {mode}")
+    raise AuthError(f"Unsupported auth mode: {mode}")

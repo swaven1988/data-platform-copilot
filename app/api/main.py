@@ -73,7 +73,9 @@ app.include_router(release_verify_router)
 app.include_router(health.router)
 app.include_router(federation_router)
 app.include_router(workspace_verify_router)
-app.include_router(v1_router)
+
+# IMPORTANT: do NOT include v1_router unversioned anymore
+
 
 # ------------------------------------------------------------
 # Versioned (authoritative)
@@ -93,6 +95,9 @@ for prefix in ("/api/v1", "/api/v2"):
     app.include_router(advisors_routes.router, prefix=prefix)
     app.include_router(execution.router, prefix=prefix)
     app.include_router(intelligence.router, prefix=prefix)
+
+# Tenanted router: Stage 14 -> v1 only
+app.include_router(v1_router, prefix="/api/v1")
 
 
 @app.get("/health")

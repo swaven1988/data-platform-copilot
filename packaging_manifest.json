@@ -93,7 +93,7 @@
     },
     {
       "path": "app/api/endpoints/v1_tenanted.py",
-      "sha256": "efe86bec27ef318c67fb7835c275d8873a334ad7fac92694d09f8562bb4ca599"
+      "sha256": "a22c73d3b34c0b8f36b2c808b3739b2b113ceb7031c04c02b889d8b6099371a7"
     },
     {
       "path": "app/api/endpoints/workspace_repro.py",
@@ -109,7 +109,7 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "5e97f38f91451933563e0d665a7c60c71e46495517f7d0646be75259d7c1277d"
+      "sha256": "7fcc49ef4882b7f9652d0e85655c7bb3d19182e77990b7d9512922b7ab4f6c90"
     },
     {
       "path": "app/api/middleware/__init__.py",
