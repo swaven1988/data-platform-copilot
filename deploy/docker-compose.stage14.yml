@@ -62,3 +62,4 @@ services:
         condition: service_healthy
       ui:
         condition: service_started
+
