@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, Request
 from fastapi.responses import Response
 
@@ -22,17 +24,53 @@ from app.api.endpoints import health
 from app.api.endpoints.federation import router as federation_router
 from app.api.endpoints.workspace_verify import router as workspace_verify_router
 
-from app.api.middleware.auth import AuthMiddleware, should_enable_auth_middleware
 from app.api.endpoints.v1_tenanted import router as v1_router
 
+from app.api.middleware.auth import AuthMiddleware, should_enable_auth_middleware
+from app.api.middleware.request_context import (
+    RequestContextMiddleware,
+    SecurityHeadersMiddleware,
+    RateLimitMiddleware,
+    TenantIsolationMiddleware,
+)
 
 app = FastAPI(
     title="Data Platform Copilot API",
     version="0.1.0",
 )
 
+# ------------------------------------------------------------
+# Stage 19/20/18/14/15 middleware stack (ORDER MATTERS)
+# ------------------------------------------------------------
+
+# Request id + structured API request logs (no secrets)
+app.add_middleware(RequestContextMiddleware)
+
+# Tenant isolation (strict in prod by default)
+env = (os.getenv("COPILOT_ENV") or "dev").strip().lower()
+tenant_strict = (os.getenv("COPILOT_TENANT_STRICT") or ("true" if env == "prod" else "false")).strip().lower() in (
+    "1",
+    "true",
+    "yes",
+)
+default_tenant = (os.getenv("COPILOT_DEFAULT_TENANT") or "default").strip()
+app.add_middleware(TenantIsolationMiddleware, strict=tenant_strict, default_tenant=default_tenant)
+
+# Auth boundary (Stage 14/15)
 app.add_middleware(AuthMiddleware, enabled=should_enable_auth_middleware())
 
+# Rate limiting (off by default)
+rl_enabled = (os.getenv("COPILOT_RATE_LIMIT_ENABLED") or "false").strip().lower() in ("1", "true", "yes")
+rl_rpm = int((os.getenv("COPILOT_RATE_LIMIT_RPM") or "120").strip())
+app.add_middleware(RateLimitMiddleware, enabled=rl_enabled, rpm=rl_rpm)
+
+# Security headers (on in prod by default)
+sec_enabled = (os.getenv("COPILOT_SECURITY_HEADERS_ENABLED") or ("true" if env == "prod" else "false")).strip().lower() in (
+    "1",
+    "true",
+    "yes",
+)
+app.add_middleware(SecurityHeadersMiddleware, enabled=sec_enabled)
 
 # ------------------------------------------------------------
 # Deprecation headers for unversioned endpoints
@@ -96,7 +134,7 @@ for prefix in ("/api/v1", "/api/v2"):
     app.include_router(execution.router, prefix=prefix)
     app.include_router(intelligence.router, prefix=prefix)
 
-# Tenanted router: Stage 14 -> v1 only
+# Tenanted router: v1 only
 app.include_router(v1_router, prefix="/api/v1")
 
 
