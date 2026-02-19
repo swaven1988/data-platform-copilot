@@ -19,11 +19,20 @@ from app.api.endpoints.release_verify import router as release_verify_router
 
 from app.api.endpoints import health
 
+from app.api.endpoints.federation import router as federation_router
+from app.api.endpoints.workspace_verify import router as workspace_verify_router
+
+from app.api.middleware.auth import AuthMiddleware, should_enable_auth_middleware
+from app.api.endpoints.v1_tenanted import router as v1_router
+
 
 app = FastAPI(
     title="Data Platform Copilot API",
     version="0.1.0",
 )
+
+app.add_middleware(AuthMiddleware, enabled=should_enable_auth_middleware())
+
 
 # ------------------------------------------------------------
 # Deprecation headers for unversioned endpoints
@@ -62,8 +71,9 @@ app.include_router(audit_router)
 app.include_router(repro_compare_router)
 app.include_router(release_verify_router)
 app.include_router(health.router)
-
-
+app.include_router(federation_router)
+app.include_router(workspace_verify_router)
+app.include_router(v1_router)
 
 # ------------------------------------------------------------
 # Versioned (authoritative)

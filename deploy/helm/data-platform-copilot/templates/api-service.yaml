@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "data-platform-copilot.fullname" . }}-api
+spec:
+  selector:
+    app: {{ include "data-platform-copilot.fullname" . }}-api
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001

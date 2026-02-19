@@ -28,6 +28,10 @@
       "sha256": "78167bb955fdebbef4af24082dfbe9ba451d0e55c28483f108c9fe3fd9afe7a7"
     },
     {
+      "path": "app/api/endpoints/__init__.py",
+      "sha256": "1cf55341646871b9bac1c165ade233d5defcbe5eb52b6d9ee83960f490c4aa9d"
+    },
+    {
       "path": "app/api/endpoints/advisor_explain.py",
       "sha256": "536e696804b49d530479b223ab67266258ad00d07e0994324794ec98ab3134ec"
     },
@@ -46,6 +50,10 @@
     {
       "path": "app/api/endpoints/conflicts.py",
       "sha256": "6bebbb557b28080f25dac5a40a3ead8f924258363655b2b408c6e85a5d21df4a"
+    },
+    {
+      "path": "app/api/endpoints/federation.py",
+      "sha256": "87b799ab47150d904ace6af39619c411b0af9c18887e1a61f14da4a152c448e1"
     },
     {
       "path": "app/api/endpoints/health.py",
@@ -84,8 +92,16 @@
       "sha256": "5eab41f67befcc4187531fb4a6d9635f5053612a1a2f8c847c145cdecac2a287"
     },
     {
+      "path": "app/api/endpoints/v1_tenanted.py",
+      "sha256": "efe86bec27ef318c67fb7835c275d8873a334ad7fac92694d09f8562bb4ca599"
+    },
+    {
       "path": "app/api/endpoints/workspace_repro.py",
       "sha256": "c9d8d672a518756ecd2f02112e0576ccfbabaa0f42763d8729aa268ac5079ced"
+    },
+    {
+      "path": "app/api/endpoints/workspace_verify.py",
+      "sha256": "0d35042fc9d7947b672cc27360685055c3403f9a22e9ba82180b10e8f29de870"
     },
     {
       "path": "app/api/execution.py",
@@ -93,7 +109,15 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "40523d7746dad9db1bff817676abc6da95c6e2738e3649bbdd03cb341de90c63"
+      "sha256": "5e97f38f91451933563e0d665a7c60c71e46495517f7d0646be75259d7c1277d"
+    },
+    {
+      "path": "app/api/middleware/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "app/api/middleware/auth.py",
+      "sha256": "b87b607e64a50ddc926854d6b43ef567b483fc757ebee5d7912cef19fe5f78b6"
     },
     {
       "path": "app/api/models/build_responses.py",
@@ -128,6 +152,22 @@
       "sha256": "5d129dfd3dd8cf336cb864150b57a0def67b726e313feab3f9e3439cf5e0e0b2"
     },
     {
+      "path": "app/core/auth/__init__.py",
+      "sha256": "fa7d74ab75752319894e962fefa6243229844c66f8a563a03a5c9c9adf78236a"
+    },
+    {
+      "path": "app/core/auth/models.py",
+      "sha256": "bc949b70c75705cdb8543b4bc92631bb8cb6f2f37483eabbf3db319a137a9026"
+    },
+    {
+      "path": "app/core/auth/provider.py",
+      "sha256": "f6d20c6832dcab14e0b01365f117a9c35528b215ad972f397b2dc34f679cb101"
+    },
+    {
+      "path": "app/core/auth/rbac.py",
+      "sha256": "9a63cf895a240c781c960b43286f6915395497363b8ae4929134e00f743e82af"
+    },
+    {
       "path": "app/core/build_plan/advisors.py",
       "sha256": "520372e7496d47b064f5b52a23c613618bcb6b8bf560c6520b1b85b7abfa0c75"
     },
@@ -158,6 +198,10 @@
     {
       "path": "app/core/build_registry.py",
       "sha256": "a5c867a04315b8249f98796115e72a0c3d98f1a42561c3831436d77e281b4836"
+    },
+    {
+      "path": "app/core/federation/federation_manager.py",
+      "sha256": "a4747e66d76710cd1dea6aabd823c68a978824bf49bd8e76ce86f210462f7d89"
     },
     {
       "path": "app/core/generators/dag_gen.py",
@@ -276,6 +320,10 @@
       "sha256": "654f7c7be8367b8c74bb73ec77eaceace2a32fa61de487f17418c7fe4e080e88"
     },
     {
+      "path": "app/core/signing/signing.py",
+      "sha256": "b15ae66c4a2aebe248099d9e513f841b2d1e0c19bbcf230ec0c4f5ef64f1417c"
+    },
+    {
       "path": "app/core/spec_schema.py",
       "sha256": "b610e8e878543fbafa689a23283b3247494f6e31cdc463cb001001017c7bbacf"
     },
@@ -369,7 +417,7 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "f1c273b913d2d758f5bcea6d8e254d7aee669f21337e9a186f5499e9f2dd6578"
+      "sha256": "05848f18b48b6a8c69b94dfb790096f07c2b7785882188d6e2af58624dae7f2d"
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -394,6 +442,10 @@
     {
       "path": "tests/test_execution_graph.py",
       "sha256": "31d2189f37b6a2cb379c500a52e56a847c62375138dd25bcae84267119540fdc"
+    },
+    {
+      "path": "tests/test_federation_api.py",
+      "sha256": "3397f014266c28851d601073daebaeb5f09f7213a7c5b14f0aafb8cfb7ecf5df"
     },
     {
       "path": "tests/test_graph_circular.py",
@@ -462,6 +514,10 @@
     {
       "path": "tests/test_workspace_repro_api.py",
       "sha256": "e59d90619f1fc88f5cffda66e6873f3818876f6ff768f5c9b1d2682f968d1596"
+    },
+    {
+      "path": "tests/test_workspace_repro_sign_verify_api.py",
+      "sha256": "5be90aa038bed653dac6084d218dec87f273a495279373e6af4d6ad56a76778c"
     },
     {
       "path": "ui/.streamlit/streamlit.toml",

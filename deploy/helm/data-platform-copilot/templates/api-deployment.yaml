@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "data-platform-copilot.fullname" . }}-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "data-platform-copilot.fullname" . }}-api
+  template:
+    metadata:
+      labels:
+        app: {{ include "data-platform-copilot.fullname" . }}-api
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - containerPort: 8001
+          env:
+            {{- range $k, $v := .Values.api.env }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+            {{- end }}

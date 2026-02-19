@@ -1,0 +1,23 @@
+api:
+  image:
+    repository: data-platform-copilot-api
+    tag: v0.10.0
+    pullPolicy: IfNotPresent
+  env:
+    COPILOT_AUTH_MODE: "header"
+    COPILOT_AUTH_ENABLED: "true"
+    COPILOT_TRUST_PROXY_HEADERS: "true"
+
+ui:
+  image:
+    repository: data-platform-copilot-ui
+    tag: v0.10.0
+    pullPolicy: IfNotPresent
+  env:
+    API_URL: "http://data-platform-copilot-api:8001"
+
+ingress:
+  enabled: true
+  className: ""
+  host: "copilot.local"
+  tls: []

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: data-platform-copilot
+description: Data Platform Copilot (API + UI) with Ingress routing /api and /
+type: application
+version: 0.1.0
+appVersion: "v0.10.0"
