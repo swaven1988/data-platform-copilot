@@ -19,8 +19,6 @@ from app.api.endpoints.audit import router as audit_router
 from app.api.endpoints.repro_compare import router as repro_compare_router
 from app.api.endpoints.release_verify import router as release_verify_router
 
-from app.api.endpoints import health
-
 from app.api.endpoints.federation import router as federation_router
 from app.api.endpoints.workspace_verify import router as workspace_verify_router
 
@@ -34,13 +32,26 @@ from app.api.middleware.request_context import (
     TenantIsolationMiddleware,
 )
 
+# Modeling endpoints
+from app.api.endpoints.modeling_preview import router as modeling_router
+from app.api.endpoints.modeling_registry import router as modeling_registry_router
+from app.api.endpoints.modeling_advanced import router as modeling_advanced_router
+from app.api.endpoints.modeling_get import router as modeling_get_router
+
+# Health endpoints
+from app.api.endpoints import health
+
+
 app = FastAPI(
     title="Data Platform Copilot API",
     version="0.1.0",
 )
 
+# include health routes AFTER app is defined
+# app.include_router(health.router)
+
 # ------------------------------------------------------------
-# Stage 19/20/18/14/15 middleware stack (ORDER MATTERS)
+# Middleware stack (ORDER MATTERS)
 # ------------------------------------------------------------
 
 # Request id + structured API request logs (no secrets)
@@ -56,7 +67,7 @@ tenant_strict = (os.getenv("COPILOT_TENANT_STRICT") or ("true" if env == "prod" 
 default_tenant = (os.getenv("COPILOT_DEFAULT_TENANT") or "default").strip()
 app.add_middleware(TenantIsolationMiddleware, strict=tenant_strict, default_tenant=default_tenant)
 
-# Auth boundary (Stage 14/15)
+# Auth boundary
 app.add_middleware(AuthMiddleware, enabled=should_enable_auth_middleware())
 
 # Rate limiting (off by default)
@@ -111,9 +122,12 @@ app.include_router(release_verify_router)
 app.include_router(health.router)
 app.include_router(federation_router)
 app.include_router(workspace_verify_router)
+app.include_router(modeling_registry_router)
+app.include_router(modeling_advanced_router)
+app.include_router(modeling_router)
+app.include_router(modeling_get_router)
 
 # IMPORTANT: do NOT include v1_router unversioned anymore
-
 
 # ------------------------------------------------------------
 # Versioned (authoritative)
@@ -134,10 +148,16 @@ for prefix in ("/api/v1", "/api/v2"):
     app.include_router(execution.router, prefix=prefix)
     app.include_router(intelligence.router, prefix=prefix)
 
+    # Modeling (IMPORTANT ORDER)
+    app.include_router(modeling_registry_router, prefix=prefix)
+    app.include_router(modeling_advanced_router, prefix=prefix)
+    app.include_router(modeling_router, prefix=prefix)
+    app.include_router(modeling_get_router, prefix=prefix)
+
 # Tenanted router: v1 only
 app.include_router(v1_router, prefix="/api/v1")
 
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    return {"status": "healthy"}

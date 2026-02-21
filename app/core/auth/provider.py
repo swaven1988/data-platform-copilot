@@ -9,7 +9,18 @@ import jwt
 from fastapi import Request
 
 from app.core.auth.models import Principal
+from pathlib import Path
 
+def _read_secret_file(path: str | None) -> str | None:
+    if not path:
+        return None
+    try:
+        p = Path(path)
+        if p.exists():
+            return p.read_text(encoding="utf-8").strip()
+    except Exception:
+        return None
+    return None
 
 class AuthError(Exception):
     pass
@@ -25,9 +36,9 @@ class JwtConfig:
 
 class StaticTokenProvider:
     def __init__(self):
-        self.admin_token = os.getenv("COPILOT_STATIC_ADMIN_TOKEN")
-        self.viewer_token = os.getenv("COPILOT_STATIC_VIEWER_TOKEN")
-        self.legacy_token = os.getenv("COPILOT_STATIC_TOKEN")
+        self.admin_token = _read_secret("COPILOT_STATIC_ADMIN_TOKEN_FILE") or os.getenv("COPILOT_STATIC_ADMIN_TOKEN")
+        self.viewer_token = _read_secret("COPILOT_STATIC_VIEWER_TOKEN_FILE") or os.getenv("COPILOT_STATIC_VIEWER_TOKEN")
+        self.legacy_token = _read_secret("COPILOT_STATIC_TOKEN_FILE") or os.getenv("COPILOT_STATIC_TOKEN")
 
         if not any([self.admin_token, self.viewer_token, self.legacy_token]):
             raise AuthError(
@@ -188,3 +199,9 @@ def get_auth_provider():
         return ApiKeyProvider()
 
     raise AuthError(f"Unsupported auth mode: {mode}")
+
+def _read_secret(env_key: str) -> str | None:
+    path = os.getenv(env_key)
+    if path and os.path.exists(path):
+        return open(path).read().strip()
+    return None

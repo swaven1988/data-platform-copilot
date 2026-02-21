@@ -1,0 +1,16 @@
+version: 1
+disable_existing_loggers: False
+
+formatters:
+  json:
+    format: '{"ts":"%(asctime)s","level":"%(levelname)s","name":"%(name)s","msg":"%(message)s"}'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: json
+    level: INFO
+
+root:
+  handlers: [console]
+  level: INFO

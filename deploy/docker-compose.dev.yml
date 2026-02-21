@@ -1,0 +1,37 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: copilot-api-dev
+    ports:
+      - "8001:8001"
+    environment:
+      - COPILOT_AUTH_MODE=static_token
+      - COPILOT_AUTH_ENABLED=true
+      - COPILOT_STATIC_ADMIN_TOKEN=dev_admin_token
+      - COPILOT_STATIC_VIEWER_TOKEN=dev_viewer_token
+      - COPILOT_SIGNING_KEY=dev_secret_key
+      - COPILOT_TRUST_PROXY_HEADERS=true
+
+  gateway:
+    image: nginx:1.27-alpine
+    container_name: copilot-gateway-dev
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/dev-gateway.conf:/etc/nginx/conf.d/default.conf:ro
+
+  # optional: keep streamlit in DEV only
+  streamlit:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: copilot-streamlit-dev
+    command: ["bash", "-lc", "streamlit run ui/streamlit_app.py --server.address 0.0.0.0 --server.port 8501"]
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://copilot-gateway-dev:80

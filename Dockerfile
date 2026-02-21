@@ -1,50 +1,61 @@
-# ---------- Stage 1: Builder ----------
+# -----------------------------
+# Builder (wheels)
+# -----------------------------
 FROM python:3.11-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR /app
+WORKDIR /build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml .
-COPY README.md .
+COPY pyproject.toml /build/pyproject.toml
+COPY README.md /build/README.md
 
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+RUN python -m pip install --no-cache-dir -U pip setuptools wheel
 
-RUN pip install --upgrade pip
-RUN pip install .
+# Build wheels for all deps from pyproject
+RUN python -m pip wheel --no-cache-dir --no-deps -w /wheels .
 
-
-# ---------- Stage 2: Runtime ----------
-FROM python:3.11-slim
+# -----------------------------
+# Runtime (lean)
+# -----------------------------
+FROM python:3.11-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-
 WORKDIR /app
 
-COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+# minimal runtime deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
-COPY app/ app/
-COPY tools/ tools/
-COPY packaging_manifest.json .
+# Install wheels (no build tools here)
+COPY --from=builder /wheels /wheels
+RUN python -m pip install --no-cache-dir -U pip \
+ && python -m pip install --no-cache-dir /wheels/*.whl \
+ && rm -rf /wheels
 
-RUN chown -R appuser:appgroup /app
+# App files
+COPY app /app/app
+COPY templates /app/templates
+COPY tools /app/tools
+COPY copilot_spec.yaml /app/copilot_spec.yaml
+COPY packaging_manifest.json /app/packaging_manifest.json
+COPY project_tree.txt /app/project_tree.txt
+COPY project_file_paths.txt /app/project_file_paths.txt
+COPY logging.yaml /app/logging.yaml
 
+# Non-root
+RUN adduser --disabled-password --gecos '' appuser \
+ && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8001
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-  CMD curl -f http://127.0.0.1:8001/health || exit 1
-
-CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8001", "--log-config", "logging.yaml"]

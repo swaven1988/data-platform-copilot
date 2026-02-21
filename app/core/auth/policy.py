@@ -17,13 +17,49 @@ class PolicyRule:
 
 # Ordered: first match wins
 RULES: list[PolicyRule] = [
-    # Viewer-allowed tenant health (Stage 15: explicit policy)
+
+    # -----------------------------
+    # Liveness / Readiness (no admin required)
+    # -----------------------------
+    PolicyRule(
+        method="GET",
+        pattern=re.compile(r"^/api/v1/health/live$"),
+        required_role="viewer",
+    ),
+    PolicyRule(
+        method="GET",
+        pattern=re.compile(r"^/api/v1/health/ready$"),
+        required_role="viewer",
+    ),
+
+    # -----------------------------
+    # Viewer-allowed tenant health
+    # -----------------------------
     PolicyRule(
         method="GET",
         pattern=re.compile(r"^/api/v1/tenants/[^/]+/health$"),
         required_role="viewer",
     ),
+
+    # -----------------------------
+    # Modeling (Stage 23) — explicit RBAC
+    # viewer: list/get/previews
+    # admin:  register
+    # -----------------------------
+    PolicyRule(
+        method="POST",
+        pattern=re.compile(r"^/api/v[12]/modeling/register$"),
+        required_role="admin",
+    ),
+    PolicyRule(
+        method="*",
+        pattern=re.compile(r"^/api/v[12]/modeling/"),
+        required_role="viewer",
+    ),
+
+    # -----------------------------
     # Default for all versioned surfaces
+    # -----------------------------
     PolicyRule(
         method="*",
         pattern=re.compile(r"^/api/v[12]/"),
