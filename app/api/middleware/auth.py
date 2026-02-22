@@ -1,34 +1,32 @@
+# app/api/middleware/auth.py
 from __future__ import annotations
 
 import logging
 import os
+import re
 from typing import Callable
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse, Response
 
+from app.api.observability.metrics import AUTHZ_DECISIONS_TOTAL, normalize_path
 from app.core.auth.models import Principal
 from app.core.auth.policy import required_role_for
 from app.core.auth.provider import AuthError, get_auth_provider
 from app.core.auth.rbac import enforce_required_role
 
-import re
-
 log = logging.getLogger("copilot.auth")
 
 _PUBLIC_NOAUTH_PATHS = [
-    re.compile(r"^/api/v1/health/live$"),
-    re.compile(r"^/api/v1/health/ready$"),
-    # keep this too if you want tenant health unauthenticated
+    re.compile(r"^/api/v[12]/health/live$"),
+    re.compile(r"^/api/v[12]/health/ready$"),
     re.compile(r"^/api/v1/tenants/[^/]+/health$"),
 ]
 
+
 def _is_public_noauth_path(path: str) -> bool:
-    for pat in _PUBLIC_NOAUTH_PATHS:
-        if pat.match(path):
-            return True
-    return False
+    return any(pat.match(path) for pat in _PUBLIC_NOAUTH_PATHS)
 
 
 def _principal_to_user(principal: Principal) -> dict:
@@ -39,7 +37,6 @@ def _principal_to_user(principal: Principal) -> dict:
         role = "viewer"
     else:
         role = "viewer"
-
     return {"sub": principal.subject, "role": role, "roles": sorted(list(roles))}
 
 
@@ -58,7 +55,14 @@ class AuthMiddleware(BaseHTTPMiddleware):
         path = request.url.path
         method = request.method.upper()
 
-        # If auth disabled: allow everything as admin (dev-only)
+        # Public health probes: always unauthenticated
+        if path.startswith("/api/v1/health/") or path.startswith("/api/v2/health/"):
+            p = Principal(subject="anonymous", roles=["viewer"])
+            request.state.principal = p
+            request.state.user = _principal_to_user(p)
+            return await call_next(request)
+
+        # Auth disabled (dev-only): allow everything as admin
         if not self.enabled:
             p = Principal(subject="anonymous", roles=["admin"])
             request.state.principal = p
@@ -68,9 +72,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if self.provider is None:
             self.provider = get_auth_provider()
 
-        # -------------------------
-        # Authenticate (strict only for /api/v*)
-        # -------------------------
+        # Authenticate
         try:
             principal = self.provider.authenticate(request)
             if principal is None:
@@ -79,38 +81,34 @@ class AuthMiddleware(BaseHTTPMiddleware):
             request.state.user = _principal_to_user(principal)
 
         except AuthError as e:
-            # Allow unauthenticated access for selected public health endpoints
             if _is_public_noauth_path(path):
                 p = Principal(subject="anonymous", roles=["viewer"])
                 request.state.principal = p
                 request.state.user = _principal_to_user(p)
             else:
-                # Strict enforcement only for versioned enterprise surfaces
                 if path.startswith("/api/v1") or path.startswith("/api/v2"):
-                    log.info(
-                        "authz deny (unauthenticated) method=%s path=%s reason=%s",
-                        method,
-                        path,
-                        str(e),
-                    )
+                    log.info("authn deny method=%s path=%s reason=%s", method, path, str(e))
                     return JSONResponse(status_code=401, content={"detail": str(e)})
 
-                # Legacy (unversioned) stays backward compatible
+                # Legacy unversioned: backward compatible
                 p = Principal(subject="anonymous", roles=["admin"])
                 request.state.principal = p
                 request.state.user = _principal_to_user(p)
 
-        # -------------------------
-        # Stage 15: Central policy enforcement for /api/v*
-        # -------------------------
+        # RBAC policy for /api/v*
         required = required_role_for(method, path)
-        user_role = request.state.user.get("role") if getattr(request.state, "user", None) else None
-
         if required is not None:
             user_role = request.state.user.get("role") if getattr(request.state, "user", None) else None
             allowed = enforce_required_role(user_role=user_role, required_role=required)
 
             if not allowed:
+                AUTHZ_DECISIONS_TOTAL.labels(
+                    decision="deny",
+                    required_role=str(required),
+                    actual_role=str(user_role),
+                    method=method,
+                    path=normalize_path(path),
+                ).inc()
                 log.info(
                     "authz deny subject=%s role=%s required=%s method=%s path=%s",
                     request.state.user.get("sub"),
@@ -121,14 +119,16 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 )
                 return JSONResponse(
                     status_code=403,
-                    content={
-                        "detail": "Insufficient role",
-                        "required_role": required,
-                        "actual_role": user_role,
-                    },
+                    content={"detail": "Insufficient role", "required_role": required, "actual_role": user_role},
                 )
 
-            # Audit allow
+            AUTHZ_DECISIONS_TOTAL.labels(
+                decision="allow",
+                required_role=str(required),
+                actual_role=str(user_role),
+                method=method,
+                path=normalize_path(path),
+            ).inc()
             log.info(
                 "authz allow subject=%s role=%s method=%s path=%s",
                 request.state.user.get("sub"),

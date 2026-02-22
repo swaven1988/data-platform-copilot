@@ -12,6 +12,12 @@ from starlette.responses import JSONResponse, Response
 
 log = logging.getLogger("copilot.request")
 
+from app.api.observability.metrics import (
+    HTTP_REQUESTS_TOTAL,
+    HTTP_REQUEST_DURATION_SECONDS,
+    normalize_path,
+)
+
 
 def _json_log(event: str, **fields):
     # Structured log in a single line; tokens are never logged.
@@ -38,7 +44,16 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
 
         resp.headers["X-Request-Id"] = rid
 
+        # Prometheus metrics (low-cardinality path)
+        p = normalize_path(request.url.path)
+        m = request.method.upper()
+        s = str(getattr(resp, "status_code", 0))
+        HTTP_REQUESTS_TOTAL.labels(method=m, path=p, status=s).inc()
+        HTTP_REQUEST_DURATION_SECONDS.labels(method=m, path=p).observe(dur_ms / 1000.0)
+
         if request.url.path.startswith("/api/"):
+            tenant: Optional[str] = getattr(request.state, "tenant", None)
+            user = getattr(request.state, "user", None) or {}
             _json_log(
                 "request",
                 request_id=rid,
@@ -46,6 +61,9 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
                 path=request.url.path,
                 status_code=resp.status_code,
                 duration_ms=dur_ms,
+                tenant=tenant,
+                sub=user.get("sub"),
+                role=user.get("role"),
             )
         return resp
 
@@ -148,10 +166,26 @@ class TenantIsolationMiddleware(BaseHTTPMiddleware):
         if not path.startswith("/api/"):
             return await call_next(request)
 
+        # Tenant isolation only for versioned API surfaces
+        if not (path.startswith("/api/v1") or path.startswith("/api/v2")):
+            request.state.tenant = self.default_tenant
+            return await call_next(request)
+
+        # Allow no-tenant probes
+        if path.startswith("/api/v1/health/") or path.startswith("/api/v2/health/"):
+            request.state.tenant = self.default_tenant
+            return await call_next(request)
+        if path.startswith("/api/v1/metrics") or path.startswith("/api/v2/metrics"):
+            request.state.tenant = self.default_tenant
+            return await call_next(request)
+
         header_tenant = request.headers.get("x-tenant") or request.headers.get("X-Tenant")
         path_tenant = self._extract_path_tenant(path)
 
-        # choose effective tenant
+        # strict mode: require explicit tenant header for versioned APIs
+        if self.strict and not header_tenant and not path_tenant:
+            return JSONResponse(status_code=400, content={"detail": "Missing X-Tenant header"})
+
         effective = header_tenant or path_tenant or self.default_tenant
         request.state.tenant = effective
 

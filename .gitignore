@@ -20,3 +20,9 @@ workspace/
 
 # Local docker secrets
 /deploy/secrets/*.txt
+
+# local artifacts
+*.tar.gz
+pytest.out
+*.patch
+*.egg-info/

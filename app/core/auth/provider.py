@@ -1,208 +1,94 @@
 from __future__ import annotations
 
-import json
 import os
 from dataclasses import dataclass
-from typing import Optional, Dict, Any
+from typing import Optional
 
-import jwt
 from fastapi import Request
 
 from app.core.auth.models import Principal
-from pathlib import Path
 
-def _read_secret_file(path: str | None) -> str | None:
-    if not path:
-        return None
-    try:
-        p = Path(path)
-        if p.exists():
-            return p.read_text(encoding="utf-8").strip()
-    except Exception:
-        return None
-    return None
 
 class AuthError(Exception):
     pass
 
 
 @dataclass(frozen=True)
-class JwtConfig:
-    signing_key: str
-    issuer: Optional[str] = None
-    audience: Optional[str] = None
-    leeway_seconds: int = 30
+class StaticTokenConfig:
+    allow_in_prod: bool
+    admin_token: str
+    viewer_token: str
 
 
-class StaticTokenProvider:
-    def __init__(self):
-        self.admin_token = _read_secret("COPILOT_STATIC_ADMIN_TOKEN_FILE") or os.getenv("COPILOT_STATIC_ADMIN_TOKEN")
-        self.viewer_token = _read_secret("COPILOT_STATIC_VIEWER_TOKEN_FILE") or os.getenv("COPILOT_STATIC_VIEWER_TOKEN")
-        self.signing_key = _read_secret("COPILOT_SIGNING_KEY_FILE") or os.getenv("COPILOT_SIGNING_KEY")
-        self.legacy_token = _read_secret("COPILOT_STATIC_TOKEN_FILE") or os.getenv("COPILOT_STATIC_TOKEN")
+class AuthProvider:
+    def authenticate(self, request: Request) -> Optional[Principal]:
+        raise NotImplementedError
 
-        if not any([self.admin_token, self.viewer_token, self.legacy_token]):
-            raise AuthError(
-                "Missing static token config. "
-                "Set COPILOT_STATIC_ADMIN_TOKEN or COPILOT_STATIC_VIEWER_TOKEN or COPILOT_STATIC_TOKEN."
-            )
 
-    def _extract_bearer(self, request: Request) -> str:
-        auth_header = (
-            request.headers.get("authorization")
-            or request.headers.get("Authorization")
-            or request.headers.get("x-forwarded-authorization")
-            or request.headers.get("X-Forwarded-Authorization")
-        )
-        if not auth_header:
-            raise AuthError("Authentication required")
-        if not auth_header.startswith("Bearer "):
-            raise AuthError("Invalid authorization header")
-        return auth_header.replace("Bearer ", "").strip()
+class StaticTokenAuthProvider(AuthProvider):
+    def __init__(self, cfg: StaticTokenConfig):
+        self.cfg = cfg
 
     def authenticate(self, request: Request) -> Optional[Principal]:
-        token = self._extract_bearer(request)
+        auth = request.headers.get("authorization") or request.headers.get("Authorization")
+        if not auth:
+            raise AuthError("Missing Authorization header")
 
-        if self.admin_token and token == self.admin_token:
-            return Principal(subject="admin", roles=["admin"])
-        if self.viewer_token and token == self.viewer_token:
-            return Principal(subject="viewer", roles=["viewer"])
-        if self.legacy_token and token == self.legacy_token:
-            return Principal(subject="legacy", roles=["admin"])
+        parts = auth.split()
+        if len(parts) != 2 or parts[0].lower() != "bearer":
+            raise AuthError("Invalid Authorization header (expected: Bearer <token>)")
 
-        raise AuthError("Invalid bearer token")
+        token = parts[1].strip()
+        if not token:
+            raise AuthError("Empty bearer token")
+
+        if token == self.cfg.admin_token:
+            return Principal(subject="static_token_admin", roles=["admin", "viewer"])
+
+        if token == self.cfg.viewer_token:
+            return Principal(subject="static_token_viewer", roles=["viewer"])
+
+        raise AuthError("Invalid token")
 
 
-class ApiKeyProvider:
+def _read_secret_file(path: str) -> str:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            v = f.read().strip()
+        if not v:
+            raise AuthError(f"Secret file empty: {path}")
+        return v
+    except FileNotFoundError:
+        raise AuthError(f"Secret file missing: {path}")
+
+
+def get_auth_provider() -> AuthProvider:
     """
-    Stage 17: Service accounts / API keys.
-
-    Keys are loaded from env COPILOT_API_KEYS_JSON in this format:
-      {
-        "key_abc": {"sub":"svc-foo", "roles":["admin"], "tenant":"default"},
-        "key_xyz": {"sub":"svc-bar", "roles":["viewer"]}
-      }
-
-    Client supplies:
-      X-API-Key: <key>
+    Current prod baseline:
+      COPILOT_AUTH_MODE=static_token
+      COPILOT_ALLOW_STATIC_TOKEN_IN_PROD=true (explicit)
+      tokens via /run/secrets/admin_token and /run/secrets/viewer_token
     """
+    env = (os.getenv("COPILOT_ENV", "dev") or "dev").strip().lower()
+    mode = (os.getenv("COPILOT_AUTH_MODE", "static_token") or "static_token").strip().lower()
 
-    def __init__(self):
-        raw = os.getenv("COPILOT_API_KEYS_JSON", "").strip()
-        if not raw:
-            raise AuthError("Missing COPILOT_API_KEYS_JSON for api_key mode")
+    if mode != "static_token":
+        raise AuthError(f"Unsupported COPILOT_AUTH_MODE={mode} (supported: static_token)")
 
-        try:
-            self.keys: Dict[str, Dict[str, Any]] = json.loads(raw)
-        except Exception as e:
-            raise AuthError(f"Invalid COPILOT_API_KEYS_JSON: {e}") from e
+    allow_in_prod = (os.getenv("COPILOT_ALLOW_STATIC_TOKEN_IN_PROD", "false") or "false").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+    if env == "prod" and not allow_in_prod:
+        raise AuthError("static_token auth is disabled in prod (set COPILOT_ALLOW_STATIC_TOKEN_IN_PROD=true to override)")
 
-        if not isinstance(self.keys, dict) or not self.keys:
-            raise AuthError("COPILOT_API_KEYS_JSON must be a non-empty object")
+    admin_path = os.getenv("COPILOT_ADMIN_TOKEN_FILE", "/run/secrets/admin_token")
+    viewer_path = os.getenv("COPILOT_VIEWER_TOKEN_FILE", "/run/secrets/viewer_token")
 
-    def authenticate(self, request: Request) -> Optional[Principal]:
-        k = request.headers.get("x-api-key") or request.headers.get("X-API-Key")
-        if not k:
-            raise AuthError("Authentication required")
-
-        meta = self.keys.get(k)
-        if not meta:
-            raise AuthError("Invalid api key")
-
-        sub = meta.get("sub") or "service"
-        roles = meta.get("roles") or ["viewer"]
-        return Principal(subject=sub, roles=roles)
-
-
-class JwtProvider:
-    """
-    Stage 16: JWT auth.
-
-    Bearer token is decoded with COPILOT_SIGNING_KEY.
-    Optional:
-      COPILOT_JWT_ISSUER
-      COPILOT_JWT_AUDIENCE
-      COPILOT_JWT_LEEWAY_SECONDS
-    """
-
-    def __init__(self):
-        key = (os.getenv("COPILOT_SIGNING_KEY") or "").strip()
-        if not key:
-            raise AuthError("Missing COPILOT_SIGNING_KEY for jwt mode")
-
-        issuer = (os.getenv("COPILOT_JWT_ISSUER") or "").strip() or None
-        audience = (os.getenv("COPILOT_JWT_AUDIENCE") or "").strip() or None
-        leeway = int((os.getenv("COPILOT_JWT_LEEWAY_SECONDS") or "30").strip() or "30")
-        self.cfg = JwtConfig(signing_key=key, issuer=issuer, audience=audience, leeway_seconds=leeway)
-
-    def _extract_bearer(self, request: Request) -> str:
-        auth_header = (
-            request.headers.get("authorization")
-            or request.headers.get("Authorization")
-            or request.headers.get("x-forwarded-authorization")
-            or request.headers.get("X-Forwarded-Authorization")
-        )
-        if not auth_header:
-            raise AuthError("Authentication required")
-        if not auth_header.startswith("Bearer "):
-            raise AuthError("Invalid authorization header")
-        return auth_header.replace("Bearer ", "").strip()
-
-    def authenticate(self, request: Request) -> Optional[Principal]:
-        token = self._extract_bearer(request)
-
-        options = {
-            "verify_signature": True,
-            "verify_exp": True,
-            "verify_iat": False,
-            "verify_nbf": True,
-            "verify_iss": self.cfg.issuer is not None,
-            "verify_aud": self.cfg.audience is not None,
-        }
-
-        try:
-            claims = jwt.decode(
-                token,
-                self.cfg.signing_key,
-                algorithms=["HS256"],
-                issuer=self.cfg.issuer,
-                audience=self.cfg.audience,
-                options=options,
-                leeway=self.cfg.leeway_seconds,
-            )
-        except Exception:
-            raise AuthError("Invalid bearer token")
-
-        sub = claims.get("sub") or "user"
-        roles = claims.get("roles") or claims.get("role") or ["viewer"]
-        if isinstance(roles, str):
-            roles = [roles]
-        return Principal(subject=sub, roles=list(roles))
-
-
-def get_auth_provider():
-    mode = (os.getenv("COPILOT_AUTH_MODE") or "none").strip().lower()
-    env = (os.getenv("COPILOT_ENV") or "dev").strip().lower()
-
-    if mode == "none":
-        return None
-
-    if mode == "static_token":
-        # Stage 21: prod should not allow static tokens unless explicitly allowed
-        if env == "prod" and (os.getenv("COPILOT_ALLOW_STATIC_TOKEN_IN_PROD") or "").strip().lower() not in ("1", "true", "yes"):
-            raise AuthError("static_token not allowed in prod (set COPILOT_ALLOW_STATIC_TOKEN_IN_PROD=true to override)")
-        return StaticTokenProvider()
-
-    if mode == "jwt":
-        return JwtProvider()
-
-    if mode == "api_key":
-        return ApiKeyProvider()
-
-    raise AuthError(f"Unsupported auth mode: {mode}")
-
-def _read_secret(env_key: str) -> str | None:
-    path = os.getenv(env_key)
-    if path and os.path.exists(path):
-        return open(path).read().strip()
-    return None
+    cfg = StaticTokenConfig(
+        allow_in_prod=allow_in_prod,
+        admin_token=_read_secret_file(admin_path),
+        viewer_token=_read_secret_file(viewer_path),
+    )
+    return StaticTokenAuthProvider(cfg)

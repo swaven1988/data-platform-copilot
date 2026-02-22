@@ -17,6 +17,19 @@ class PolicyRule:
 
 # Ordered: first match wins
 RULES: list[PolicyRule] = [
+    # Probes (live/ready): allow unauth via middleware; keep viewer here for RBAC consistency.
+    PolicyRule(
+        method="GET",
+        pattern=re.compile(r"^/api/v[12]/health/(live|ready)$"),
+        required_role="viewer",
+    ),
+
+    # Metrics (Prometheus)
+    PolicyRule(
+        method="GET",
+        pattern=re.compile(r"^/api/v[12]/metrics$"),
+        required_role="admin",
+    ),    
 
     # -----------------------------
     # Liveness / Readiness (no admin required)

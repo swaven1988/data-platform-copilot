@@ -14,6 +14,7 @@ dependencies = [
   "requests==2.31.0",
   "streamlit",  # keep unpinned (UI-only)
   "PyJWT==2.10.1",
+  "prometheus-client==0.20.0",
 ]
 
 [tool.ruff]
@@ -34,3 +35,12 @@ dev = [
   "fastapi==0.111.0",
   "starlette==0.37.2",
 ]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+exclude = ["tests*", "workspace*", "deploy*", "ui*", "frontend*", "templates*", "knowledge_base*", "outputs*", "mkdir*"]
+
