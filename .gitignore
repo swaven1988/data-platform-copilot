@@ -18,9 +18,5 @@ workspace/
 .copilot/plans/
 .copilot/audit.log
 
-deploy/secrets/*.txt
-# Local docker secrets
-/deploy/secrets/*.txt
-
 # Local docker secrets
 /deploy/secrets/*.txt
