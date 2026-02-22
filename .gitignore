@@ -26,3 +26,4 @@ workspace/
 pytest.out
 *.patch
 *.egg-info/
+tests/verify_packaging_manifest.py
