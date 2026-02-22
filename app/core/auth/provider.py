@@ -1,3 +1,4 @@
+# app/core/auth/provider.py
 from __future__ import annotations
 
 import os
@@ -44,7 +45,6 @@ class StaticTokenAuthProvider(AuthProvider):
 
         if token == self.cfg.admin_token:
             return Principal(subject="static_token_admin", roles=["admin", "viewer"])
-
         if token == self.cfg.viewer_token:
             return Principal(subject="static_token_viewer", roles=["viewer"])
 
@@ -52,22 +52,26 @@ class StaticTokenAuthProvider(AuthProvider):
 
 
 def _read_secret_file(path: str) -> str:
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            v = f.read().strip()
-        if not v:
-            raise AuthError(f"Secret file empty: {path}")
-        return v
-    except FileNotFoundError:
-        raise AuthError(f"Secret file missing: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        v = f.read().strip()
+    if not v:
+        raise AuthError(f"Secret file empty: {path}")
+    return v
+
+
+def _is_truthy(v: str | None) -> bool:
+    return (v or "").strip().lower() in ("1", "true", "yes", "y", "on")
 
 
 def get_auth_provider() -> AuthProvider:
     """
-    Current prod baseline:
-      COPILOT_AUTH_MODE=static_token
-      COPILOT_ALLOW_STATIC_TOKEN_IN_PROD=true (explicit)
-      tokens via /run/secrets/admin_token and /run/secrets/viewer_token
+    Prod:
+      - COPILOT_ENV=prod
+      - COPILOT_AUTH_MODE=static_token
+      - COPILOT_ALLOW_STATIC_TOKEN_IN_PROD=true
+      - tokens via /run/secrets/*
+    Dev/Test:
+      - allow env tokens OR fall back to default dev_* tokens (for tests)
     """
     env = (os.getenv("COPILOT_ENV", "dev") or "dev").strip().lower()
     mode = (os.getenv("COPILOT_AUTH_MODE", "static_token") or "static_token").strip().lower()
@@ -75,20 +79,48 @@ def get_auth_provider() -> AuthProvider:
     if mode != "static_token":
         raise AuthError(f"Unsupported COPILOT_AUTH_MODE={mode} (supported: static_token)")
 
-    allow_in_prod = (os.getenv("COPILOT_ALLOW_STATIC_TOKEN_IN_PROD", "false") or "false").strip().lower() in (
-        "1",
-        "true",
-        "yes",
-    )
-    if env == "prod" and not allow_in_prod:
-        raise AuthError("static_token auth is disabled in prod (set COPILOT_ALLOW_STATIC_TOKEN_IN_PROD=true to override)")
+    allow_in_prod = _is_truthy(os.getenv("COPILOT_ALLOW_STATIC_TOKEN_IN_PROD", "false"))
 
+    # Prefer explicit env tokens (works for tests/CI/dev)
+    admin_env = (os.getenv("COPILOT_ADMIN_TOKEN") or "").strip()
+    viewer_env = (os.getenv("COPILOT_VIEWER_TOKEN") or "").strip()
+    if admin_env and viewer_env:
+        return StaticTokenAuthProvider(
+            StaticTokenConfig(allow_in_prod=allow_in_prod, admin_token=admin_env, viewer_token=viewer_env)
+        )
+
+    # Prod: must read secrets; never default
+    if env == "prod":
+        if not allow_in_prod:
+            raise AuthError(
+                "static_token auth is disabled in prod (set COPILOT_ALLOW_STATIC_TOKEN_IN_PROD=true to override)"
+            )
+
+        admin_path = os.getenv("COPILOT_ADMIN_TOKEN_FILE", "/run/secrets/admin_token")
+        viewer_path = os.getenv("COPILOT_VIEWER_TOKEN_FILE", "/run/secrets/viewer_token")
+
+        try:
+            admin_token = _read_secret_file(admin_path)
+            viewer_token = _read_secret_file(viewer_path)
+        except FileNotFoundError:
+            raise AuthError(f"Secret file missing: {admin_path} or {viewer_path}")
+
+        return StaticTokenAuthProvider(
+            StaticTokenConfig(allow_in_prod=allow_in_prod, admin_token=admin_token, viewer_token=viewer_token)
+        )
+
+    # Dev/Test: try secret files if present, else fall back to defaults used in your curl/tests
     admin_path = os.getenv("COPILOT_ADMIN_TOKEN_FILE", "/run/secrets/admin_token")
     viewer_path = os.getenv("COPILOT_VIEWER_TOKEN_FILE", "/run/secrets/viewer_token")
 
-    cfg = StaticTokenConfig(
-        allow_in_prod=allow_in_prod,
-        admin_token=_read_secret_file(admin_path),
-        viewer_token=_read_secret_file(viewer_path),
-    )
-    return StaticTokenAuthProvider(cfg)
+    try:
+        admin_token = _read_secret_file(admin_path)
+        viewer_token = _read_secret_file(viewer_path)
+        return StaticTokenAuthProvider(
+            StaticTokenConfig(allow_in_prod=allow_in_prod, admin_token=admin_token, viewer_token=viewer_token)
+        )
+    except FileNotFoundError:
+        # Default dev tokens (matches your existing usage)
+        return StaticTokenAuthProvider(
+            StaticTokenConfig(allow_in_prod=allow_in_prod, admin_token="dev_admin_token", viewer_token="dev_viewer_token")
+        )

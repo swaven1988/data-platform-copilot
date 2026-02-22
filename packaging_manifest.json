@@ -13,7 +13,7 @@
   "files": [
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "1ced0831a7bbfa75d87f6621d9f3291d764fe87ce46bce26adddc8c6c3a9b32c"
+      "sha256": "59e1c19c04dede14244b7ca7053dc00ddff8645a0cd9c53abdf60bb1fb62ff38"
     },
     {
       "path": ".github/workflows/release.yml",
@@ -57,7 +57,7 @@
     },
     {
       "path": "app/api/endpoints/health.py",
-      "sha256": "f7750017967a1c3b4d714380055892a7a41ed8731f6413a4523777c8084f63bc"
+      "sha256": "c8bf6c2c95ef377cbaeeb4109b6b2a7086c3570376fd8b7e0d1643358038cda8"
     },
     {
       "path": "app/api/endpoints/impact_graph.py",
@@ -66,6 +66,26 @@
     {
       "path": "app/api/endpoints/intelligence.py",
       "sha256": "7b933b1ac4c2efe5d216b01f20e13a6facb8f5bb8883ab77d42b57b3680ec9f2"
+    },
+    {
+      "path": "app/api/endpoints/metrics.py",
+      "sha256": "bcd9a1a51fb71eea0939229a0626916bcd0bb333f5163d0cca04dc539c72000a"
+    },
+    {
+      "path": "app/api/endpoints/modeling_advanced.py",
+      "sha256": "f88d107526052d0c2dd5bf9a5fb36b54ffacad527c46f9ceff539bd132d6be4d"
+    },
+    {
+      "path": "app/api/endpoints/modeling_get.py",
+      "sha256": "fb295730ed68c69628511273afeced97b73915e20a82bc05a9880d2ffd383c4d"
+    },
+    {
+      "path": "app/api/endpoints/modeling_preview.py",
+      "sha256": "de7f3cef447cbe29288cb236cdb2a53af3fe756d6e4db1068049127f7a7c45d2"
+    },
+    {
+      "path": "app/api/endpoints/modeling_registry.py",
+      "sha256": "429ced64faa8009757685f45980516fd89da6839426009b024b63e9f9ef1238f"
     },
     {
       "path": "app/api/endpoints/release_verify.py",
@@ -93,7 +113,7 @@
     },
     {
       "path": "app/api/endpoints/v1_tenanted.py",
-      "sha256": "a22c73d3b34c0b8f36b2c808b3739b2b113ceb7031c04c02b889d8b6099371a7"
+      "sha256": "8c1357c7ec12e6c44da9daebb5cfc4c1a2633f85f5295e7b8a1b4f4a00782210"
     },
     {
       "path": "app/api/endpoints/workspace_repro.py",
@@ -109,7 +129,7 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "7fcc49ef4882b7f9652d0e85655c7bb3d19182e77990b7d9512922b7ab4f6c90"
+      "sha256": "fef2fab0ea845eb13b79cb328becd16de525d41f3f62598816c5a11ccd351311"
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -117,11 +137,23 @@
     },
     {
       "path": "app/api/middleware/auth.py",
-      "sha256": "b87b607e64a50ddc926854d6b43ef567b483fc757ebee5d7912cef19fe5f78b6"
+      "sha256": "ea7f9223327bf78890bdc8e92e1dc3e2b40797c735caaee65d59ddf1a0033457"
+    },
+    {
+      "path": "app/api/middleware/request_context.py",
+      "sha256": "8b19f4cc188202d3f4601ee23f6a6b6170ccda74a4d6b6c7a6c753a51864c53b"
     },
     {
       "path": "app/api/models/build_responses.py",
       "sha256": "3724204d3cbd37840650b0a7e250c928bc72180e6166dda79b02d59d8319f7b3"
+    },
+    {
+      "path": "app/api/observability/__init__.py",
+      "sha256": "c0bbbb5b6d776bd569a8ce1dde718a322055ae62b1c3b48f26826d6e8acdb651"
+    },
+    {
+      "path": "app/api/observability/metrics.py",
+      "sha256": "e4d23caba6c901f8a7fceb99419d93c9ed0c4c7fe2e3edd39a1659a10a2c2dba"
     },
     {
       "path": "app/api/plan_api.py",
@@ -153,19 +185,23 @@
     },
     {
       "path": "app/core/auth/__init__.py",
-      "sha256": "fa7d74ab75752319894e962fefa6243229844c66f8a563a03a5c9c9adf78236a"
+      "sha256": "51c5821dc0421a96bf09f76bc0f25444e03056f5e8825096c816cb2c02d862df"
     },
     {
       "path": "app/core/auth/models.py",
       "sha256": "bc949b70c75705cdb8543b4bc92631bb8cb6f2f37483eabbf3db319a137a9026"
     },
     {
+      "path": "app/core/auth/policy.py",
+      "sha256": "dd6b9c88b20b1faf8166e06a57df697774866cd0f0bdba5aa0b8afb7ef780e2b"
+    },
+    {
       "path": "app/core/auth/provider.py",
-      "sha256": "f6d20c6832dcab14e0b01365f117a9c35528b215ad972f397b2dc34f679cb101"
+      "sha256": "5e47077572228bbc93ded1749e2ce096318f552d4ac9d2f1e3e68974099c2ee2"
     },
     {
       "path": "app/core/auth/rbac.py",
-      "sha256": "9a63cf895a240c781c960b43286f6915395497363b8ae4929134e00f743e82af"
+      "sha256": "2ca220c36f3d45f214266ab116d03e81f9e75df0ad9c96355f312204ec04f8f8"
     },
     {
       "path": "app/core/build_plan/advisors.py",
@@ -332,8 +368,76 @@
       "sha256": "ff4c586a900145c297b832b606c949c01499ac15b4e4d5522257a96d32a83530"
     },
     {
+      "path": "app/intelligence/cost_estimator.py",
+      "sha256": "5b2e5c90d8a37e37e3a1837d290bea8275988f0e7f244cf72a24ffb6ba9711d6"
+    },
+    {
+      "path": "app/intelligence/dq_profiler.py",
+      "sha256": "97578f86bef0e1069a7fa99bb212a3ba351c3b85f9d3bf839126ec5af947386e"
+    },
+    {
+      "path": "app/intelligence/model_planner.py",
+      "sha256": "9c345f7bef3a713cbcaea9b76af24dea81ea54c769034512d7314c617332b335"
+    },
+    {
+      "path": "app/intelligence/spark_advisor.py",
+      "sha256": "f2b367c0723e14dcce2d37d00cd5ad5aeb06ea0ea082160d350e6c5aecacde36"
+    },
+    {
       "path": "app/main.py",
       "sha256": "4bbaa99acacf94330dbfd169543d0b1748445aa37998b96d464d9fa44d5128e2"
+    },
+    {
+      "path": "app/modeling/__init__.py",
+      "sha256": "de1d96e025ba3e1dff1d85d55b2265d2a34a5ea9552d0b46a7a87686187c6ec4"
+    },
+    {
+      "path": "app/modeling/backfill_engine.py",
+      "sha256": "cf659ce4f5a93aa9f10394095a28328374fd1fd5b583f2ccf9f8b8886650dd28"
+    },
+    {
+      "path": "app/modeling/cdc_engine.py",
+      "sha256": "a767d6c64a7c3222f947ddf33981e610ea0389192e82d4e9ce2138e7f6eb979d"
+    },
+    {
+      "path": "app/modeling/change_detection.py",
+      "sha256": "995db0302c4e4c3d4ad4a0dfcc60ec1e03528456537e15f4bec918614aa04ddb"
+    },
+    {
+      "path": "app/modeling/incremental_engine.py",
+      "sha256": "bcb5de6be78cd7807e80572877173dee198c1cc6e49272f77c6b3ff9e7e81916"
+    },
+    {
+      "path": "app/modeling/job_generator.py",
+      "sha256": "39727bc7e16a59e00661fded0ffd5f2b5284817b24a869844e486a94d60d354d"
+    },
+    {
+      "path": "app/modeling/late_arrival.py",
+      "sha256": "af5f7b9fdc995f7b14e0dcaed523fe0a93d505819dc3a974baea5894f2cd280e"
+    },
+    {
+      "path": "app/modeling/merge_plan.py",
+      "sha256": "3b4a2d5f7f2f20ff6b5a54b898e1af2d495e46320ef583b00695696bf7b9f021"
+    },
+    {
+      "path": "app/modeling/model_spec.py",
+      "sha256": "9c41118d8135c2cad8ea9c7fe42540f199b8a1fa5de23d468839d18a19b59b89"
+    },
+    {
+      "path": "app/modeling/partition_advisor.py",
+      "sha256": "4b344994528c04c7b1ba9ec0a08523e5528462043448fdc8952c4a3096e0c115"
+    },
+    {
+      "path": "app/modeling/registry.py",
+      "sha256": "32eab00fb7ccc239f6ff7d752c4f11f9f98ad6dc96127152b8eb4e9e786baa0a"
+    },
+    {
+      "path": "app/modeling/scd_engine.py",
+      "sha256": "a165e05d43021d6a4242e981bb90d9c9df121847891eb9dd95a8fa24d9e12e74"
+    },
+    {
+      "path": "app/modeling/schema_evolution.py",
+      "sha256": "c46dd95ba9ec252b2f1e7f8e8fa12bd12f00d676b745deb901945d5d83b66d64"
     },
     {
       "path": "app/plugins/advisors/__init__.py",
@@ -381,7 +485,7 @@
     },
     {
       "path": "project_file_paths.txt",
-      "sha256": "e38df4c224e45e7fa85682e7105c23b9d8933ef5d1bd18e43ccaf0115c94b4ca"
+      "sha256": "d7938f7a75dfaab1272480020a10cd825770636221ffee0d2b11fc6350c4fbe9"
     },
     {
       "path": "project_tree.txt",
@@ -389,7 +493,7 @@
     },
     {
       "path": "pyproject.toml",
-      "sha256": "3c89777868bed93e45c172cbec6c7fbb5fe7f65f6ce6bf7cba3d1cf6e37fdcb1"
+      "sha256": "1262156f4ce5d72fa9f645c26b507fa715f0acc0984103c846f90de765d06a14"
     },
     {
       "path": "templates/airflow/dag.py.j2",
@@ -416,8 +520,12 @@
       "sha256": "09cbf8541405ffa34f0732a1db5ab92c5e2eccbd30140b8ed551c4650c253e0b"
     },
     {
+      "path": "tests/snapshots/openapi.json",
+      "sha256": "ebf72fb74dca8380934de8e0a70dc193774125f0c09c4f3c93c1a05ee7817fef"
+    },
+    {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "05848f18b48b6a8c69b94dfb790096f07c2b7785882188d6e2af58624dae7f2d"
+      "sha256": "ec09a8afc44ad4af38b032041d8f63cbb147144dfac90fa0a2c45320cba87638"
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -518,6 +626,10 @@
     {
       "path": "tests/test_workspace_repro_sign_verify_api.py",
       "sha256": "5be90aa038bed653dac6084d218dec87f273a495279373e6af4d6ad56a76778c"
+    },
+    {
+      "path": "tests/verify_packaging_manifest.py",
+      "sha256": "f1a0ccba2136ac3f9b4a176a5ad372617dcf023c40dd4bf21bc14eb77e9a2237"
     },
     {
       "path": "ui/.streamlit/streamlit.toml",

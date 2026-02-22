@@ -945,7 +945,6 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "additionalProperties": true,
                 "title": "Payload"
               }
             }
@@ -997,7 +996,6 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "additionalProperties": true,
                 "title": "Payload"
               }
             }
@@ -1156,7 +1154,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Sync Plan Sync Plan Post"
                 }
@@ -1210,7 +1207,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plan Sync Plan  Plan Id  Get"
                 }
               }
@@ -1252,7 +1248,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Sync Apply Sync Apply Post"
                 }
@@ -1295,7 +1290,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Simulate Rebase Sync Rebase Simulate Post"
                 }
@@ -1353,7 +1347,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plans Build Plans Get"
                 }
               }
@@ -1407,7 +1400,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plan Build Plan  Plan Id  Get"
                 }
               }
@@ -1464,7 +1456,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Events Build Events Get"
                 }
               }
@@ -1781,8 +1772,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "type": "object"
                 },
                 "title": "Resolved Advisors"
               }
@@ -1925,7 +1915,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Audit Architecture Audit Architecture Get"
                 }
@@ -2027,10 +2016,46 @@
         }
       }
     },
-    "/health": {
+    "/api/v1/health/live": {
       "get": {
-        "summary": "Health Check",
-        "operationId": "health_check_health_get",
+        "summary": "Liveness",
+        "operationId": "liveness_api_v1_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "summary": "Readiness",
+        "description": "Readiness should reflect ability to serve real traffic.\nKeep checks fast + local (no slow downstream calls).",
+        "operationId": "readiness_api_v1_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": [
+          "observability"
+        ],
+        "summary": "Metrics",
+        "operationId": "metrics_metrics_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2068,7 +2093,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Config Federation Config Get"
                 }
               }
@@ -2110,7 +2134,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Connect Repo Federation Connect Post"
                 }
@@ -2141,7 +2164,6 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": true,
                 "type": "object",
                 "title": "Req"
               }
@@ -2155,7 +2177,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Sync Federation Sync Post"
                 }
@@ -2200,7 +2221,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Sign Manifest Workspace Repro Sign Get"
                 }
               }
@@ -2242,7 +2262,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Verify Manifest Workspace Repro Verify Post"
                 }
@@ -2262,143 +2281,48 @@
         }
       }
     },
-    "/v1/tenants/{tenant}/health": {
+    "/modeling/list": {
       "get": {
         "tags": [
-          "v1"
+          "modeling"
         ],
-        "summary": "Tenant Health",
-        "operationId": "tenant_health_v1_tenants__tenant__health_get",
-        "parameters": [
-          {
-            "name": "tenant",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Tenant"
-            }
-          }
-        ],
+        "summary": "Modeling List",
+        "operationId": "modeling_list_modeling_list_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Tenant Health V1 Tenants  Tenant  Health Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
+                "schema": {}
               }
             }
           }
         }
       }
     },
-    "/v1/tenants/{tenant}/federation/config": {
-      "get": {
-        "tags": [
-          "v1"
-        ],
-        "summary": "Federation Config",
-        "operationId": "federation_config_v1_tenants__tenant__federation_config_get",
-        "parameters": [
-          {
-            "name": "tenant",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Tenant"
-            }
-          },
-          {
-            "name": "job_name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Job Name"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Federation Config V1 Tenants  Tenant  Federation Config Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/tenants/{tenant}/federation/connect": {
+    "/modeling/register": {
       "post": {
         "tags": [
-          "v1"
+          "modeling"
         ],
-        "summary": "Federation Connect",
-        "operationId": "federation_connect_v1_tenants__tenant__federation_connect_post",
-        "parameters": [
-          {
-            "name": "tenant",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Tenant"
-            }
-          }
-        ],
+        "summary": "Modeling Register",
+        "operationId": "modeling_register_modeling_register_post",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": true,
-                "title": "Payload"
+                "$ref": "#/components/schemas/RegisterModelRequest"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Federation Connect V1 Tenants  Tenant  Federation Connect Post"
-                }
+                "schema": {}
               }
             }
           },
@@ -2415,83 +2339,42 @@
         }
       }
     },
-    "/v1/tenants/{tenant}/federation/sync": {
-      "post": {
-        "tags": [
-          "v1"
-        ],
-        "summary": "Federation Sync",
-        "operationId": "federation_sync_v1_tenants__tenant__federation_sync_post",
-        "parameters": [
-          {
-            "name": "tenant",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Tenant"
-            }
-          },
-          {
-            "name": "job_name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Job Name"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Federation Sync V1 Tenants  Tenant  Federation Sync Post"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/tenants/{tenant}/workspace/repro/manifest": {
+    "/modeling/preview-backfill": {
       "get": {
         "tags": [
-          "v1"
+          "modeling"
         ],
-        "summary": "Tenant Repro Manifest",
-        "operationId": "tenant_repro_manifest_v1_tenants__tenant__workspace_repro_manifest_get",
+        "summary": "Preview Backfill",
+        "operationId": "preview_backfill_modeling_preview_backfill_get",
         "parameters": [
           {
-            "name": "tenant",
-            "in": "path",
-            "required": true,
+            "name": "start_dt",
+            "in": "query",
+            "required": false,
             "schema": {
               "type": "string",
-              "title": "Tenant"
+              "default": "2026-02-01",
+              "title": "Start Dt"
             }
           },
           {
-            "name": "job_name",
+            "name": "end_dt",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
-              "title": "Job Name"
+              "default": "2026-02-07",
+              "title": "End Dt"
+            }
+          },
+          {
+            "name": "partition_column",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "dt",
+              "title": "Partition Column"
             }
           }
         ],
@@ -2500,11 +2383,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Tenant Repro Manifest V1 Tenants  Tenant  Workspace Repro Manifest Get"
-                }
+                "schema": {}
               }
             }
           },
@@ -2521,30 +2400,42 @@
         }
       }
     },
-    "/v1/tenants/{tenant}/workspace/repro/sign": {
+    "/modeling/preview-cdc-merge": {
       "get": {
         "tags": [
-          "v1"
+          "modeling"
         ],
-        "summary": "Tenant Repro Sign",
-        "operationId": "tenant_repro_sign_v1_tenants__tenant__workspace_repro_sign_get",
+        "summary": "Preview Cdc Merge",
+        "operationId": "preview_cdc_merge_modeling_preview_cdc_merge_get",
         "parameters": [
           {
-            "name": "tenant",
-            "in": "path",
-            "required": true,
+            "name": "target",
+            "in": "query",
+            "required": false,
             "schema": {
               "type": "string",
-              "title": "Tenant"
+              "default": "dim_customer",
+              "title": "Target"
             }
           },
           {
-            "name": "job_name",
+            "name": "staging",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
-              "title": "Job Name"
+              "default": "staging_customer_cdc",
+              "title": "Staging"
+            }
+          },
+          {
+            "name": "pk",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "customer_id",
+              "title": "Pk"
             }
           }
         ],
@@ -2553,11 +2444,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Tenant Repro Sign V1 Tenants  Tenant  Workspace Repro Sign Get"
-                }
+                "schema": {}
               }
             }
           },
@@ -2574,46 +2461,129 @@
         }
       }
     },
-    "/v1/tenants/{tenant}/workspace/repro/verify": {
+    "/modeling/preview-schema-evolution": {
       "post": {
         "tags": [
-          "v1"
+          "modeling"
         ],
-        "summary": "Tenant Repro Verify",
-        "operationId": "tenant_repro_verify_v1_tenants__tenant__workspace_repro_verify_post",
-        "parameters": [
-          {
-            "name": "tenant",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Tenant"
-            }
-          }
-        ],
+        "summary": "Preview Schema Evolution",
+        "operationId": "preview_schema_evolution_modeling_preview_schema_evolution_post",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": true,
-                "title": "Body"
+                "$ref": "#/components/schemas/SchemaEvolutionRequest"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Tenant Repro Verify V1 Tenants  Tenant  Workspace Repro Verify Post"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modeling/preview-late-arriving": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Late Arriving",
+        "operationId": "preview_late_arriving_modeling_preview_late_arriving_get",
+        "parameters": [
+          {
+            "name": "scd_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "type2",
+              "title": "Scd Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modeling/preview-scd2": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Scd2",
+        "operationId": "preview_scd2_modeling_preview_scd2_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modeling/{name}": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Modeling Get",
+        "operationId": "modeling_get_modeling__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -3570,7 +3540,6 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "additionalProperties": true,
                 "title": "Payload"
               }
             }
@@ -3622,7 +3591,6 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "additionalProperties": true,
                 "title": "Payload"
               }
             }
@@ -3781,7 +3749,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Sync Plan Api V1 Sync Plan Post"
                 }
@@ -3835,7 +3802,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plan Api V1 Sync Plan  Plan Id  Get"
                 }
               }
@@ -3877,7 +3843,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Sync Apply Api V1 Sync Apply Post"
                 }
@@ -3920,7 +3885,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Simulate Rebase Api V1 Sync Rebase Simulate Post"
                 }
@@ -3978,7 +3942,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plans Api V1 Build Plans Get"
                 }
               }
@@ -4032,7 +3995,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plan Api V1 Build Plan  Plan Id  Get"
                 }
               }
@@ -4089,7 +4051,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Events Api V1 Build Events Get"
                 }
               }
@@ -4406,14 +4367,351 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "type": "object"
                 },
                 "title": "Resolved Advisors"
               }
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/metrics": {
+      "get": {
+        "tags": [
+          "observability"
+        ],
+        "summary": "Metrics",
+        "operationId": "metrics_api_v1_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/modeling/list": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Modeling List",
+        "operationId": "modeling_list_api_v1_modeling_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/modeling/register": {
+      "post": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Modeling Register",
+        "operationId": "modeling_register_api_v1_modeling_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterModelRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/modeling/preview-backfill": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Backfill",
+        "operationId": "preview_backfill_api_v1_modeling_preview_backfill_get",
+        "parameters": [
+          {
+            "name": "start_dt",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "2026-02-01",
+              "title": "Start Dt"
+            }
+          },
+          {
+            "name": "end_dt",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "2026-02-07",
+              "title": "End Dt"
+            }
+          },
+          {
+            "name": "partition_column",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "dt",
+              "title": "Partition Column"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/modeling/preview-cdc-merge": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Cdc Merge",
+        "operationId": "preview_cdc_merge_api_v1_modeling_preview_cdc_merge_get",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "dim_customer",
+              "title": "Target"
+            }
+          },
+          {
+            "name": "staging",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "staging_customer_cdc",
+              "title": "Staging"
+            }
+          },
+          {
+            "name": "pk",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "customer_id",
+              "title": "Pk"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/modeling/preview-schema-evolution": {
+      "post": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Schema Evolution",
+        "operationId": "preview_schema_evolution_api_v1_modeling_preview_schema_evolution_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchemaEvolutionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/modeling/preview-late-arriving": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Late Arriving",
+        "operationId": "preview_late_arriving_api_v1_modeling_preview_late_arriving_get",
+        "parameters": [
+          {
+            "name": "scd_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "type2",
+              "title": "Scd Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/modeling/preview-scd2": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Scd2",
+        "operationId": "preview_scd2_api_v1_modeling_preview_scd2_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/modeling/{name}": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Modeling Get",
+        "operationId": "modeling_get_api_v1_modeling__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5376,7 +5674,6 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "additionalProperties": true,
                 "title": "Payload"
               }
             }
@@ -5428,7 +5725,6 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "additionalProperties": true,
                 "title": "Payload"
               }
             }
@@ -5587,7 +5883,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Sync Plan Api V2 Sync Plan Post"
                 }
@@ -5641,7 +5936,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plan Api V2 Sync Plan  Plan Id  Get"
                 }
               }
@@ -5683,7 +5977,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Sync Apply Api V2 Sync Apply Post"
                 }
@@ -5726,7 +6019,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Simulate Rebase Api V2 Sync Rebase Simulate Post"
                 }
@@ -5784,7 +6076,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plans Api V2 Build Plans Get"
                 }
               }
@@ -5838,7 +6129,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Plan Api V2 Build Plan  Plan Id  Get"
                 }
               }
@@ -5895,7 +6185,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true,
                   "title": "Response Get Events Api V2 Build Events Get"
                 }
               }
@@ -6212,8 +6501,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "type": "object"
                 },
                 "title": "Resolved Advisors"
               }
@@ -6236,6 +6524,400 @@
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/metrics": {
+      "get": {
+        "tags": [
+          "observability"
+        ],
+        "summary": "Metrics",
+        "operationId": "metrics_api_v2_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/modeling/list": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Modeling List",
+        "operationId": "modeling_list_api_v2_modeling_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/modeling/register": {
+      "post": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Modeling Register",
+        "operationId": "modeling_register_api_v2_modeling_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterModelRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/modeling/preview-backfill": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Backfill",
+        "operationId": "preview_backfill_api_v2_modeling_preview_backfill_get",
+        "parameters": [
+          {
+            "name": "start_dt",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "2026-02-01",
+              "title": "Start Dt"
+            }
+          },
+          {
+            "name": "end_dt",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "2026-02-07",
+              "title": "End Dt"
+            }
+          },
+          {
+            "name": "partition_column",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "dt",
+              "title": "Partition Column"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/modeling/preview-cdc-merge": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Cdc Merge",
+        "operationId": "preview_cdc_merge_api_v2_modeling_preview_cdc_merge_get",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "dim_customer",
+              "title": "Target"
+            }
+          },
+          {
+            "name": "staging",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "staging_customer_cdc",
+              "title": "Staging"
+            }
+          },
+          {
+            "name": "pk",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "customer_id",
+              "title": "Pk"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/modeling/preview-schema-evolution": {
+      "post": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Schema Evolution",
+        "operationId": "preview_schema_evolution_api_v2_modeling_preview_schema_evolution_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchemaEvolutionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/modeling/preview-late-arriving": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Late Arriving",
+        "operationId": "preview_late_arriving_api_v2_modeling_preview_late_arriving_get",
+        "parameters": [
+          {
+            "name": "scd_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "type2",
+              "title": "Scd Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/modeling/preview-scd2": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Preview Scd2",
+        "operationId": "preview_scd2_api_v2_modeling_preview_scd2_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/modeling/{name}": {
+      "get": {
+        "tags": [
+          "modeling"
+        ],
+        "summary": "Modeling Get",
+        "operationId": "modeling_get_api_v2_modeling__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tenants/{tenant}/health": {
+      "get": {
+        "tags": [
+          "tenants"
+        ],
+        "summary": "Tenant Health",
+        "operationId": "tenant_health_api_v1_tenants__tenant__health_get",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           }
@@ -6266,7 +6948,6 @@
           "data": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -6311,7 +6992,6 @@
           },
           "options": {
             "additionalProperties": {
-              "additionalProperties": true,
               "type": "object"
             },
             "type": "object",
@@ -6329,7 +7009,6 @@
       "AdvisorsRunRequest": {
         "properties": {
           "context": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Context"
           },
@@ -6380,7 +7059,6 @@
             "title": "Job Name Hint"
           },
           "defaults": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Defaults"
           },
@@ -6400,12 +7078,10 @@
             "default": false
           },
           "options": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Options"
           },
           "advisors": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Advisors"
           },
@@ -6576,7 +7252,6 @@
             "description": "Finding code"
           },
           "finding": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Finding",
             "description": "Original finding payload from advisors"
@@ -6604,7 +7279,6 @@
             "title": "Explanation"
           },
           "finding": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Finding"
           }
@@ -6690,6 +7364,24 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "RegisterModelRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "spec": {
+            "type": "object",
+            "title": "Spec"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "spec"
+        ],
+        "title": "RegisterModelRequest"
+      },
       "ReproCompareResponse": {
         "properties": {
           "kind": {
@@ -6713,7 +7405,6 @@
           },
           "added": {
             "items": {
-              "additionalProperties": true,
               "type": "object"
             },
             "type": "array",
@@ -6721,7 +7412,6 @@
           },
           "removed": {
             "items": {
-              "additionalProperties": true,
               "type": "object"
             },
             "type": "array",
@@ -6729,7 +7419,6 @@
           },
           "changed": {
             "items": {
-              "additionalProperties": true,
               "type": "object"
             },
             "type": "array",
@@ -6747,6 +7436,24 @@
           "changed"
         ],
         "title": "ReproCompareResponse"
+      },
+      "SchemaEvolutionRequest": {
+        "properties": {
+          "current_schema": {
+            "type": "object",
+            "title": "Current Schema"
+          },
+          "new_schema": {
+            "type": "object",
+            "title": "New Schema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_schema",
+          "new_schema"
+        ],
+        "title": "SchemaEvolutionRequest"
       },
       "SyncApplyRequest": {
         "properties": {
@@ -6907,13 +7614,6 @@
           "type": {
             "type": "string",
             "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
           }
         },
         "type": "object",
