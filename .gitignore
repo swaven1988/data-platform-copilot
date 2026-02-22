@@ -18,3 +18,4 @@ workspace/
 .copilot/plans/
 .copilot/audit.log
 
+deploy/secrets/*.txt

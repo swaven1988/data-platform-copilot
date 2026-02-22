@@ -29,6 +29,10 @@ jobs:
         run: |
           python -m pytest -q
 
+      - name: Verify packaging manifest drift
+        run: |
+          python tools/verify_packaging_manifest.py
+
       - name: Packaging manifest drift gate
         run: |
           python tools/gen_packaging_manifest.py --check

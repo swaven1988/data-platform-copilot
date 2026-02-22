@@ -9,15 +9,28 @@ services:
     expose:
       - "8001"
     environment:
+      # ---- Stage 24.1 prod defaults
+      COPILOT_ENV: prod
+      COPILOT_ALLOW_STATIC_TOKEN_IN_PROD: "true"
       COPILOT_AUTH_MODE: static_token
       COPILOT_AUTH_ENABLED: "true"
+      COPILOT_TRUST_PROXY_HEADERS: "true"
+      COPILOT_SECURITY_HEADERS_ENABLED: "false"
+
+      # ---- Stage 24.1 rate limiting (app-level)
+      COPILOT_RATE_LIMIT_ENABLED: "true"
+      COPILOT_RATE_LIMIT_RPM: "120"
+
+      # ---- Stage 24.2 secrets (file-based)
       COPILOT_STATIC_ADMIN_TOKEN_FILE: /run/secrets/admin_token
       COPILOT_STATIC_VIEWER_TOKEN_FILE: /run/secrets/viewer_token
-      COPILOT_SIGNING_KEY: dev_secret_key
-      COPILOT_TRUST_PROXY_HEADERS: "true"
+      COPILOT_SIGNING_KEY_FILE: /run/secrets/signing_key
+
     secrets:
       - admin_token
       - viewer_token
+      - signing_key
+
     restart: unless-stopped
     read_only: true
     tmpfs:
@@ -67,3 +80,5 @@ secrets:
     file: ./secrets/admin_token.txt
   viewer_token:
     file: ./secrets/viewer_token.txt
+  signing_key:
+    file: ./secrets/signing_key.txt

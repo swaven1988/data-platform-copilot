@@ -38,6 +38,7 @@ class StaticTokenProvider:
     def __init__(self):
         self.admin_token = _read_secret("COPILOT_STATIC_ADMIN_TOKEN_FILE") or os.getenv("COPILOT_STATIC_ADMIN_TOKEN")
         self.viewer_token = _read_secret("COPILOT_STATIC_VIEWER_TOKEN_FILE") or os.getenv("COPILOT_STATIC_VIEWER_TOKEN")
+        self.signing_key = _read_secret("COPILOT_SIGNING_KEY_FILE") or os.getenv("COPILOT_SIGNING_KEY")
         self.legacy_token = _read_secret("COPILOT_STATIC_TOKEN_FILE") or os.getenv("COPILOT_STATIC_TOKEN")
 
         if not any([self.admin_token, self.viewer_token, self.legacy_token]):
