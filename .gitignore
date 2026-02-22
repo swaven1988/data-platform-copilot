@@ -21,3 +21,6 @@ workspace/
 deploy/secrets/*.txt
 # Local docker secrets
 /deploy/secrets/*.txt
+
+# Local docker secrets
+/deploy/secrets/*.txt
