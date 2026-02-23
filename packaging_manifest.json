@@ -64,6 +64,10 @@
       "sha256": "776cd1c69b6131ec728ba7e5c41ccaa53fdbe2f3c8e7d5b1e490dbf8e26d08a5"
     },
     {
+      "path": "app/api/endpoints/execution.py",
+      "sha256": "388383f23bd1594818ec0b3b3d899bc8a3ff67def3380fb1a2cac4ad95120afc"
+    },
+    {
       "path": "app/api/endpoints/federation.py",
       "sha256": "87b799ab47150d904ace6af39619c411b0af9c18887e1a61f14da4a152c448e1"
     },
@@ -157,7 +161,7 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "678dcb930a523b98bf0b294a31c6c3ab25dd58b84d61959bf2f2454f8c401a8c"
+      "sha256": "f912a52010d2ad0f2fe6e5889042162f4549f10785f59c40224fa96ddfaf8d69"
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -342,6 +346,46 @@
     {
       "path": "app/core/compiler/spark_optimizer.py",
       "sha256": "1a945fdca47359f54c0c4e75155e05c5ccd825ec41516e576c643a5e43df5a23"
+    },
+    {
+      "path": "app/core/cost/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "app/core/cost/estimator_v2.py",
+      "sha256": "1f5c46f5417448c72e17965051fdfd66120462bde06f32406fe226973dde5955"
+    },
+    {
+      "path": "app/core/cost/models.py",
+      "sha256": "0d63f3a8894a42968db52d275783c0c6b99899bc0f1d03bf635e2228f9622d7d"
+    },
+    {
+      "path": "app/core/cost/pricing_tables.py",
+      "sha256": "8ed55bcc0bf9d2cf741ca6c607ff394ab31760e833c7409ce216e73edda67554"
+    },
+    {
+      "path": "app/core/execution/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "app/core/execution/audit.py",
+      "sha256": "24ba4e1ef4a6fb30989a9476234dd00ec6190d1f34c9936ad23eba0571a9d077"
+    },
+    {
+      "path": "app/core/execution/executor.py",
+      "sha256": "142af547a090592c4ad28e8ab6d20a6275f8a042548b656cb3f1771109863d35"
+    },
+    {
+      "path": "app/core/execution/models.py",
+      "sha256": "804e18d2abbc967d4abe1255c8fdbbaa9834d0f98700134b47bb539aefddc669"
+    },
+    {
+      "path": "app/core/execution/registry.py",
+      "sha256": "24547b4983562e1b0c8d4b20a144340809956b6c96835a0a9fe1881c870ee0d3"
+    },
+    {
+      "path": "app/core/execution/state_machine.py",
+      "sha256": "a6062553f0c5edcfedf36a646650fe6f5c41c61073b1ba73b9bbf2917e982ef8"
     },
     {
       "path": "app/core/federation/federation_manager.py",
@@ -673,7 +717,7 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "b4e6fcfcbe657b91bca85c57723030c693350c35f23cf6ae31ceedea3e64a393"
+      "sha256": "5015dda8370dffab2478e94deac2a7afb0ba58672e21875df87d2be8fad8f455"
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -700,8 +744,16 @@
       "sha256": "0cf05e9e5ce53321263e7eb426254b818afd1cba5cf891cf211ec43a3acd08ca"
     },
     {
+      "path": "tests/test_cost_estimator_v2.py",
+      "sha256": "427b082fd11616c29677d2453f9f792052b27da3826b18397ff38d1b6a3046cb"
+    },
+    {
       "path": "tests/test_execution_graph.py",
       "sha256": "31d2189f37b6a2cb379c500a52e56a847c62375138dd25bcae84267119540fdc"
+    },
+    {
+      "path": "tests/test_execution_lifecycle.py",
+      "sha256": "a5d0b6e335f6f01026a4dd28525eef9bb2cc7beff62bf8142df1b775968571cb"
     },
     {
       "path": "tests/test_federation_api.py",
