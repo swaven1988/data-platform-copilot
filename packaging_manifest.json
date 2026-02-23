@@ -65,7 +65,7 @@
     },
     {
       "path": "app/api/endpoints/execution.py",
-      "sha256": "388383f23bd1594818ec0b3b3d899bc8a3ff67def3380fb1a2cac4ad95120afc"
+      "sha256": "6191dc1e26dc6642afa3862766f9b3311f486a061da57e8caa2889a9dd9ecbc0"
     },
     {
       "path": "app/api/endpoints/federation.py",
@@ -376,6 +376,10 @@
       "sha256": "142af547a090592c4ad28e8ab6d20a6275f8a042548b656cb3f1771109863d35"
     },
     {
+      "path": "app/core/execution/guards.py",
+      "sha256": "53bd7d6a7090714663ff95bbcf9296f82bee65dd5e0a43bf9de497fc1a01190b"
+    },
+    {
       "path": "app/core/execution/models.py",
       "sha256": "804e18d2abbc967d4abe1255c8fdbbaa9834d0f98700134b47bb539aefddc669"
     },
@@ -498,6 +502,10 @@
     {
       "path": "app/core/policy/engine.py",
       "sha256": "efa5f6ba239b64f1417136eff5ca2a71ce149b33a81106e111225e0959252b6e"
+    },
+    {
+      "path": "app/core/policy/execution_policy.py",
+      "sha256": "1480bf200af35316af5b5857b4f4c6afac0fd038f00be8dba0641996d079604e"
     },
     {
       "path": "app/core/policy/models.py",
@@ -717,7 +725,7 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "5015dda8370dffab2478e94deac2a7afb0ba58672e21875df87d2be8fad8f455"
+      "sha256": "cd4be13f1b59ffcbedbb4b5b6fe33b636af432149346eeeb850db854961bad78"
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -754,6 +762,10 @@
     {
       "path": "tests/test_execution_lifecycle.py",
       "sha256": "a5d0b6e335f6f01026a4dd28525eef9bb2cc7beff62bf8142df1b775968571cb"
+    },
+    {
+      "path": "tests/test_execution_policy_enforcement.py",
+      "sha256": "55eb0674223c1ad55e2330076207f7a853e28f0e0f2a66c9fcf88fffad49f3fc"
     },
     {
       "path": "tests/test_federation_api.py",

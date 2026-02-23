@@ -1,21 +1,23 @@
 # app/api/endpoints/execution.py
+# PATCH: apply policy guardrails BEFORE transitioning to APPLIED.
+# Replace your ApplyRequest + apply_build with this exact version.
+
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Header, HTTPException, Query
 from pydantic import BaseModel
 
+from app.core.execution.audit import audit_context
+from app.core.execution.executor import Executor
+from app.core.execution.guards import evaluate_apply_guardrails
 from app.core.execution.models import ExecutionState
 from app.core.execution.registry import ExecutionRegistry
-from app.core.execution.executor import Executor
-from app.core.execution.audit import audit_context
 
-# You likely already have a project root constant; keep aligned with your codebase:
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_WORKSPACE = PROJECT_ROOT / "workspace"
-
 
 router = APIRouter(prefix="/api/v2/build", tags=["execution"])
 
@@ -24,6 +26,12 @@ class ApplyRequest(BaseModel):
     job_name: str
     workspace_dir: Optional[str] = None
 
+    # Phase 9: execution enforcement inputs
+    preflight_hash: Optional[str] = None
+
+    # Optional explicit override (deterministic tests / future pipeline)
+    cost_estimate: Optional[Dict[str, Any]] = None
+
 
 class RunRequest(BaseModel):
     job_name: str
@@ -31,7 +39,6 @@ class RunRequest(BaseModel):
 
 
 def _workspace_dir(workspace_dir: Optional[str], job_name: str) -> Path:
-    # default workspace pattern: workspace/<job_name>
     if workspace_dir:
         return Path(workspace_dir)
     return DEFAULT_WORKSPACE / job_name
@@ -49,25 +56,73 @@ def apply_build(
     x_request_id: Optional[str] = Header(default=None, alias="X-Request-Id"),
 ) -> Dict[str, Any]:
     ws = _workspace_dir(req.workspace_dir, req.job_name)
+    tenant = _tenant(x_tenant)
 
     reg = ExecutionRegistry(workspace_dir=ws)
 
-    # Init execution record at PRECHECK_PASSED (apply gate boundary)
-    rec = reg.init_if_missing(
+    # init at PRECHECK_PASSED (apply boundary)
+    reg.init_if_missing(
         job_name=req.job_name,
         build_id=contract_hash,
-        tenant=_tenant(x_tenant),
+        tenant=tenant,
         runtime_profile=None,
-        preflight_hash=None,
-        cost_estimate=None,
+        preflight_hash=req.preflight_hash,
+        cost_estimate=req.cost_estimate,
         request_id=x_request_id,
         initial_state=ExecutionState.PRECHECK_PASSED,
     )
 
+    # Phase 9: policy/cost enforcement
+    decision, details, preflight_report, cost_used = evaluate_apply_guardrails(
+        tenant=tenant,
+        workspace_dir=ws,
+        preflight_hash=req.preflight_hash,
+        cost_estimate_override=req.cost_estimate,
+    )
+
+    # attach to record (persisted)
+    rec = reg.get(req.job_name)
+    if rec is not None:
+        rec.preflight_hash = req.preflight_hash or rec.preflight_hash
+        rec.cost_estimate = cost_used or rec.cost_estimate
+        reg.upsert(rec)
+
+    if decision == "BLOCK":
+        # Transition to BLOCKED and return 409 (conflict / execution denied)
+        try:
+            reg.transition(
+                job_name=req.job_name,
+                dst=ExecutionState.BLOCKED,
+                message="blocked by execution policy",
+                data={"decision": decision, "details": details},
+            )
+        except Exception:
+            # even if transition fails, still block
+            pass
+        raise HTTPException(status_code=409, detail={"blocked": True, "decision": decision, "details": details})
+
+    # WARN does not block: store as audit event (non-terminal)
+    if decision == "WARN":
+        try:
+            reg.transition(
+                job_name=req.job_name,
+                dst=ExecutionState.PRECHECK_PASSED,
+                message="warned by execution policy",
+                data={"decision": decision, "details": details},
+            )
+        except Exception:
+            pass
+
     exec_ = Executor(registry=reg)
     try:
         out = exec_.apply(req.job_name)
-        return {"ok": True, "execution": out, "audit": audit_context(tenant=_tenant(x_tenant), request_id=x_request_id)}
+        return {
+            "ok": True,
+            "decision": decision,
+            "policy": details,
+            "execution": out,
+            "audit": audit_context(tenant=tenant, request_id=x_request_id),
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -80,13 +135,14 @@ def run_build(
     x_request_id: Optional[str] = Header(default=None, alias="X-Request-Id"),
 ) -> Dict[str, Any]:
     ws = _workspace_dir(req.workspace_dir, req.job_name)
+    tenant = _tenant(x_tenant)
+
     reg = ExecutionRegistry(workspace_dir=ws)
 
-    # Ensure record exists; if not, create in APPLIED (best-effort)
     reg.init_if_missing(
         job_name=req.job_name,
         build_id=contract_hash,
-        tenant=_tenant(x_tenant),
+        tenant=tenant,
         runtime_profile=None,
         preflight_hash=None,
         cost_estimate=None,
@@ -97,7 +153,7 @@ def run_build(
     exec_ = Executor(registry=reg)
     try:
         out = exec_.run(req.job_name)
-        return {"ok": True, "execution": out, "audit": audit_context(tenant=_tenant(x_tenant), request_id=x_request_id)}
+        return {"ok": True, "execution": out, "audit": audit_context(tenant=tenant, request_id=x_request_id)}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -109,11 +165,12 @@ def status(
     x_tenant: Optional[str] = Header(default=None, alias="X-Tenant"),
 ) -> Dict[str, Any]:
     ws = _workspace_dir(workspace_dir, job_name)
+    tenant = _tenant(x_tenant)
     reg = ExecutionRegistry(workspace_dir=ws)
     rec = reg.get(job_name)
     if rec is None:
         raise HTTPException(status_code=404, detail="execution not found")
-    return {"job_name": job_name, "state": rec.state.value, "execution": rec.to_dict(), "tenant": _tenant(x_tenant)}
+    return {"job_name": job_name, "state": rec.state.value, "execution": rec.to_dict(), "tenant": tenant}
 
 
 @router.get("/history/{job_name}")

@@ -116,9 +116,31 @@
       },
       "ApplyRequest": {
         "properties": {
+          "cost_estimate": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Estimate"
+          },
           "job_name": {
             "title": "Job Name",
             "type": "string"
+          },
+          "preflight_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preflight Hash"
           },
           "workspace_dir": {
             "anyOf": [
