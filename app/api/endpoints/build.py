@@ -230,6 +230,7 @@ def build_pipeline(
 @router.post("/v2")
 def build_pipeline_v2(
     req: BuildV2Request,
+    contract_hash: str = Query(...),
     base_ref: str = Query("upstream/main"),
     include_intelligence: bool = Query(True),
 ):
@@ -238,10 +239,11 @@ def build_pipeline_v2(
             spec=req.spec,
             write_spec_yaml=req.write_spec_yaml,
             job_name_override=req.job_name_override,
+            contract_hash=contract_hash,
         )
 
         if include_intelligence:
-            build_result = IntelligenceFacade.analyze_and_inject(build_result, base_ref=base_ref)
+            build_result = IntelligenceFacade.analyze_and_inject(build_result, base_ref=base_ref, contract_hash=contract_hash)
 
         return build_result
 
@@ -408,13 +410,20 @@ def build_from_intent(req: BuildIntentRequest):
         # -------------------------
         # BUILD
         # -------------------------
+        if not req.options.get("contract_hash"):
+            raise HTTPException(
+                status_code=400,
+                detail="contract_hash required for intent build"
+            )
+
         build_result = build_v2_from_spec(
             spec=spec_obj,
             write_spec_yaml=req.write_spec_yaml,
             job_name_override=None,
+            contract_hash=req.options.get("contract_hash"),  # 🔒 ENFORCED
             options={
                 **(req.options or {}),
-                "base_ref": base_ref,  # pass via options (future-proof)
+                "base_ref": base_ref,
                 "include_intelligence": include_intelligence,
                 "advisors": {**(req.advisors or {}), "force": req.force},
             },

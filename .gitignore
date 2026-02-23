@@ -27,3 +27,17 @@ pytest.out
 *.patch
 *.egg-info/
 tests/verify_packaging_manifest.py
+
+# local copilot workspace/artifacts
+.copilot/
+workspace/
+outputs/
+stdout
+git_diff.log
+
+# local copilot workspace/artifacts
+.copilot/
+workspace/
+outputs/
+stdout
+git_diff.log

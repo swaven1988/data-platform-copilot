@@ -17,6 +17,12 @@ from app.core.build_registry import BuildRegistry
 from app.core.build_plan.persist import save_plan, append_events
 from app.core.policy import DEFAULT_POLICY_ENGINE
 
+from fastapi import HTTPException
+from pathlib import Path
+from app.core.compiler.contract_engine import ContractEngine
+from app.core.preflight.models import PreflightRequest
+from app.core.preflight.gate import run_preflight_gate, PreflightBlockedException
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 WORKSPACE_ROOT = PROJECT_ROOT / "workspace"
 SPEC_PATH = PROJECT_ROOT / "copilot_spec.yaml"
@@ -84,6 +90,7 @@ def build_v2_from_spec(
     confidence: Optional[float] = None,
     options: Optional[Dict[str, Any]] = None,   # ✅ Stage2
     advisors: Optional[Dict[str, Any]] = None,
+    contract_hash: Optional[str] = None,
 ) -> Dict[str, Any]:
     from app.core.build_plan.planner import make_build_plan
     from app.core.build_plan.advisors import run_plan_advisors
@@ -101,6 +108,29 @@ def build_v2_from_spec(
     resolved_job_name = (job_name_override or spec.job_name).strip()
     if resolved_job_name != spec.job_name:
         spec = spec.model_copy(update={"job_name": resolved_job_name})
+
+    # =========================================================
+    # 🔒 MANDATORY CONTRACT VALIDATION
+    # =========================================================
+    if not contract_hash:
+        raise HTTPException(
+            status_code=400,
+            detail="contract_hash is required. No build allowed without contract."
+        )
+
+    contract_engine = ContractEngine(WORKSPACE_ROOT)
+
+    contract = contract_engine.load_contract(
+        job_name=spec.job_name,
+        contract_hash=contract_hash,
+    )
+
+    if not contract:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid contract hash"
+        )
+    # =========================================================
 
     registry = BuildRegistry(WORKSPACE_ROOT, spec.job_name)
     spec_hash = registry.compute_spec_hash(spec)
@@ -255,13 +285,78 @@ def build_v2_from_spec(
 
     _merge_files(generated_files, render_airflow_dag_v2(spec))
 
-    spark_conf_obj = render_spark_conf_v2(spec)
-    if isinstance(spark_conf_obj, str):
-        spark_conf_json = spark_conf_obj
-    elif isinstance(spark_conf_obj, dict):
-        spark_conf_json = json.dumps(spark_conf_obj, indent=2, sort_keys=True)
-    else:
-        raise TypeError(f"Spark conf must be dict or JSON string, got: {type(spark_conf_obj)}")
+    # Vendor-neutral runtime profile compilation (Phase 6)
+    from app.core.runtime_profiles.compiler import compile_spark_conf_for_contract
+
+    profile_name = None
+    pricing_overrides = {}
+    runtime_opts = (options or {}).get("runtime_profile") or {}
+    if isinstance(runtime_opts, dict):
+        profile_name = runtime_opts.get("name") or runtime_opts.get("profile_name")
+        pricing_overrides = runtime_opts.get("pricing_overrides") or {}
+
+    spark_conf_obj, _cluster_profile = compile_spark_conf_for_contract(
+        project_root=PROJECT_ROOT,
+        contract=contract,
+        spec=spec,
+        profile_name=profile_name,
+        pricing_overrides=pricing_overrides,
+    )
+
+    spark_conf_json = json.dumps(spark_conf_obj, indent=2, sort_keys=True)
+
+    # =========================================================
+    # Phase 7 — Preflight Gate (options.preflight OR spec.preflight if present)
+    # =========================================================
+    preflight_report = None
+
+    spec_preflight = None
+    try:
+        spec_dict = spec.model_dump()  # pydantic v2
+        spec_preflight = spec_dict.get("preflight")
+    except Exception:
+        try:
+            spec_dict = spec.dict()  # pydantic v1 fallback
+            spec_preflight = spec_dict.get("preflight")
+        except Exception:
+            spec_preflight = None
+
+    opt_preflight = (options or {}).get("preflight")
+
+    enabled = False
+    merged = {}
+
+    if isinstance(spec_preflight, dict):
+        enabled = True
+        merged.update(spec_preflight)
+
+    if isinstance(opt_preflight, dict):
+        if opt_preflight.get("enabled", False) is True:
+            enabled = True
+        if "enabled" not in opt_preflight:
+            enabled = True
+
+        merged.update({k: v for k, v in opt_preflight.items() if k != "enabled"})
+
+    if enabled:
+        merged.setdefault("job_name", spec.job_name)
+        merged.setdefault("runtime_profile", profile_name or "k8s_spark_default")
+        merged.setdefault("dataset", {})
+        merged.setdefault("pricing", {})
+        merged.setdefault("sla", None)
+        merged["spark_conf"] = spark_conf_obj
+
+        try:
+            preflight_req = PreflightRequest(**merged)
+            preflight_report = run_preflight_gate(preflight_req).dict()
+        except PreflightBlockedException as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    if preflight_report is not None:
+        generated_files[f".copilot/preflight/{preflight_report['preflight_hash']}.json"] = json.dumps(
+            preflight_report, indent=2, sort_keys=True
+        )
+
 
     generated_files["configs/spark_conf_default.json"] = spark_conf_json
     t1_gen = time.perf_counter()
@@ -436,4 +531,5 @@ def build_v2_from_spec(
         "advisor_findings": res.advisor_findings,
         "confidence": confidence,
         "policy_results": [r.__dict__ for r in policy_results],
+        "preflight": preflight_report,
     }
