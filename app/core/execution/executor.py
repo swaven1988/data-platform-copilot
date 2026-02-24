@@ -1,16 +1,15 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Dict, Optional
-from datetime import datetime, timezone
 
+from app.core.billing.ledger import LedgerStore, utc_month_key
+
+from .backends import BACKENDS
 from .models import ExecutionState, _utc_now_iso
 from .registry import ExecutionRegistry
 from .state_machine import is_terminal
 
-# Phase 10: pluggable execution backends
-from .backends import BACKENDS
-
-from app.core.billing.ledger import LedgerStore, utc_month_key
 
 def _parse_iso(ts: Optional[str]) -> Optional[datetime]:
     if not ts:
@@ -58,7 +57,7 @@ def _maybe_write_actuals(*, registry: ExecutionRegistry, job_name: str) -> None:
     )
 
     # persist in execution record as well (non-breaking)
-    fields = {}
+    fields: Dict[str, Any] = {}
     if runtime_s is not None:
         fields["actual_runtime_seconds"] = runtime_s
     if est is not None:
@@ -73,13 +72,10 @@ def _maybe_write_actuals(*, registry: ExecutionRegistry, job_name: str) -> None:
 class Executor:
     """Execution orchestrator.
 
-    Phase 9: apply-time enforcement.
-    Phase 10: pluggable backends.
-
-    Phase 10.1: RUNNING is real.
+    Phase 10.1:
     - run(): transitions APPLIED -> RUNNING, stores backend metadata, returns immediately
     - refresh_status(): polls backend and transitions RUNNING -> (SUCCEEDED|FAILED) when terminal
-    - cancel(): best-effort cancel and transitions RUNNING -> FAILED
+    - cancel(): best-effort cancel and transitions (APPLIED|RUNNING) -> CANCELED
     """
 
     def __init__(self, registry: ExecutionRegistry):
@@ -153,7 +149,6 @@ class Executor:
         backend_name = rec.backend or "local"
         backend = BACKENDS.get(backend_name)
         if not backend:
-            # Should never happen; mark failed.
             rec = self.registry.update_fields(
                 job_name=job_name,
                 fields={"last_error": f"Unsupported backend on record: {backend_name}"},
@@ -165,7 +160,6 @@ class Executor:
         state = (st.get("state") or "").upper().strip()
 
         if state == ExecutionState.RUNNING.value:
-            # still running: optionally persist last seen backend status
             if st:
                 self.registry.update_fields(
                     job_name=job_name,
@@ -188,34 +182,53 @@ class Executor:
             _maybe_write_actuals(registry=self.registry, job_name=job_name)
             return rec.to_dict()
 
-        # Unknown => treat as RUNNING but store diagnostics
         self.registry.update_fields(
             job_name=job_name,
             fields={"backend_meta": {**(rec.backend_meta or {}), "last_status": st}},
         )
         return self.registry.get(job_name).to_dict()  # type: ignore[union-attr]
 
-    def cancel(self, *, job_name: str, tenant: str):
+    def cancel(self, *, job_name: str, tenant: str, request_id: Optional[str] = None) -> Dict[str, Any]:
         rec = self.registry.get(job_name)
         if rec is None:
             raise ValueError("job not found")
 
-        # Terminal states → idempotent
-        if rec.state in ("SUCCEEDED", "FAILED", "CANCELED"):
+        # Terminal states -> idempotent return
+        if is_terminal(rec.state):
             return rec.to_dict()
 
-        backend_name = rec.backend or "local"
-        backend = BACKENDS[backend_name]
+        # Only allow cancel from APPLIED or RUNNING (enforced by state machine on transition)
+        if rec.state not in (ExecutionState.APPLIED, ExecutionState.RUNNING):
+            raise ValueError(f"cancel requires state=APPLIED|RUNNING; current={rec.state.value}")
 
-        try:
-            if rec.backend_ref:
-                backend.cancel(rec.backend_ref)
-        except Exception:
-            # backend cancel failure should not break state transition
-            pass
+        # attach request_id/tenant if provided (non-breaking)
+        fields: Dict[str, Any] = {}
+        if request_id:
+            fields["request_id"] = request_id
+        if tenant and rec.tenant != tenant:
+            fields["tenant"] = tenant
+        if fields:
+            try:
+                self.registry.update_fields(job_name=job_name, fields=fields)
+            except Exception:
+                pass
+
+        backend_name = rec.backend or "local"
+        backend = BACKENDS.get(backend_name)
+
+        # Best-effort backend cancel only if RUNNING + backend present
+        if rec.state == ExecutionState.RUNNING and backend is not None:
+            try:
+                backend.cancel(job_name=job_name, backend_ref=rec.backend_ref)
+            except Exception:
+                pass
 
         # mark finished
-        rec.finished_ts = _utc_now_iso()
+        finished = _utc_now_iso()
+        try:
+            self.registry.update_fields(job_name=job_name, fields={"finished_ts": finished})
+        except Exception:
+            pass
 
         rec = self.registry.transition(
             job_name=job_name,
@@ -227,7 +240,5 @@ class Executor:
             },
         )
 
-        # write actuals to ledger (Phase 12 integration)
         _maybe_write_actuals(registry=self.registry, job_name=job_name)
-
         return rec.to_dict()

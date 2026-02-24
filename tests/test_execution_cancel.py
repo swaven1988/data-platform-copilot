@@ -1,53 +1,118 @@
+from __future__ import annotations
+
 from pathlib import Path
-from fastapi.testclient import TestClient
+from typing import Any, Dict, Optional
 
-from app.api.main import app
+import pytest
 
-client = TestClient(app)
+from app.core.execution.backends.base import ExecutionBackend
+from app.core.execution.backends import BACKENDS
+from app.core.execution.executor import Executor
+from app.core.execution.models import ExecutionState
+from app.core.execution.registry import ExecutionRegistry
 
-AUTH = {
-    "Authorization": "Bearer dev_admin_token",
-    "X-Tenant": "default",
-}
+
+class DummyBackend(ExecutionBackend):
+    name = "dummy"
+
+    def __init__(self):
+        self.cancel_calls = []
+
+    def submit(self, job_name: str, config: Dict[str, Any]) -> Dict[str, Any]:
+        return {"backend_ref": "ref-123", "meta": {"ok": True}}
+
+    def status(self, job_name: str, *, backend_ref: Optional[str] = None) -> Dict[str, Any]:
+        return {"state": "RUNNING"}
+
+    def cancel(self, job_name: str, *, backend_ref: Optional[str] = None) -> None:
+        self.cancel_calls.append({"job_name": job_name, "backend_ref": backend_ref})
 
 
-def test_cancel_lifecycle(tmp_path: Path):
-    ws = tmp_path / "workspace" / "job_cancel"
+def _mk_registry(tmp_path: Path) -> ExecutionRegistry:
+    ws = tmp_path / "ws"
     ws.mkdir(parents=True, exist_ok=True)
+    return ExecutionRegistry(workspace_dir=ws)
 
-    # apply
-    r1 = client.post(
-        "/api/v2/build/apply",
-        json={"job_name": "job_cancel", "workspace_dir": str(ws)},
-        params={"contract_hash": "c1"},
-        headers=AUTH,
-    )
-    assert r1.status_code == 200
 
-    # run
-    r2 = client.post(
-        "/api/v2/build/run",
-        json={"job_name": "job_cancel", "workspace_dir": str(ws), "backend": "local"},
-        params={"contract_hash": "c1"},
-        headers=AUTH,
+def test_cancel_from_applied_transitions_to_canceled(tmp_path: Path):
+    reg = _mk_registry(tmp_path)
+    reg.init_if_missing(
+        job_name="job1",
+        build_id="b1",
+        tenant="default",
+        runtime_profile=None,
+        preflight_hash=None,
+        cost_estimate=None,
+        request_id=None,
+        initial_state=ExecutionState.APPLIED,
     )
-    assert r2.status_code == 200
-    assert r2.json()["execution"]["state"] == "RUNNING"
+    ex = Executor(registry=reg)
+    out = ex.cancel(job_name="job1", tenant="default", request_id="req-1")
+    assert out["state"] == "CANCELED"
+    rec = reg.get("job1")
+    assert rec is not None
+    assert rec.finished_ts is not None
+    assert rec.request_id == "req-1"
 
-    # cancel
-    r3 = client.post(
-        "/api/v2/build/cancel",
-        json={"job_name": "job_cancel", "workspace_dir": str(ws)},
-        headers=AUTH,
-    )
-    assert r3.status_code == 200
-    assert r3.json()["execution"]["state"] == "CANCELED"
 
-    # idempotent cancel
-    r4 = client.post(
-        "/api/v2/build/cancel",
-        json={"job_name": "job_cancel", "workspace_dir": str(ws)},
-        headers=AUTH,
+def test_cancel_from_running_calls_backend_cancel_with_correct_signature(tmp_path: Path):
+    reg = _mk_registry(tmp_path)
+    reg.init_if_missing(
+        job_name="job2",
+        build_id="b2",
+        tenant="default",
+        runtime_profile=None,
+        preflight_hash=None,
+        cost_estimate=None,
+        request_id=None,
+        initial_state=ExecutionState.APPLIED,
     )
-    assert r4.status_code == 200
-    assert r4.json()["execution"]["state"] == "CANCELED"
+
+    dummy = DummyBackend()
+    BACKENDS["dummy"] = dummy
+    try:
+        # mark record as running with dummy backend
+        reg.update_fields(job_name="job2", fields={"backend": "dummy", "backend_ref": "ref-xyz"})
+        reg.transition(job_name="job2", dst=ExecutionState.RUNNING, message="running")
+
+        ex = Executor(registry=reg)
+        out = ex.cancel(job_name="job2", tenant="default")
+        assert out["state"] == "CANCELED"
+        assert dummy.cancel_calls == [{"job_name": "job2", "backend_ref": "ref-xyz"}]
+    finally:
+        BACKENDS.pop("dummy", None)
+
+
+def test_cancel_idempotent_on_terminal(tmp_path: Path):
+    reg = _mk_registry(tmp_path)
+    reg.init_if_missing(
+        job_name="job3",
+        build_id="b3",
+        tenant="default",
+        runtime_profile=None,
+        preflight_hash=None,
+        cost_estimate=None,
+        request_id=None,
+        initial_state=ExecutionState.CANCELED,
+    )
+    ex = Executor(registry=reg)
+    out = ex.cancel(job_name="job3", tenant="default")
+    assert out["state"] == "CANCELED"
+
+
+def test_cancel_rejects_illegal_state(tmp_path: Path):
+    reg = _mk_registry(tmp_path)
+    reg.init_if_missing(
+        job_name="job4",
+        build_id="b4",
+        tenant="default",
+        runtime_profile=None,
+        preflight_hash=None,
+        cost_estimate=None,
+        request_id=None,
+        initial_state=ExecutionState.PRECHECK_PASSED,
+    )
+    ex = Executor(registry=reg)
+    with pytest.raises(ValueError) as e:
+        ex.cancel(job_name="job4", tenant="default")
+    assert "requires state" in str(e.value)

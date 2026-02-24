@@ -90,8 +90,8 @@
     },
     {
       "path": "app/api/endpoints/execution.py",
-      "sha256": "54b4cd208b22c0c4ff0e38d00609c588c04364ad1a66f188366a347472286640",
-      "size": 7505
+      "sha256": "6ee78a359ec036fd6b525401af2a8f0ef4afa785156155f37d67aeb46ef994f1",
+      "size": 7868
     },
     {
       "path": "app/api/endpoints/execution.py.bak",
@@ -530,8 +530,8 @@
     },
     {
       "path": "app/core/execution/executor.py",
-      "sha256": "4858f62c16b6e200bcb0ec725c4a3fa7c790e184dcca4c005fbf089ee6ddef75",
-      "size": 8169
+      "sha256": "18d81ef7f0248d8bb80bf5d0f619cdcf4cf208d0d2623ab22c223e9f7c02d525",
+      "size": 8534
     },
     {
       "path": "app/core/execution/guards.py",
@@ -1040,7 +1040,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "9c0dc1292ad9bc1360f437eb2134e625e17ffacea8f70719748a0e170af05ac8",
+      "sha256": "f325834ddc760ec34c51646f42be5d534664a5b6b5f58b9c073a3ea8ebaa509c",
       "size": 44691
     },
     {
@@ -1145,8 +1145,8 @@
     },
     {
       "path": "tests/test_execution_cancel.py",
-      "sha256": "224e526b36b06fb214143210c1b1f19e775c27cec72a8a05962103a065f1fd27",
-      "size": 1451
+      "sha256": "1c50f6e2be74601e48e337bc651460f3b0dafd1748161972bd070c173af44d6e",
+      "size": 3734
     },
     {
       "path": "tests/test_execution_docker_backend.py",
