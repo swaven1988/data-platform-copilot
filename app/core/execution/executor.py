@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
+from datetime import datetime, timezone
 
 from .models import ExecutionState, _utc_now_iso
 from .registry import ExecutionRegistry
@@ -8,6 +9,65 @@ from .state_machine import is_terminal
 
 # Phase 10: pluggable execution backends
 from .backends import BACKENDS
+
+from app.core.billing.ledger import LedgerStore, utc_month_key
+
+def _parse_iso(ts: Optional[str]) -> Optional[datetime]:
+    if not ts:
+        return None
+    t = ts.strip()
+    if t.endswith("Z"):
+        t = t[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(t)
+    except Exception:
+        return None
+
+
+def _maybe_write_actuals(*, registry: ExecutionRegistry, job_name: str) -> None:
+    rec = registry.get(job_name)
+    if rec is None:
+        return
+    if not rec.finished_ts:
+        return
+
+    # runtime
+    started = _parse_iso(rec.submitted_ts)
+    finished = _parse_iso(rec.finished_ts)
+    runtime_s = None
+    if started and finished:
+        runtime_s = max(0.0, (finished - started).total_seconds())
+
+    # cost: default to estimate (until real backend metering exists)
+    est = None
+    if isinstance(rec.cost_estimate, dict):
+        v = rec.cost_estimate.get("estimated_total_cost_usd")
+        if isinstance(v, (int, float)):
+            est = float(v)
+
+    month = utc_month_key()
+    ledger = LedgerStore(workspace_dir=registry.workspace_dir)
+    ledger.upsert_actual(
+        tenant=rec.tenant,
+        month=month,
+        job_name=rec.job_name,
+        build_id=rec.build_id,
+        actual_cost_usd=est,
+        actual_runtime_seconds=runtime_s,
+        finished_ts=rec.finished_ts,
+    )
+
+    # persist in execution record as well (non-breaking)
+    fields = {}
+    if runtime_s is not None:
+        fields["actual_runtime_seconds"] = runtime_s
+    if est is not None:
+        fields["actual_cost_usd"] = est
+    if fields:
+        try:
+            registry.update_fields(job_name=job_name, fields=fields)
+        except Exception:
+            pass
 
 
 class Executor:
@@ -125,6 +185,7 @@ class Executor:
                 message=f"{state.lower()} (backend)",
                 data={"backend": backend_name, "backend_ref": rec.backend_ref, "status": st},
             )
+            _maybe_write_actuals(registry=self.registry, job_name=job_name)
             return rec.to_dict()
 
         # Unknown => treat as RUNNING but store diagnostics

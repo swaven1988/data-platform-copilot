@@ -40,6 +40,10 @@
       "sha256": "463dbed32937ed3d14aa09cd431bf55aa39c8dd4e05c7abfd481a666cca5880c"
     },
     {
+      "path": "app/api/endpoints/billing.py",
+      "sha256": "fbc7899afbb7e0bc6956c392e4d0987bbb8555741eeb69e42ef7d2eec60d3f12"
+    },
+    {
       "path": "app/api/endpoints/build.py",
       "sha256": "8ba4e876bac926c00f48df3e01cdc502e3a99debb471f3850a114e255aa037bb"
     },
@@ -165,7 +169,7 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "f912a52010d2ad0f2fe6e5889042162f4549f10785f59c40224fa96ddfaf8d69"
+      "sha256": "a1ea9931fdd0c97c20c33c46b03f2cc5f20851f3620e15c7e00d5f54e401c5ef"
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -241,7 +245,7 @@
     },
     {
       "path": "app/core/billing/ledger.py",
-      "sha256": "3cddb09e2e32f722a24bb807572a8ccadb4dd4f1c94affbe1c54f6efc734346f"
+      "sha256": "8f4a274473608141226889c9edcba62a8ebea36c80dc138bdc9af541083cf5dc"
     },
     {
       "path": "app/core/billing/tenant_budget.py",
@@ -413,7 +417,7 @@
     },
     {
       "path": "app/core/execution/executor.py",
-      "sha256": "3d29811d1594ba708419cfcebdc288e5ce7ab364f219232ee25e0614e8d3df5c"
+      "sha256": "82dcc9f39698b9b50737583d18232d802bc938754954c5f86ea0350753287423"
     },
     {
       "path": "app/core/execution/guards.py",
@@ -421,7 +425,7 @@
     },
     {
       "path": "app/core/execution/models.py",
-      "sha256": "5b4e412c57ba0def9b1774ac5376c518d2f15e27c1965173b86d02e371a0cf15"
+      "sha256": "1156c73769403bccae6479fd3c33ca2fa61e410c1a7428080023a2d4667ec462"
     },
     {
       "path": "app/core/execution/registry.py",
@@ -769,7 +773,7 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "2c43501daff5c4d8f69fbd77090f3d44b499c3cddfff51553bd9a1a6ad880678"
+      "sha256": "7720660659eb2f284de99cf523a0075a7dd78f7ecf037f53bf1b3ab23a1b7b41"
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -788,6 +792,10 @@
       "sha256": "bd9b41f196b5b8338febd6ffd24a9eb801040ab53c992d01619309a202f5b9b2"
     },
     {
+      "path": "tests/test_billing_summary_api.py",
+      "sha256": "59b700040305b056bc00b6d43e7a669153341377e0851148dc8c2547067c980f"
+    },
+    {
       "path": "tests/test_build_v2_contract.py",
       "sha256": "ca78dab357ef0abf04cc59efad21b57b8b181f5e1446eff93bb1aee98a033b15"
     },
@@ -802,6 +810,10 @@
     {
       "path": "tests/test_cost_estimator_v2.py",
       "sha256": "427b082fd11616c29677d2453f9f792052b27da3826b18397ff38d1b6a3046cb"
+    },
+    {
+      "path": "tests/test_execution_actuals_to_ledger.py",
+      "sha256": "4af907ea905027d6d44388a61d07fb1ff5923da4f6749f5e1cb7269732b4a9ea"
     },
     {
       "path": "tests/test_execution_backend_registry.py",

@@ -52,6 +52,7 @@ from app.api.endpoints.runtime_profiles import router as runtime_profiles_router
 from app.api.endpoints import preflight
 
 from app.api.endpoints.execution import router as execution_router
+from app.api.endpoints.billing import router as billing_router
 
 app = FastAPI(
     title="Data Platform Copilot API",
@@ -145,6 +146,7 @@ app.include_router(policy_router)
 app.include_router(build_v3_router)
 app.include_router(preflight.router)
 app.include_router(execution_router)
+app.include_router(billing_router)
 
 # IMPORTANT: do NOT include v1_router unversioned anymore
 

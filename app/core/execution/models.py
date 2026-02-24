@@ -49,6 +49,11 @@ class ExecutionRecord:
     backend_ref: Optional[str] = None
     submitted_ts: Optional[str] = None
     finished_ts: Optional[str] = None
+
+    # Phase 12.2: actuals (optional)
+    actual_runtime_seconds: Optional[float] = None
+    actual_cost_usd: Optional[float] = None
+
     backend_meta: Dict[str, Any] = field(default_factory=dict)
 
     last_error: Optional[str] = None
@@ -70,6 +75,8 @@ class ExecutionRecord:
             "backend_ref": self.backend_ref,
             "submitted_ts": self.submitted_ts,
             "finished_ts": self.finished_ts,
+            "actual_runtime_seconds": self.actual_runtime_seconds,
+            "actual_cost_usd": self.actual_cost_usd,
             "backend_meta": self.backend_meta or {},
             "last_error": self.last_error,
             "events": [
@@ -111,6 +118,8 @@ class ExecutionRecord:
             backend_ref=d.get("backend_ref"),
             submitted_ts=d.get("submitted_ts"),
             finished_ts=d.get("finished_ts"),
+            actual_runtime_seconds=d.get("actual_runtime_seconds"),
+            actual_cost_usd=d.get("actual_cost_usd"),
             backend_meta=d.get("backend_meta") or {},
             last_error=d.get("last_error"),
             events=evs,

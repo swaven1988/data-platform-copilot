@@ -35,6 +35,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+      - /app/workspace
     security_opt:
       - no-new-privileges:true
 
