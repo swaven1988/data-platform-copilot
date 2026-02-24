@@ -1,6 +1,6 @@
 # app/api/endpoints/execution.py
 # PATCH: apply policy guardrails BEFORE transitioning to APPLIED.
-# PATCH: Phase 10 - backend selector for run()
+# Replace your ApplyRequest + apply_build with this exact version.
 
 from __future__ import annotations
 
@@ -36,7 +36,6 @@ class ApplyRequest(BaseModel):
 class RunRequest(BaseModel):
     job_name: str
     workspace_dir: Optional[str] = None
-    backend: Optional[str] = "local"
 
 
 def _workspace_dir(workspace_dir: Optional[str], job_name: str) -> Path:
@@ -153,12 +152,7 @@ def run_build(
 
     exec_ = Executor(registry=reg)
     try:
-        backend = req.backend or "local"
-        out = exec_.run(
-            req.job_name,
-            config={},
-            backend_name=backend,
-        )
+        out = exec_.run(req.job_name)
         return {"ok": True, "execution": out, "audit": audit_context(tenant=tenant, request_id=x_request_id)}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
