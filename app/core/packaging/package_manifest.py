@@ -4,98 +4,113 @@ import fnmatch
 import hashlib
 import json
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List
 
 
-DEFAULT_INCLUDE_PATHS = [
+DEFAULT_INCLUDE_PATHS: List[str] = [
     "app",
     "tests",
     "ui",
     "templates",
     "docs",
     ".github",
-    "pyproject.toml",
+    "deploy",
+    "tools",
     "README.md",
     "Makefile",
-    "test.sh",
-    "copilot_spec.yaml",
+    "packaging_manifest.json",
     "project_tree.txt",
     "project_file_paths.txt",
 ]
 
-DEFAULT_EXCLUDES = [
+DEFAULT_EXCLUDES: List[str] = [
     "**/__pycache__/**",
     "**/*.pyc",
     "**/.pytest_cache/**",
     "**/.mypy_cache/**",
     "**/.ruff_cache/**",
     "**/.venv/**",
-    "**/workspace/**",
+    "**/.git/**",
+    "**/.idea/**",
+    "**/.vscode/**",
     "**/*.log",
-    "**/*.tar.gz",
+    "**/.DS_Store",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.egg-info/**",
+    "**/.copilot/**",
+    "**/.pytest_cache/**",
 ]
 
 
-def sha256_file(p: Path) -> str:
-    h = hashlib.sha256()
-    with p.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def matches_any(path_posix: str, patterns: Iterable[str]) -> bool:
+def _matches_any(path: str, patterns: List[str]) -> bool:
     for pat in patterns:
-        if fnmatch.fnmatch(path_posix, pat):
+        if fnmatch.fnmatch(path, pat):
             return True
     return False
 
 
-def iter_included_files(project_root: Path, include_paths: List[str], excludes: List[str]) -> List[Path]:
-    files: List[Path] = []
-
-    for inc in include_paths:
-        p = project_root / inc
+def iter_included_files(
+    *,
+    project_root: Path,
+    include_paths: List[str],
+    excludes: List[str],
+) -> Iterable[Path]:
+    for rel in include_paths:
+        p = (project_root / rel).resolve()
         if not p.exists():
             continue
 
         if p.is_file():
-            rel = p.relative_to(project_root).as_posix()
-            if not matches_any(rel, excludes):
-                files.append(p)
+            rel_posix = p.relative_to(project_root).as_posix()
+            if not _matches_any(rel_posix, excludes):
+                yield p
             continue
 
         for f in p.rglob("*"):
             if not f.is_file():
                 continue
-            rel = f.relative_to(project_root).as_posix()
-            if matches_any(rel, excludes):
+            rel_posix = f.relative_to(project_root).as_posix()
+            if _matches_any(rel_posix, excludes):
                 continue
-            files.append(f)
+            yield f
 
-    uniq: Dict[str, Path] = {}
-    for f in files:
-        rel = f.relative_to(project_root).as_posix()
-        uniq[rel] = f
 
-    return [uniq[k] for k in sorted(uniq.keys())]
+def sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as fp:
+        for chunk in iter(lambda: fp.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def generate_packaging_manifest(
     *,
     project_root: Path,
-    include_paths: Optional[List[str]] = None,
-    excludes: Optional[List[str]] = None,
+    include_paths: List[str] | None = None,
+    excludes: List[str] | None = None,
 ) -> Dict:
-    include_paths = include_paths or list(DEFAULT_INCLUDE_PATHS)
-    excludes = excludes or list(DEFAULT_EXCLUDES)
+    include_paths = list(include_paths or DEFAULT_INCLUDE_PATHS)
+    excludes = list(excludes or DEFAULT_EXCLUDES)
 
-    files = iter_included_files(project_root, include_paths, excludes)
+    # normalize ordering for determinism
+    include_paths = sorted(dict.fromkeys(include_paths))
+    excludes = sorted(dict.fromkeys(excludes))
 
-    out_files: List[Dict[str, str]] = []
-    for f in files:
+    out_files = []
+    for f in sorted(
+        iter_included_files(project_root=project_root, include_paths=include_paths, excludes=excludes),
+        key=lambda p: p.relative_to(project_root).as_posix(),
+    ):
         rel = f.relative_to(project_root).as_posix()
-        out_files.append({"path": rel, "sha256": sha256_file(f)})
+        out_files.append(
+            {
+                "path": rel,
+                "sha256": sha256_file(f),
+                "size": f.stat().st_size,
+            }
+        )
 
     return {
         "kind": "packaging_manifest",
@@ -113,5 +128,85 @@ def load_manifest(path: Path) -> Dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _normalize_manifest(m: Dict) -> Dict:
+    m2 = dict(m or {})
+    m2["kind"] = m2.get("kind")
+
+    inc = list(m2.get("include_paths") or [])
+    exc = list(m2.get("excludes") or [])
+    m2["include_paths"] = sorted(dict.fromkeys(inc))
+    m2["excludes"] = sorted(dict.fromkeys(exc))
+
+    files = list(m2.get("files") or [])
+    norm_files = []
+    for e in files:
+        if not isinstance(e, dict):
+            continue
+        path = e.get("path")
+        if not path:
+            continue
+        norm_files.append(
+            {
+                "path": str(path),
+                "sha256": e.get("sha256"),
+                "size": e.get("size"),
+            }
+        )
+    norm_files.sort(key=lambda x: x["path"])
+    m2["files"] = norm_files
+    return m2
+
+
 def manifests_equal(a: Dict, b: Dict) -> bool:
-    return a == b
+    """
+    Manifest comparison that is deterministic across OS/filesystems.
+
+    IMPORTANT:
+    - Ignore packaging_manifest.json inside the 'files' list.
+      That file is the snapshot itself and will legitimately change when rewritten.
+    """
+
+    def _norm_files(m: Dict) -> Dict[str, Dict]:
+        out: Dict[str, Dict] = {}
+        for e in (m.get("files") or []):
+            if not isinstance(e, dict):
+                continue
+            p = e.get("path")
+            if not p:
+                continue
+
+            # Ignore self-reference to avoid recursive self-hash mismatch
+            if p.replace("\\", "/") == "packaging_manifest.json":
+                continue
+
+            # Keep only stable fields (some builds may include size)
+            out[p] = {
+                "path": p,
+                "sha256": e.get("sha256"),
+                "size": e.get("size"),
+            }
+        return out
+
+    # Compare top-level stable fields first
+    if (a.get("kind") != b.get("kind")):
+        return False
+    if (a.get("include_paths") != b.get("include_paths")):
+        return False
+    if (a.get("excludes") != b.get("excludes")):
+        return False
+
+    A = _norm_files(a)
+    B = _norm_files(b)
+
+    if set(A.keys()) != set(B.keys()):
+        return False
+
+    for p in A.keys():
+        # Compare sha always; compare size only if both sides have it
+        if A[p].get("sha256") != B[p].get("sha256"):
+            return False
+        sa, sb = A[p].get("size"), B[p].get("size")
+        if sa is not None and sb is not None and sa != sb:
+            return False
+
+    return True

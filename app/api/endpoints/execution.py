@@ -184,10 +184,16 @@ def cancel_build(
     exec_ = Executor(registry=reg)
 
     try:
-        out = exec_.cancel(req.job_name)
+        # IMPORTANT: match your Phase-13 Executor.cancel signature
+        out = exec_.cancel(job_name=req.job_name, tenant=tenant)
         return {"ok": True, "execution": out, "audit": audit_context(tenant=tenant, request_id=x_request_id)}
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="execution not found")
+    except ValueError as e:
+        # treat "job not found" etc. as 404, not 400
+        if "not found" in str(e).lower():
+            raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

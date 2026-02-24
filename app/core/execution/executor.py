@@ -195,32 +195,39 @@ class Executor:
         )
         return self.registry.get(job_name).to_dict()  # type: ignore[union-attr]
 
-    def cancel(self, job_name: str) -> Dict[str, Any]:
+    def cancel(self, *, job_name: str, tenant: str):
         rec = self.registry.get(job_name)
         if rec is None:
-            raise FileNotFoundError(f"execution not found for job_name={job_name}")
+            raise ValueError("job not found")
 
-        if rec.state != ExecutionState.RUNNING:
+        # Terminal states → idempotent
+        if rec.state in ("SUCCEEDED", "FAILED", "CANCELED"):
             return rec.to_dict()
 
         backend_name = rec.backend or "local"
-        backend = BACKENDS.get(backend_name)
-        if not backend:
-            rec = self.registry.transition(job_name=job_name, dst=ExecutionState.FAILED, message="failed (unsupported backend)")
-            return rec.to_dict()
+        backend = BACKENDS[backend_name]
 
         try:
-            backend.cancel(job_name=job_name, backend_ref=rec.backend_ref)
-        except Exception as e:
-            # best-effort cancel: still mark failed but keep error
-            self.registry.update_fields(job_name=job_name, fields={"last_error": str(e)})
+            if rec.backend_ref:
+                backend.cancel(rec.backend_ref)
+        except Exception:
+            # backend cancel failure should not break state transition
+            pass
 
-        now = _utc_now_iso()
-        self.registry.update_fields(job_name=job_name, fields={"finished_ts": now})
+        # mark finished
+        rec.finished_ts = _utc_now_iso()
+
         rec = self.registry.transition(
             job_name=job_name,
-            dst=ExecutionState.FAILED,
+            dst=ExecutionState.CANCELED,
             message="cancelled",
-            data={"backend": backend_name, "backend_ref": rec.backend_ref},
+            data={
+                "backend": backend_name,
+                "backend_ref": rec.backend_ref,
+            },
         )
+
+        # write actuals to ledger (Phase 12 integration)
+        _maybe_write_actuals(registry=self.registry, job_name=job_name)
+
         return rec.to_dict()

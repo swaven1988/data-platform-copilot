@@ -1,28 +1,53 @@
 from pathlib import Path
+from fastapi.testclient import TestClient
 
-from app.core.execution.executor import Executor
-from app.core.execution.models import ExecutionState
-from app.core.execution.registry import ExecutionRegistry
+from app.api.main import app
+
+client = TestClient(app)
+
+AUTH = {
+    "Authorization": "Bearer dev_admin_token",
+    "X-Tenant": "default",
+}
 
 
-def test_execution_cancel_transitions_to_failed(tmp_path: Path):
+def test_cancel_lifecycle(tmp_path: Path):
     ws = tmp_path / "workspace" / "job_cancel"
-    reg = ExecutionRegistry(workspace_dir=ws)
+    ws.mkdir(parents=True, exist_ok=True)
 
-    reg.init_if_missing(
-        job_name="job_cancel",
-        build_id="b1",
-        tenant="default",
-        runtime_profile=None,
-        preflight_hash=None,
-        cost_estimate=None,
-        request_id=None,
-        initial_state=ExecutionState.APPLIED,
+    # apply
+    r1 = client.post(
+        "/api/v2/build/apply",
+        json={"job_name": "job_cancel", "workspace_dir": str(ws)},
+        params={"contract_hash": "c1"},
+        headers=AUTH,
     )
+    assert r1.status_code == 200
 
-    ex = Executor(registry=reg)
-    running = ex.run("job_cancel", backend_name="k8s")
-    assert running["state"] == ExecutionState.RUNNING.value
+    # run
+    r2 = client.post(
+        "/api/v2/build/run",
+        json={"job_name": "job_cancel", "workspace_dir": str(ws), "backend": "local"},
+        params={"contract_hash": "c1"},
+        headers=AUTH,
+    )
+    assert r2.status_code == 200
+    assert r2.json()["execution"]["state"] == "RUNNING"
 
-    cancelled = ex.cancel("job_cancel")
-    assert cancelled["state"] == ExecutionState.FAILED.value
+    # cancel
+    r3 = client.post(
+        "/api/v2/build/cancel",
+        json={"job_name": "job_cancel", "workspace_dir": str(ws)},
+        headers=AUTH,
+    )
+    assert r3.status_code == 200
+    assert r3.json()["execution"]["state"] == "CANCELED"
+
+    # idempotent cancel
+    r4 = client.post(
+        "/api/v2/build/cancel",
+        json={"job_name": "job_cancel", "workspace_dir": str(ws)},
+        headers=AUTH,
+    )
+    assert r4.status_code == 200
+    assert r4.json()["execution"]["state"] == "CANCELED"

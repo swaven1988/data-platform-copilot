@@ -11,6 +11,11 @@ _ALLOWED: Set[Tuple[ExecutionState, ExecutionState]] = {
     (ExecutionState.PLAN_READY, ExecutionState.PRECHECK_PASSED),
     (ExecutionState.PRECHECK_PASSED, ExecutionState.APPLIED),
     (ExecutionState.APPLIED, ExecutionState.RUNNING),
+
+    # allow cancel from active states
+    (ExecutionState.APPLIED, ExecutionState.CANCELED),
+    (ExecutionState.RUNNING, ExecutionState.CANCELED),
+
     (ExecutionState.RUNNING, ExecutionState.SUCCEEDED),
     (ExecutionState.RUNNING, ExecutionState.FAILED),
     (ExecutionState.PRECHECK_PASSED, ExecutionState.BLOCKED),
@@ -22,6 +27,7 @@ _TERMINAL: Set[ExecutionState] = {
     ExecutionState.SUCCEEDED,
     ExecutionState.FAILED,
     ExecutionState.BLOCKED,
+    ExecutionState.CANCELED,
 }
 
 
@@ -43,7 +49,7 @@ def ensure_transition(src: ExecutionState, dst: ExecutionState) -> None:
 
 
 def allowed_next(src: ExecutionState) -> Dict[str, bool]:
-    out = {}
+    out: Dict[str, bool] = {}
     for a, b in _ALLOWED:
         if a == src:
             out[b.value] = True

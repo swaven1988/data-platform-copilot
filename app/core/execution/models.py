@@ -19,6 +19,7 @@ class ExecutionState(str, Enum):
     SUCCEEDED = "SUCCEEDED"
     FAILED = "FAILED"
     BLOCKED = "BLOCKED"
+    CANCELED = "CANCELED"
 
 
 @dataclass
