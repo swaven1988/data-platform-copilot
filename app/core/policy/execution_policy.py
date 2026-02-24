@@ -1,4 +1,3 @@
-# app/core/policy/execution_policy.py
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,7 +6,7 @@ from typing import Any, Dict, Optional, Tuple
 
 @dataclass(frozen=True)
 class ExecutionPolicyConfig:
-    # Cost guardrails
+    # Cost guardrails (single-run)
     max_total_cost_usd: float = 50.0
 
     # Runtime guardrails
@@ -18,15 +17,12 @@ class ExecutionPolicyConfig:
 
 
 def _tenant_defaults(tenant: str) -> ExecutionPolicyConfig:
-    # Phase 9: simple per-tenant defaults.
-    # You can later load from config/DB/secret manager.
     if tenant == "default":
         return ExecutionPolicyConfig(
             max_total_cost_usd=50.0,
             max_runtime_minutes=180.0,
             max_executors=200,
         )
-    # fallback
     return ExecutionPolicyConfig()
 
 
@@ -35,17 +31,26 @@ def evaluate_execution_policy(
     tenant: str,
     cost_estimate: Optional[Dict[str, Any]],
     preflight_report: Optional[Dict[str, Any]],
+    billing: Optional[Dict[str, Any]] = None,  # Phase 11
 ) -> Tuple[str, Dict[str, Any]]:
     """
     Returns:
       ("ALLOW"|"WARN"|"BLOCK", details)
+
+    billing (optional):
+      {
+        "month": "YYYY-MM",
+        "limit_usd": float,
+        "spent_usd": float,
+        "new_estimate_usd": float|None
+      }
     """
     cfg = _tenant_defaults(tenant)
 
     reasons = []
     warnings = []
 
-    # ---- cost checks ----
+    # ---- cost checks (single-run) ----
     total_cost = None
     if isinstance(cost_estimate, dict):
         total_cost = cost_estimate.get("estimated_total_cost_usd", None)
@@ -72,7 +77,7 @@ def evaluate_execution_policy(
                 }
             )
 
-    # ---- resource checks (best-effort) ----
+    # ---- resource checks ----
     executors = None
     if isinstance(src, dict):
         executors = src.get("pricing", {}).get("executors", None) if isinstance(src.get("pricing", None), dict) else None
@@ -84,6 +89,32 @@ def evaluate_execution_policy(
                     "message": f"Executors {executors} exceeds tenant max {cfg.max_executors}.",
                 }
             )
+
+    # ---- Phase 11: monthly budget ledger check ----
+    billing_details = {}
+    if isinstance(billing, dict):
+        month = billing.get("month")
+        limit_usd = billing.get("limit_usd")
+        spent_usd = billing.get("spent_usd")
+        new_est = billing.get("new_estimate_usd")
+
+        billing_details = {
+            "month": month,
+            "limit_usd": limit_usd,
+            "spent_usd": spent_usd,
+            "new_estimate_usd": new_est,
+        }
+
+        if isinstance(limit_usd, (int, float)) and isinstance(spent_usd, (int, float)) and isinstance(new_est, (int, float)):
+            projected = float(spent_usd) + float(new_est)
+            if projected > float(limit_usd):
+                reasons.append(
+                    {
+                        "kind": "budget",
+                        "code": "exec.budget.exceeded",
+                        "message": f"Monthly budget exceeded for {month}: spent=${float(spent_usd):.2f} + new=${float(new_est):.2f} > limit=${float(limit_usd):.2f}.",
+                    }
+                )
 
     # ---- high risk warning (does not block) ----
     risk_score = None
@@ -98,10 +129,14 @@ def evaluate_execution_policy(
                 }
             )
 
+    details = {"tenant": tenant, "limits": cfg.__dict__, "reasons": reasons, "warnings": warnings}
+    if billing_details:
+        details["billing"] = billing_details
+
     if reasons:
-        return "BLOCK", {"tenant": tenant, "limits": cfg.__dict__, "reasons": reasons, "warnings": warnings}
+        return "BLOCK", details
 
     if warnings:
-        return "WARN", {"tenant": tenant, "limits": cfg.__dict__, "reasons": [], "warnings": warnings}
+        return "WARN", details
 
-    return "ALLOW", {"tenant": tenant, "limits": cfg.__dict__, "reasons": [], "warnings": []}
+    return "ALLOW", details

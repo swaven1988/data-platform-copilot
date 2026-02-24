@@ -1,20 +1,4 @@
 {
-  "kind": "packaging_manifest",
-  "include_paths": [
-    "app",
-    "tests",
-    "ui",
-    "templates",
-    "docs",
-    ".github",
-    "pyproject.toml",
-    "README.md",
-    "Makefile",
-    "test.sh",
-    "copilot_spec.yaml",
-    "project_tree.txt",
-    "project_file_paths.txt"
-  ],
   "excludes": [
     "**/__pycache__/**",
     "**/*.pyc",
@@ -81,7 +65,7 @@
     },
     {
       "path": "app/api/endpoints/execution.py",
-      "sha256": "6d1b332ae7dd034b818d9859a2bade3bbf14397140cfe1cc19771bacb808388e"
+      "sha256": "61790fdb9515caee88b184b814e5c4fcee251e5fbbc244700530b8e6e2ac8c1a"
     },
     {
       "path": "app/api/endpoints/execution.py.bak",
@@ -256,6 +240,14 @@
       "sha256": "2ca220c36f3d45f214266ab116d03e81f9e75df0ad9c96355f312204ec04f8f8"
     },
     {
+      "path": "app/core/billing/ledger.py",
+      "sha256": "3cddb09e2e32f722a24bb807572a8ccadb4dd4f1c94affbe1c54f6efc734346f"
+    },
+    {
+      "path": "app/core/billing/tenant_budget.py",
+      "sha256": "ded095e741658dd820bc7d75be731ff69aa2d1a731c19df60e0b6123f2eef0b1"
+    },
+    {
       "path": "app/core/build_plan/advisors.py",
       "sha256": "520372e7496d47b064f5b52a23c613618bcb6b8bf560c6520b1b85b7abfa0c75"
     },
@@ -397,15 +389,15 @@
     },
     {
       "path": "app/core/execution/backends/airflow.py",
-      "sha256": "6f8a50fe14c41a2de61341d20a71784d9048af06e3b2aa738f3a03b7038310c5"
+      "sha256": "d5eb9f0a29e63fc2cdba29940cc06deeaec8eb3db229e300d50d1454fb0adbae"
     },
     {
       "path": "app/core/execution/backends/base.py",
-      "sha256": "9baa1b82cbd4be2cbd43b7bbe782b51346a838dad61eaccbe26127705853b993"
+      "sha256": "c4b5e4adc3b90db56882e1efdad9536edc03d29ab42a0c67f26fe8fb171f63e0"
     },
     {
       "path": "app/core/execution/backends/docker.py",
-      "sha256": "15115ba1a14c28c32527bce5af6bcd2fecafec46d3f1971d5be7edf3d04f9981"
+      "sha256": "6105c930e9b755998e03e2a5c7706e8bb5973c8b669efdf7f89f6e16b68341f4"
     },
     {
       "path": "app/core/execution/backends/init.py",
@@ -413,27 +405,27 @@
     },
     {
       "path": "app/core/execution/backends/k8s.py",
-      "sha256": "1be30a884c2608ac104c0f74f0f7d8a63c9da07fc2f6be9f19d9504751668b41"
+      "sha256": "1c66ffff4003fa2cb2ede5fff964978a3eb0be3c60fbb4d01deebce99f5ce3d2"
     },
     {
       "path": "app/core/execution/backends/local.py",
-      "sha256": "4b225d26a311bd15ac56fcb685f321d5458f6c3b82627395f34e8d44bc076a8d"
+      "sha256": "d54c54c83fece6bc856aa5f1376902ab21deca0461ba284f3b7856c940d63771"
     },
     {
       "path": "app/core/execution/executor.py",
-      "sha256": "e42101ad6d8c22a5946cdafe19f68536dde962a5dce4e3449913a0f1772e7ef1"
+      "sha256": "3d29811d1594ba708419cfcebdc288e5ce7ab364f219232ee25e0614e8d3df5c"
     },
     {
       "path": "app/core/execution/guards.py",
-      "sha256": "53bd7d6a7090714663ff95bbcf9296f82bee65dd5e0a43bf9de497fc1a01190b"
+      "sha256": "748d3a1ac1e3b68b59d71d7b0971f7abe40d8f12a87465ae57c57c37a58d9962"
     },
     {
       "path": "app/core/execution/models.py",
-      "sha256": "804e18d2abbc967d4abe1255c8fdbbaa9834d0f98700134b47bb539aefddc669"
+      "sha256": "5b4e412c57ba0def9b1774ac5376c518d2f15e27c1965173b86d02e371a0cf15"
     },
     {
       "path": "app/core/execution/registry.py",
-      "sha256": "24547b4983562e1b0c8d4b20a144340809956b6c96835a0a9fe1881c870ee0d3"
+      "sha256": "291ec22622bfdb1a60eb5865b663f165aa030f3820c2651279abcacf1ecc3cb7"
     },
     {
       "path": "app/core/execution/state_machine.py",
@@ -553,7 +545,7 @@
     },
     {
       "path": "app/core/policy/execution_policy.py",
-      "sha256": "1480bf200af35316af5b5857b4f4c6afac0fd038f00be8dba0641996d079604e"
+      "sha256": "f8ee02ce257ce444acbcfcb4b40a5e7e151d04fa14166ca763826ea9b84792dc"
     },
     {
       "path": "app/core/policy/models.py",
@@ -777,7 +769,7 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "6d9313fab17c978f4cf6b7c799ceb8666fcb16e6e79500cd57a0d0025ac4ca9d"
+      "sha256": "2c43501daff5c4d8f69fbd77090f3d44b499c3cddfff51553bd9a1a6ad880678"
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -790,6 +782,10 @@
     {
       "path": "tests/test_architecture_audit_api.py",
       "sha256": "a64ea1d2d8ef88daac44f2872d759cf6657baa93102bd32359b991bffd55faa4"
+    },
+    {
+      "path": "tests/test_billing_ledger_budget.py",
+      "sha256": "bd9b41f196b5b8338febd6ffd24a9eb801040ab53c992d01619309a202f5b9b2"
     },
     {
       "path": "tests/test_build_v2_contract.py",
@@ -812,12 +808,20 @@
       "sha256": "a66bca973ae6056dad00eac9c9fc163bab854b1e8e58a6586c2e851a52176ef6"
     },
     {
+      "path": "tests/test_execution_cancel.py",
+      "sha256": "eb51bab44818b49745650eba04f0dd3cb5d13e146d539b06e13e047bc79e3f29"
+    },
+    {
+      "path": "tests/test_execution_docker_backend.py",
+      "sha256": "56f761b7c4ca8a4240f39c88be832278bd36ef20cd88477536461bec0bd9f4aa"
+    },
+    {
       "path": "tests/test_execution_graph.py",
       "sha256": "31d2189f37b6a2cb379c500a52e56a847c62375138dd25bcae84267119540fdc"
     },
     {
       "path": "tests/test_execution_lifecycle.py",
-      "sha256": "a5d0b6e335f6f01026a4dd28525eef9bb2cc7beff62bf8142df1b775968571cb"
+      "sha256": "bf7ab77692728c2b17c117e7627e346c8cd9f6da519a9c897a1d356902d932fc"
     },
     {
       "path": "tests/test_execution_policy_enforcement.py",
@@ -919,5 +923,21 @@
       "path": "ui/streamlit_app.py",
       "sha256": "24e9f7dd5363297bdc0f364e83c4c5d7960f742e79bddc37bf8345ffee8ed39c"
     }
-  ]
+  ],
+  "include_paths": [
+    "app",
+    "tests",
+    "ui",
+    "templates",
+    "docs",
+    ".github",
+    "pyproject.toml",
+    "README.md",
+    "Makefile",
+    "test.sh",
+    "copilot_spec.yaml",
+    "project_tree.txt",
+    "project_file_paths.txt"
+  ],
+  "kind": "packaging_manifest"
 }

@@ -1,4 +1,3 @@
-# tests/test_execution_lifecycle.py
 from pathlib import Path
 
 from app.core.execution.models import ExecutionState
@@ -25,9 +24,13 @@ def test_execution_apply_run_lifecycle(tmp_path: Path):
     applied = ex.apply("job1")
     assert applied["state"] == ExecutionState.APPLIED.value
 
-    done = ex.run("job1")
+    running = ex.run("job1")
+    assert running["state"] == ExecutionState.RUNNING.value
+    assert running.get("backend") == "local"
+
+    done = ex.refresh_status("job1")
     assert done["state"] == ExecutionState.SUCCEEDED.value
 
-    # idempotent run
+    # idempotent run after terminal
     done2 = ex.run("job1")
     assert done2["state"] == ExecutionState.SUCCEEDED.value

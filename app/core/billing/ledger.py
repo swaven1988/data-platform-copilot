@@ -1,0 +1,127 @@
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+
+def utc_month_key(dt: Optional[datetime] = None) -> str:
+    d = dt or datetime.now(timezone.utc)
+    return f"{d.year:04d}-{d.month:02d}"
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _billing_root_from_workspace(workspace_dir: Path) -> Path:
+    root = workspace_dir.parent / ".copilot" / "billing"
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _ledger_path(workspace_dir: Path) -> Path:
+    return _billing_root_from_workspace(workspace_dir) / "ledger.json"
+
+
+@dataclass(frozen=True)
+class LedgerEntry:
+    entry_id: str
+    tenant: str
+    month: str
+    job_name: str
+    build_id: str
+    estimated_cost_usd: float
+    ts: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "entry_id": self.entry_id,
+            "tenant": self.tenant,
+            "month": self.month,
+            "job_name": self.job_name,
+            "build_id": self.build_id,
+            "estimated_cost_usd": self.estimated_cost_usd,
+            "ts": self.ts,
+        }
+
+
+class LedgerStore:
+    def __init__(self, *, workspace_dir: Path):
+        self.workspace_dir = workspace_dir
+
+    def _load(self) -> Dict[str, Any]:
+        p = _ledger_path(self.workspace_dir)
+        if not p.exists():
+            return {"kind": "ledger", "entries": []}
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            return {"kind": "ledger", "entries": []}
+
+    def _save(self, obj: Dict[str, Any]) -> None:
+        p = _ledger_path(self.workspace_dir)
+        p.write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
+
+    def upsert_estimate(
+        self,
+        *,
+        tenant: str,
+        month: str,
+        job_name: str,
+        build_id: str,
+        estimated_cost_usd: float,
+    ) -> LedgerEntry:
+        # Idempotency key: tenant + build + job
+        entry_id = f"{tenant}:{build_id}:{job_name}"
+        entry = LedgerEntry(
+            entry_id=entry_id,
+            tenant=tenant,
+            month=month,
+            job_name=job_name,
+            build_id=build_id,
+            estimated_cost_usd=float(estimated_cost_usd),
+            ts=_utc_now_iso(),
+        )
+
+        obj = self._load()
+        entries = obj.get("entries", [])
+        if not isinstance(entries, list):
+            entries = []
+
+        # replace if existing, else append
+        replaced = False
+        for i, e in enumerate(entries):
+            if isinstance(e, dict) and e.get("entry_id") == entry_id:
+                entries[i] = entry.to_dict()
+                replaced = True
+                break
+
+        if not replaced:
+            entries.append(entry.to_dict())
+
+        obj["kind"] = "ledger"
+        obj["entries"] = entries
+        self._save(obj)
+        return entry
+
+    def spent_usd(self, *, tenant: str, month: str) -> float:
+        obj = self._load()
+        entries = obj.get("entries", [])
+        if not isinstance(entries, list):
+            return 0.0
+
+        total = 0.0
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            if e.get("tenant") != tenant:
+                continue
+            if e.get("month") != month:
+                continue
+            v = e.get("estimated_cost_usd")
+            if isinstance(v, (int, float)):
+                total += float(v)
+        return total

@@ -1,9 +1,8 @@
-# app/core/execution/registry.py
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from .models import ExecutionEvent, ExecutionRecord, ExecutionState, _utc_now_iso
 from .state_machine import ensure_transition
@@ -20,8 +19,8 @@ def _exec_path(workspace_dir: Path, job_name: str) -> Path:
 
 
 class ExecutionRegistry:
-    """
-    File-backed execution registry.
+    """File-backed execution registry.
+
     Path: <workspace>/.copilot/execution/{job_name}.json
     """
 
@@ -85,7 +84,7 @@ class ExecutionRegistry:
         job_name: str,
         dst: ExecutionState,
         message: str = "",
-        data: Optional[Dict] = None,
+        data: Optional[Dict[str, Any]] = None,
     ) -> ExecutionRecord:
         rec = self.get(job_name)
         if rec is None:
@@ -107,7 +106,40 @@ class ExecutionRegistry:
         self.upsert(rec)
         return rec
 
-    def history(self, job_name: str) -> List[Dict]:
+    def update_fields(
+        self,
+        *,
+        job_name: str,
+        fields: Dict[str, Any],
+        message: str = "",
+        data: Optional[Dict[str, Any]] = None,
+        emit_event: bool = False,
+    ) -> ExecutionRecord:
+        rec = self.get(job_name)
+        if rec is None:
+            raise FileNotFoundError(f"execution not found for job_name={job_name}")
+
+        for k, v in (fields or {}).items():
+            if not hasattr(rec, k):
+                raise AttributeError(f"ExecutionRecord has no field: {k}")
+            setattr(rec, k, v)
+
+        now = _utc_now_iso()
+        rec.updated_ts = now
+        if emit_event:
+            rec.events.append(
+                ExecutionEvent(
+                    ts=now,
+                    state=rec.state,
+                    message=message or "updated",
+                    data=data or {},
+                )
+            )
+
+        self.upsert(rec)
+        return rec
+
+    def history(self, job_name: str) -> List[Dict[str, Any]]:
         rec = self.get(job_name)
         if rec is None:
             return []

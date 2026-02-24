@@ -3391,6 +3391,82 @@
         }
       }
     },
+    "/api/v2/build/cancel": {
+      "post": {
+        "tags": [
+          "execution"
+        ],
+        "summary": "Cancel Build",
+        "operationId": "cancel_build_api_v2_build_cancel_post",
+        "parameters": [
+          {
+            "name": "X-Tenant",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Tenant"
+            }
+          },
+          {
+            "name": "X-Request-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Request-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Cancel Build Api V2 Build Cancel Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v2/build/status/{job_name}": {
       "get": {
         "tags": [
@@ -7934,6 +8010,30 @@
         ],
         "title": "BuildV2Request",
         "description": "Build V2: UI sends a full spec (no need for copilot_spec.yaml)."
+      },
+      "CancelRequest": {
+        "properties": {
+          "job_name": {
+            "type": "string",
+            "title": "Job Name"
+          },
+          "workspace_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workspace Dir"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_name"
+        ],
+        "title": "CancelRequest"
       },
       "ClusterProfile": {
         "properties": {

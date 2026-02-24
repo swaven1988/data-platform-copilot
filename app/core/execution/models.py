@@ -1,4 +1,3 @@
-# app/core/execution/models.py
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -38,10 +37,20 @@ class ExecutionRecord:
     state: ExecutionState
     created_ts: str
     updated_ts: str
+
+    # provenance / attribution
     runtime_profile: Optional[str] = None
     preflight_hash: Optional[str] = None
     cost_estimate: Optional[Dict[str, Any]] = None
     request_id: Optional[str] = None
+
+    # execution runtime
+    backend: Optional[str] = None
+    backend_ref: Optional[str] = None
+    submitted_ts: Optional[str] = None
+    finished_ts: Optional[str] = None
+    backend_meta: Dict[str, Any] = field(default_factory=dict)
+
     last_error: Optional[str] = None
     events: List[ExecutionEvent] = field(default_factory=list)
 
@@ -57,6 +66,11 @@ class ExecutionRecord:
             "preflight_hash": self.preflight_hash,
             "cost_estimate": self.cost_estimate,
             "request_id": self.request_id,
+            "backend": self.backend,
+            "backend_ref": self.backend_ref,
+            "submitted_ts": self.submitted_ts,
+            "finished_ts": self.finished_ts,
+            "backend_meta": self.backend_meta or {},
             "last_error": self.last_error,
             "events": [
                 {
@@ -71,7 +85,7 @@ class ExecutionRecord:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecutionRecord":
-        evs = []
+        evs: List[ExecutionEvent] = []
         for e in d.get("events", []) or []:
             evs.append(
                 ExecutionEvent(
@@ -93,6 +107,11 @@ class ExecutionRecord:
             preflight_hash=d.get("preflight_hash"),
             cost_estimate=d.get("cost_estimate"),
             request_id=d.get("request_id"),
+            backend=d.get("backend"),
+            backend_ref=d.get("backend_ref"),
+            submitted_ts=d.get("submitted_ts"),
+            finished_ts=d.get("finished_ts"),
+            backend_meta=d.get("backend_meta") or {},
             last_error=d.get("last_error"),
             events=evs,
         )

@@ -1,6 +1,8 @@
+# FILE: app/api/endpoints/execution.py
 # app/api/endpoints/execution.py
 # PATCH: apply policy guardrails BEFORE transitioning to APPLIED.
 # PATCH: Phase 10 - backend selector for run()
+# PATCH: Phase 10.1 - real RUNNING + status polling + cancel
 
 from __future__ import annotations
 
@@ -37,6 +39,11 @@ class RunRequest(BaseModel):
     job_name: str
     workspace_dir: Optional[str] = None
     backend: Optional[str] = "local"
+
+
+class CancelRequest(BaseModel):
+    job_name: str
+    workspace_dir: Optional[str] = None
 
 
 def _workspace_dir(workspace_dir: Optional[str], job_name: str) -> Path:
@@ -77,6 +84,7 @@ def apply_build(
     decision, details, preflight_report, cost_used = evaluate_apply_guardrails(
         tenant=tenant,
         workspace_dir=ws,
+        build_id=contract_hash,
         preflight_hash=req.preflight_hash,
         cost_estimate_override=req.cost_estimate,
     )
@@ -164,6 +172,26 @@ def run_build(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@router.post("/cancel")
+def cancel_build(
+    req: CancelRequest,
+    x_tenant: Optional[str] = Header(default=None, alias="X-Tenant"),
+    x_request_id: Optional[str] = Header(default=None, alias="X-Request-Id"),
+) -> Dict[str, Any]:
+    ws = _workspace_dir(req.workspace_dir, req.job_name)
+    tenant = _tenant(x_tenant)
+    reg = ExecutionRegistry(workspace_dir=ws)
+    exec_ = Executor(registry=reg)
+
+    try:
+        out = exec_.cancel(req.job_name)
+        return {"ok": True, "execution": out, "audit": audit_context(tenant=tenant, request_id=x_request_id)}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="execution not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @router.get("/status/{job_name}")
 def status(
     job_name: str,
@@ -173,10 +201,18 @@ def status(
     ws = _workspace_dir(workspace_dir, job_name)
     tenant = _tenant(x_tenant)
     reg = ExecutionRegistry(workspace_dir=ws)
+
     rec = reg.get(job_name)
     if rec is None:
         raise HTTPException(status_code=404, detail="execution not found")
-    return {"job_name": job_name, "state": rec.state.value, "execution": rec.to_dict(), "tenant": tenant}
+
+    exec_ = Executor(registry=reg)
+    try:
+        updated = exec_.refresh_status(job_name)
+    except Exception:
+        updated = rec.to_dict()
+
+    return {"job_name": job_name, "state": updated["state"], "execution": updated, "tenant": tenant}
 
 
 @router.get("/history/{job_name}")
