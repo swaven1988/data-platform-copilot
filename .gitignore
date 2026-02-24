@@ -43,3 +43,7 @@ stdout
 git_diff.log
 data-platform-copilot-v0.10.5.tar.gz
 release_metadata.json
+
+# release artifacts
+release_metadata.json
+data-platform-copilot-*.tar.gz
