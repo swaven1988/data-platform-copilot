@@ -205,8 +205,8 @@
     },
     {
       "path": "app/api/endpoints/system_status.py",
-      "sha256": "d94d9b8e53828572d007a27e86f1013ed9b9359e4bb30081ea775c132cb6dcea",
-      "size": 501
+      "sha256": "a6298bba1a71ca747e187e8948bcbdb26ba7213af1092c88b3df693437bc58b5",
+      "size": 622
     },
     {
       "path": "app/api/endpoints/v1_tenanted.py",
@@ -230,8 +230,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "c169020e88f2c0bbd4cf4c394b0e8b5bfe50030f20d8d5e61f3e7241f06bdd83",
-      "size": 8501
+      "sha256": "ea8a0addde20804d53f0e911f9c89c74fe92b2b0911e637cc132b5942e33d710",
+      "size": 8611
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -247,6 +247,11 @@
       "path": "app/api/middleware/auth.py",
       "sha256": "027c19636b0ec001f7b76ec0c9e05e874a43ff68c0732ee3393ce586661ff5fa",
       "size": 6523
+    },
+    {
+      "path": "app/api/middleware/auth_context.py",
+      "sha256": "f07dd1297967680c213d3211fd0f1b40230c3accfb6324e67fb0967b2c190cfa",
+      "size": 685
     },
     {
       "path": "app/api/middleware/request_context.py",
@@ -332,6 +337,16 @@
       "path": "app/core/auth/rbac.py",
       "sha256": "2ca220c36f3d45f214266ab116d03e81f9e75df0ad9c96355f312204ec04f8f8",
       "size": 2381
+    },
+    {
+      "path": "app/core/auth/rbac_ext.py",
+      "sha256": "6f738af1dcd22b2980e1bb8b1b9375218678f3dc247b6ad0b75851a28bcfd877",
+      "size": 905
+    },
+    {
+      "path": "app/core/auth/tenant_guard.py",
+      "sha256": "1a1e413c61b3b8451b29f2d144fb049c0aa4900cbdb941bcfec913b6cfdf9f09",
+      "size": 392
     },
     {
       "path": "app/core/billing/ledger.py",
@@ -1080,8 +1095,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "0bf788a0aaa7c67ebbaa40261a55bfbc9376754f487889110ddbeb3b7b04f296",
-      "size": 47226
+      "sha256": "fc83beb2ecfb8a41b57b1c9cee1f1e2f07ed15aa7d19756f3567b0008fabb3eb",
+      "size": 47729
     },
     {
       "path": "project_file_paths.txt",
@@ -1282,6 +1297,11 @@
       "path": "tests/test_preflight_gate_integration.py",
       "sha256": "bdfdf9939fe6e4296b1b140966cc8280a6b2105077fca9ba6578d67019d6a35c",
       "size": 3013
+    },
+    {
+      "path": "tests/test_rbac_threats.py",
+      "sha256": "511af05c02faca1a2eb388e70f13c4132d50937223cbc118b4391c188b3928fd",
+      "size": 605
     },
     {
       "path": "tests/test_registry_run_cache.py",
