@@ -1080,8 +1080,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "0f42feea8dc43ad6313c71cb5b7e63074cfd9c1adfdf76da5f25dc8f83dbb463",
-      "size": 47057
+      "sha256": "0bf788a0aaa7c67ebbaa40261a55bfbc9376754f487889110ddbeb3b7b04f296",
+      "size": 47226
     },
     {
       "path": "project_file_paths.txt",

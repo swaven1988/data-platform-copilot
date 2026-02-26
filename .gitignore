@@ -1,8 +1,14 @@
 # Python
 __pycache__/
 *.py[cod]
+*.egg-info/
 .venv/
 .env
+
+# OS/IDE
+.vscode/
+.idea/
+.DS_Store
 
 # Streamlit
 .streamlit/secrets.toml
@@ -11,44 +17,23 @@ __pycache__/
 outputs/
 workspace/
 
-# OS/IDE
-.vscode/
-.idea/
-.DS_Store
-.copilot/plans/
-.copilot/audit.log
+# Copilot local artifacts / logs
+.copilot/
+stdout
+git_diff.log
+pytest.out
 
 # Local docker secrets
-/deploy/secrets/*.txt
+deploy/secrets/*.txt
 
-# local artifacts
+# Local build / release artifacts
 *.tar.gz
-pytest.out
-*.patch
-*.egg-info/
-tests/verify_packaging_manifest.py
-
-# local copilot workspace/artifacts
-.copilot/
-workspace/
-outputs/
-stdout
-git_diff.log
-
-# local copilot workspace/artifacts
-.copilot/
-workspace/
-outputs/
-stdout
-git_diff.log
-data-platform-copilot-v0.10.5.tar.gz
-release_metadata.json
-data-platform-copilot-v0.10.8.tar.gz.sha256
-
-# release artifacts
-release_metadata.json
-data-platform-copilot-*.tar.gz
-
-.copilot/audit.log
+*.sha256
 runtime_manifest.json
+release_metadata.json
+
+# Local patches
+*.patch
+
+# Local test artifacts
 tests/openapi_snapshot.json
