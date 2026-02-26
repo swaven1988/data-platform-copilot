@@ -32,10 +32,9 @@ services:
       - signing_key
 
     restart: unless-stopped
-    read_only: true
     tmpfs:
       - /tmp
-      - /app/workspace
+      - /app/workspace:uid=1000,gid=1000,mode=0775
     security_opt:
       - no-new-privileges:true
 

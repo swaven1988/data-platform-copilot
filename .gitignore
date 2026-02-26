@@ -37,6 +37,5 @@ release_metadata.json
 
 # Local test artifacts
 tests/openapi_snapshot.json
-
-pytest.logpytest.log
-pytest.log
+validate_prod.sh
+PROD_VALIDATION_CHECKLIST.md

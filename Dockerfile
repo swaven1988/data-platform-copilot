@@ -51,9 +51,13 @@ COPY project_tree.txt /app/project_tree.txt
 COPY project_file_paths.txt /app/project_file_paths.txt
 COPY logging.yaml /app/logging.yaml
 
-# Non-root
-RUN adduser --disabled-password --gecos '' appuser \
+# ---- CREATE NON-ROOT USER FIRST ----
+RUN adduser --disabled-password --gecos '' appuser
+
+# ---- CREATE WORKSPACE AND FIX OWNERSHIP ----
+RUN mkdir -p /app/workspace \
  && chown -R appuser:appuser /app
+
 USER appuser
 
 EXPOSE 8001
