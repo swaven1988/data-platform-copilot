@@ -51,3 +51,4 @@ data-platform-copilot-*.tar.gz
 
 .copilot/audit.log
 runtime_manifest.json
+tests/openapi_snapshot.json
