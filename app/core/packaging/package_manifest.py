@@ -3,8 +3,10 @@ from __future__ import annotations
 import fnmatch
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 from typing import Dict, Iterable, List
+
 
 
 DEFAULT_INCLUDE_PATHS: List[str] = [
@@ -104,11 +106,31 @@ def generate_packaging_manifest(
         key=lambda p: p.relative_to(project_root).as_posix(),
     ):
         rel = f.relative_to(project_root).as_posix()
+
+        # ---- Canonical hashing: use git index blob to avoid Windows CRLF drift ----
+        blob = None
+        try:
+            # ":" means "from index" (not working tree). This is stable across OS/autocrlf.
+            blob = subprocess.check_output(
+                ["git", "-C", str(project_root), "show", f":{rel}"],
+                stderr=subprocess.DEVNULL,
+            )
+        except Exception:
+            blob = None
+
+        if blob is not None:
+            sha = hashlib.sha256(blob).hexdigest()
+            size = len(blob)
+        else:
+            sha = sha256_file(f)
+            size = f.stat().st_size
+        
         out_files.append(
             {
                 "path": rel,
-                "sha256": sha256_file(f),
-                "size": f.stat().st_size,
+                "sha256": sha,
+                "size": size,
+
             }
         )
 
