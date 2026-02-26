@@ -720,8 +720,8 @@
     },
     {
       "path": "app/core/packaging/package_manifest.py",
-      "sha256": "afe6c9733b11ecbddaf6004981074f971381f745798cee0f7c3e2dfa87121afa",
-      "size": 5766
+      "sha256": "5539ec06ded67b16af620f30d9b4f05d9cac6b05a3f671fd2236604b677a1300",
+      "size": 6419
     },
     {
       "path": "app/core/packaging/packager.py",
@@ -847,6 +847,11 @@
       "path": "app/core/supply_chain/verification.py",
       "sha256": "269d7c4cb1920f77c52824f16c8bbd58f3ed9333bb855ebb50d1e127dd5b992c",
       "size": 1605
+    },
+    {
+      "path": "app/core/sync/guardrails.py",
+      "sha256": "90a0a23a013f9a02424443886e40ac8805267ef6408ab145538dbb8838c03580",
+      "size": 1142
     },
     {
       "path": "app/core/sync/sync_engine.py",
@@ -1120,7 +1125,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "221da0d2d6ef6b8b05e1cd586d69ae641d2618ffb878bbb0778b6a81d4d51694",
+      "sha256": "15308a5123ec3b510f130012feb38de9527a25a6a7b96bb58d451ee739bf4ae8",
       "size": 49405
     },
     {
@@ -1214,6 +1219,11 @@
       "size": 893
     },
     {
+      "path": "tests/test_dirty_workspace_block.py",
+      "sha256": "ba884998a2380410b387accabe3d767c6e3d7bc7aa3689bae5d15e1d9b30f113",
+      "size": 278
+    },
+    {
       "path": "tests/test_execution_actuals_to_ledger.py",
       "sha256": "4af907ea905027d6d44388a61d07fb1ff5923da4f6749f5e1cb7269732b4a9ea",
       "size": 2074
@@ -1269,6 +1279,11 @@
       "size": 994
     },
     {
+      "path": "tests/test_head_drift.py",
+      "sha256": "5a7e141ea9b9273d52d74e72b84b7df382ea9c4b50919f1b567eda0cbc2724be",
+      "size": 208
+    },
+    {
       "path": "tests/test_intent_contract.py",
       "sha256": "ad03660796572d40bda972d09ba9461399555fccb2db8a98614120daa1501d3b",
       "size": 1990
@@ -1297,6 +1312,21 @@
       "path": "tests/test_phase21_git_sync.py",
       "sha256": "b361700c0ecb8e52a41be7a4587349f0289ff07bc389b6a5b01edc3e5e1f468d",
       "size": 2088
+    },
+    {
+      "path": "tests/test_phase23_tenant_isolation_deep_audit.py",
+      "sha256": "1938af5482a7ad1eda27e862ee366ecf84976ff2d0cc7b5e608538a29e929ecf",
+      "size": 746
+    },
+    {
+      "path": "tests/test_phase24_audit_log_includes_tenant_actor.py",
+      "sha256": "f99dc403326d9d8bfa71567c140fce36bd09bf0a0c236b127926c23b128a81de",
+      "size": 838
+    },
+    {
+      "path": "tests/test_phase24_metrics_increment_consistency.py",
+      "sha256": "1cff1cd71de2cf6f1511a7e35923d6cb54d44dcb847bcdd9dafc437c2ea6febb",
+      "size": 713
     },
     {
       "path": "tests/test_plugin_fingerprint.py",
@@ -1344,6 +1374,11 @@
       "size": 1440
     },
     {
+      "path": "tests/test_release_metadata_integrity.py",
+      "sha256": "55b65d82c60781381e29777e49a4ad4ca1a99def5a90e3a49ab663151004a466",
+      "size": 302
+    },
+    {
       "path": "tests/test_release_verify.py",
       "sha256": "e805ded73c4320448c9ad6e3fe35f6024705efa9ac9cff5720186434dec4c5a8",
       "size": 3477
@@ -1389,6 +1424,11 @@
       "size": 265
     },
     {
+      "path": "tests/test_sync_idempotency.py",
+      "sha256": "5dadfde6ee282358ef0c1512234dfe31526c5325585404a7c3b1d2ac5e45c440",
+      "size": 335
+    },
+    {
       "path": "tests/test_system_status.py",
       "sha256": "82da8fb3aa52870c44efb2453edd76be171a4965e8571cc81300ae3c2b268b1f",
       "size": 370
@@ -1412,6 +1452,11 @@
       "path": "tools/gen_packaging_manifest.py",
       "sha256": "0cd0ab55db508b2372ee19486598e7da487ff9a62ea49b591ff4601d37fecb87",
       "size": 1562
+    },
+    {
+      "path": "tools/generate_release_metadata.py",
+      "sha256": "e5fd3400d143cf174c00fea98edbc5c3437e51fe6c9521cdbb18e3dcded55d64",
+      "size": 1032
     },
     {
       "path": "tools/runtime_manifest.py",

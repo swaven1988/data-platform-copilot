@@ -4,9 +4,6 @@ from app.core.observability.metrics import snapshot
 router = APIRouter()
 
 
-@router.get(
-    "/metrics/snapshot",
-    operation_id="metrics_snapshot_v1_get",
-)
+@router.get("/metrics/snapshot")
 def metrics_snapshot():
     return {"requests": snapshot()}

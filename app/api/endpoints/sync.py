@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, Dict
+
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import Dict, Any
 
 from app.core.sync.sync_engine import (
     apply_plan,
@@ -13,7 +14,11 @@ from app.core.sync.sync_engine import (
     simulate_rebase_for_plan,
 )
 
-from app.core.git_ops.sync_engine import SyncEngine, SyncDriftError
+from app.core.sync.guardrails import (
+    SyncGuardError,
+    validate_clean_workspace,
+    validate_baseline,
+)
 
 router = APIRouter(prefix="/sync", tags=["Sync"])
 
@@ -31,6 +36,8 @@ class SyncApplyRequest(BaseModel):
     job_name: str
     plan_id: str
     apply_safe_auto: bool = True
+    # Phase 21 hardening inputs (optional for backward compatibility)
+    baseline_commit: str | None = None
 
 
 class SyncRebaseSimulateRequest(BaseModel):
@@ -64,11 +71,27 @@ def get_plan(plan_id: str, job_name: str = Query(...)) -> Dict[str, Any]:
 
 @router.post("/apply")
 def sync_apply(req: SyncApplyRequest) -> Dict[str, Any]:
+    """
+    Canonical apply endpoint: /sync/apply (router prefix already includes /sync).
+    Phase 21 guardrails:
+      - block dirty workspace
+      - optional baseline commit validation (if provided)
+    """
     try:
         repo_dir = WORKSPACE_ROOT / req.job_name
         if not repo_dir.exists():
             raise FileNotFoundError(f"Workspace repo not found: {repo_dir}")
+
+        # Phase 21 guardrails
+        validate_clean_workspace(repo_dir)
+        if req.baseline_commit:
+            validate_baseline(repo_dir, req.baseline_commit)
+
         return apply_plan(repo_dir, req.plan_id, apply_safe_auto=req.apply_safe_auto)
+
+    except SyncGuardError as e:
+        # conflict / drift / dirty workspace => 409 is appropriate
+        raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -82,17 +105,3 @@ def simulate_rebase(req: SyncRebaseSimulateRequest) -> Dict[str, Any]:
         return simulate_rebase_for_plan(repo_dir, req.plan_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-@router.post("/sync/apply")
-def sync_apply(payload: SyncApplyRequest):
-    engine = SyncEngine(repo_path=payload.repo_path)
-
-    try:
-        result = engine.enforce_idempotent_apply(
-            baseline_commit=payload.baseline_commit,
-            contract_hash=payload.contract_hash,
-            previous_contract_hash=payload.previous_contract_hash,
-        )
-        return result
-    except SyncDriftError as e:
-        raise HTTPException(status_code=409, detail=str(e))
