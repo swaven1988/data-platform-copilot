@@ -1,20 +1,4 @@
 {
-  "kind": "packaging_manifest",
-  "include_paths": [
-    ".github",
-    "Makefile",
-    "README.md",
-    "app",
-    "deploy",
-    "docs",
-    "packaging_manifest.json",
-    "project_file_paths.txt",
-    "project_tree.txt",
-    "templates",
-    "tests",
-    "tools",
-    "ui"
-  ],
   "excludes": [
     "**/*.egg-info/**",
     "**/*.log",
@@ -36,13 +20,13 @@
   "files": [
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "59e1c19c04dede14244b7ca7053dc00ddff8645a0cd9c53abdf60bb1fb62ff38",
-      "size": 953
+      "sha256": "fbafb66400c36fecfe751a4b21a17f27226801b658acd63c68f52e08771ad550",
+      "size": 1216
     },
     {
       "path": ".github/workflows/release.yml",
-      "sha256": "922ca7b2fb1ea4cd3df1afd8becfd81d92aef56076b37d2b35ab819d7b1a20c1",
-      "size": 1992
+      "sha256": "1d85dfe3e0200153c0a25704c629b16ea8d6a04e4c2c6edff65aad843f94e419",
+      "size": 2132
     },
     {
       "path": "Makefile",
@@ -815,6 +799,11 @@
       "size": 13915
     },
     {
+      "path": "app/core/release/release_metadata.py",
+      "sha256": "3f9331ae43e010d33650e9d41a90b62ba869a0f511c0b44a079dcb6cc6849b42",
+      "size": 1229
+    },
+    {
       "path": "app/core/release/verify.py",
       "sha256": "f64c1c38f27c257478f27d2f46c31ee04bfcd2b1834ba2f766eb20a7392dd572",
       "size": 4845
@@ -1031,8 +1020,8 @@
     },
     {
       "path": "deploy/docker-compose.prod.yml",
-      "sha256": "dbec90ca911150f1a76ba2599b54eba10243a0a4344cd30f9a2d2f837d138491",
-      "size": 1983
+      "sha256": "b57aea3f4beb919d9a6a020cf4a736104a59789be6e9b7e545299f20bba18bfb",
+      "size": 1990
     },
     {
       "path": "deploy/helm/data-platform-copilot/Chart.yaml",
@@ -1120,14 +1109,19 @@
       "size": 281
     },
     {
+      "path": "docs/RUNBOOK.md",
+      "sha256": "0abd598ccddf335ae64cc7c51319828dc4dcd72a733fea9d87c70524513c45f2",
+      "size": 240
+    },
+    {
       "path": "docs/stage3_contract.md",
       "sha256": "07fed48f0dc0bec2c7a99f71b918b4b116108b9f6f9dc415bb20f1d31cfac808",
       "size": 2017
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "6bfc0bec350c0307f23be3cb3f5bba2cb96fc47f6937438e84c2138abe700d5a",
-      "size": 48424
+      "sha256": "c53df12866bbbf087241da63acbd8598ae0abfeb6210b1a11515d013f0c16ef4",
+      "size": 48761
     },
     {
       "path": "project_file_paths.txt",
@@ -1425,6 +1419,16 @@
       "size": 290
     },
     {
+      "path": "tools/smoke_test.ps1",
+      "sha256": "2b5a74eebe3affde92749b714ab06471e1bb91cc72c9a47af7ce04b38fcf1fcb",
+      "size": 969
+    },
+    {
+      "path": "tools/smoke_test.sh",
+      "sha256": "c046f917772fb74b0b16796d621ae8b73af3b80f0ad1df48309387ef0f2e6170",
+      "size": 793
+    },
+    {
       "path": "tools/update_openapi_snapshot.py",
       "sha256": "a557de8a0df7efeb585a8b106a6db32ea44cf25366c8e567696cc9b2fcf1b3c4",
       "size": 484
@@ -1444,5 +1448,21 @@
       "sha256": "24e9f7dd5363297bdc0f364e83c4c5d7960f742e79bddc37bf8345ffee8ed39c",
       "size": 27707
     }
-  ]
+  ],
+  "include_paths": [
+    ".github",
+    "Makefile",
+    "README.md",
+    "app",
+    "deploy",
+    "docs",
+    "packaging_manifest.json",
+    "project_file_paths.txt",
+    "project_tree.txt",
+    "templates",
+    "tests",
+    "tools",
+    "ui"
+  ],
+  "kind": "packaging_manifest"
 }
