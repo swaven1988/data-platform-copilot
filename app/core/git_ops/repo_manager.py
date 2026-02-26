@@ -8,10 +8,58 @@ from pathlib import Path
 from typing import Optional, Tuple, Dict, Any, List
 from datetime import datetime, timezone
 
-
 # ---------------------------------------------------------------------
 # Core git runner (deterministic, no debug prints, strict semantics)
 # ---------------------------------------------------------------------
+
+class GitRepositoryError(Exception):
+    pass
+
+
+class RepoManager:
+    def __init__(self, repo_path: str):
+        self.repo_path = Path(repo_path)
+
+    def _run(self, *args) -> str:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=self.repo_path,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            raise GitRepositoryError(result.stderr.strip())
+        return result.stdout.strip()
+
+    def get_head(self) -> str:
+        return self._run("rev-parse", "HEAD")
+
+    def get_merge_base(self, commit: str) -> str:
+        return self._run("merge-base", "HEAD", commit)
+
+    def is_dirty(self) -> bool:
+        status = self._run("status", "--porcelain")
+        return bool(status.strip())
+
+    def validate_baseline(self, baseline_commit: str) -> None:
+        if not baseline_commit:
+            raise GitRepositoryError("Missing baseline_commit")
+
+        head = self.get_head()
+        merge_base = self.get_merge_base(baseline_commit)
+
+        if merge_base != baseline_commit:
+            raise GitRepositoryError(
+                f"HEAD drift detected. baseline={baseline_commit} head={head}"
+            )
+
+    def assert_clean_workspace(self) -> None:
+        if self.is_dirty():
+            raise GitRepositoryError("Workspace is dirty")
+
+    def validate_apply_preconditions(self, baseline_commit: str) -> None:
+        self.assert_clean_workspace()
+        self.validate_baseline(baseline_commit)
 
 def _run_git(repo_path: Path, args: list[str]) -> Tuple[int, str, str]:
     import os

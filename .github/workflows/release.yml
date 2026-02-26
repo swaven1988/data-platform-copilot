@@ -28,6 +28,14 @@ jobs:
         run: |
           python -m pytest -q
 
+      - name: Generate release metadata
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from app.core.release.release_metadata import write_release_metadata
+          write_release_metadata(Path("."))
+          PY
+
       - name: Build tarball
         run: |
           tar -czf data-platform-copilot.tar.gz \
@@ -37,20 +45,20 @@ jobs:
             --exclude='**/.mypy_cache' \
             --exclude='**/.ruff_cache' \
             --exclude='**/.venv' \
-            --exclude='**/workspace' \
-            --exclude='**/*.log' \
-            --exclude='**/*.tar.gz' \
-            app tests ui templates docs \
-            .github \
-            pyproject.toml README.md Makefile test.sh copilot_spec.yaml \
-            project_tree.txt \
-            project_file_paths.txt \
-            packaging_manifest.json
+            --exclude='**/.git' \
+            .
 
-      - name: SHA256
+      - name: Compute SHA256
         run: |
-          sha256sum data-platform-copilot.tar.gz > data-platform-copilot.tar.gz.sha256
-          cat data-platform-copilot.tar.gz.sha256
+          sha256sum data-platform-copilot.tar.gz > data-platform-copilot.sha256
+
+      - name: Upload Release Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            data-platform-copilot.tar.gz
+            data-platform-copilot.sha256
+            release_metadata.json
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

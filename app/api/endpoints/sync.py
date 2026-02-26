@@ -13,6 +13,8 @@ from app.core.sync.sync_engine import (
     simulate_rebase_for_plan,
 )
 
+from app.core.git_ops.sync_engine import SyncEngine, SyncDriftError
+
 router = APIRouter(prefix="/sync", tags=["Sync"])
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -80,3 +82,17 @@ def simulate_rebase(req: SyncRebaseSimulateRequest) -> Dict[str, Any]:
         return simulate_rebase_for_plan(repo_dir, req.plan_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/sync/apply")
+def sync_apply(payload: SyncApplyRequest):
+    engine = SyncEngine(repo_path=payload.repo_path)
+
+    try:
+        result = engine.enforce_idempotent_apply(
+            baseline_commit=payload.baseline_commit,
+            contract_hash=payload.contract_hash,
+            previous_contract_hash=payload.previous_contract_hash,
+        )
+        return result
+    except SyncDriftError as e:
+        raise HTTPException(status_code=409, detail=str(e))
