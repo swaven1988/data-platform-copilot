@@ -104,6 +104,11 @@
       "size": 1005
     },
     {
+      "path": "app/api/endpoints/executions_lifecycle.py",
+      "sha256": "4c9551f3682f912082007c570d32d2077507102df237b51dddb7989da32aa0fe",
+      "size": 1458
+    },
+    {
       "path": "app/api/endpoints/federation.py",
       "sha256": "87b799ab47150d904ace6af39619c411b0af9c18887e1a61f14da4a152c448e1",
       "size": 2872
@@ -230,8 +235,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "ea8a0addde20804d53f0e911f9c89c74fe92b2b0911e637cc132b5942e33d710",
-      "size": 8611
+      "sha256": "cb137b4ffcae1c000e55b70c759ea96b0b2fc36cd06da65efbae8403194f3f0a",
+      "size": 8734
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -572,6 +577,11 @@
       "path": "app/core/execution/guards.py",
       "sha256": "748d3a1ac1e3b68b59d71d7b0971f7abe40d8f12a87465ae57c57c37a58d9962",
       "size": 3510
+    },
+    {
+      "path": "app/core/execution/lifecycle.py",
+      "sha256": "d9f4fa91c5ea576bbf32e277ed8691d3d44f1dc5f2c9c598e33c973e0ad58072",
+      "size": 2270
     },
     {
       "path": "app/core/execution/models.py",
@@ -1095,8 +1105,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "fc83beb2ecfb8a41b57b1c9cee1f1e2f07ed15aa7d19756f3567b0008fabb3eb",
-      "size": 47729
+      "sha256": "19d3bf78fffc969ce2c81698c7819dc4dc33f4d7cdc22115ee26b0cc9b0db929",
+      "size": 47892
     },
     {
       "path": "project_file_paths.txt",
@@ -1140,8 +1150,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "dfe04ef5b6645d1d0b1500dcd0db433cf734114b9f4ecedda94303305fc72d6a",
-      "size": 246965
+      "sha256": "702ed677480198894e9943bbeb609248c2817a30090006a28a9939e8d9a498f4",
+      "size": 250239
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1217,6 +1227,11 @@
       "path": "tests/test_execution_lifecycle.py",
       "sha256": "bf7ab77692728c2b17c117e7627e346c8cd9f6da519a9c897a1d356902d932fc",
       "size": 1163
+    },
+    {
+      "path": "tests/test_execution_lifecycle_hardening.py",
+      "sha256": "6692f462f95e19ad72a53bf6da599ebd60d0c3cba92564aae71479fe17e8b9b9",
+      "size": 1564
     },
     {
       "path": "tests/test_execution_policy_enforcement.py",
