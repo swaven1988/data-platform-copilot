@@ -1,15 +1,12 @@
-from __future__ import annotations
-
 from fastapi import APIRouter
-from starlette.responses import Response
+from app.core.observability.metrics import snapshot
 
-from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-
-
-router = APIRouter(tags=["observability"])
+router = APIRouter()
 
 
-@router.get("/metrics")
-def metrics() -> Response:
-    payload = generate_latest()
-    return Response(content=payload, media_type=CONTENT_TYPE_LATEST)
+@router.get(
+    "/metrics/snapshot",
+    operation_id="metrics_snapshot_v1_get",
+)
+def metrics_snapshot():
+    return {"requests": snapshot()}

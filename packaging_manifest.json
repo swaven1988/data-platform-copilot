@@ -25,8 +25,8 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "sha256": "9b8e73c4129eeb6e423ba99f8907ea061f28e3b54d9360adb136a21947291d0e",
-      "size": 1855
+      "sha256": "922ca7b2fb1ea4cd3df1afd8becfd81d92aef56076b37d2b35ab819d7b1a20c1",
+      "size": 1992
     },
     {
       "path": "Makefile",
@@ -125,8 +125,8 @@
     },
     {
       "path": "app/api/endpoints/metrics.py",
-      "sha256": "bcd9a1a51fb71eea0939229a0626916bcd0bb333f5163d0cca04dc539c72000a",
-      "size": 387
+      "sha256": "92bf013e3030c0b2692666b53df7b6694a96ac6318a144cf24e5a0a56dca789b",
+      "size": 250
     },
     {
       "path": "app/api/endpoints/modeling_advanced.py",
@@ -194,6 +194,11 @@
       "size": 1039
     },
     {
+      "path": "app/api/endpoints/supply_chain.py",
+      "sha256": "e5b1479ed7bc81f43390c7a4090931dd0da35e7f7c2ba6270a076cd47b6203cc",
+      "size": 414
+    },
+    {
       "path": "app/api/endpoints/sync.py",
       "sha256": "5eab41f67befcc4187531fb4a6d9635f5053612a1a2f8c847c145cdecac2a287",
       "size": 2525
@@ -220,13 +225,18 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "4846605721b43a676231613ef35e8d98b2c1d9eaf18acb0228b5625235fa3ae6",
-      "size": 7972
+      "sha256": "8806f7fb0faddc2cea7562dff9214d8f259fcae85770b20aca89be75b51b7361",
+      "size": 8392
     },
     {
       "path": "app/api/middleware/__init__.py",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "size": 0
+    },
+    {
+      "path": "app/api/middleware/audit.py",
+      "sha256": "9989c23b159c926de94fcd79a6e26bc5924b07578eff190462094be4dd827d54",
+      "size": 1737
     },
     {
       "path": "app/api/middleware/auth.py",
@@ -237,6 +247,11 @@
       "path": "app/api/middleware/request_context.py",
       "sha256": "8b19f4cc188202d3f4601ee23f6a6b6170ccda74a4d6b6c7a6c753a51864c53b",
       "size": 7122
+    },
+    {
+      "path": "app/api/middleware/request_id.py",
+      "sha256": "4e0b5c19ae3e4b9ad97ecbc53919c980eb8344263c24bb57952e594ec893e5bb",
+      "size": 588
     },
     {
       "path": "app/api/models/build_responses.py",
@@ -659,6 +674,16 @@
       "size": 399
     },
     {
+      "path": "app/core/observability/audit.py",
+      "sha256": "44c273dab885e39372018d03dc15b0398da52fc9dd8059bd423f2b8e5b7fccd9",
+      "size": 1091
+    },
+    {
+      "path": "app/core/observability/metrics.py",
+      "sha256": "df0fe64ead50db244af11f1abd0f46ba293412ce0d10aa3728bfce2b9a114beb",
+      "size": 293
+    },
+    {
       "path": "app/core/packaging/package_manifest.py",
       "sha256": "afe6c9733b11ecbddaf6004981074f971381f745798cee0f7c3e2dfa87121afa",
       "size": 5766
@@ -777,6 +802,11 @@
       "path": "app/core/spec_schema.py",
       "sha256": "b610e8e878543fbafa689a23283b3247494f6e31cdc463cb001001017c7bbacf",
       "size": 2677
+    },
+    {
+      "path": "app/core/supply_chain/verification.py",
+      "sha256": "269d7c4cb1920f77c52824f16c8bbd58f3ed9333bb855ebb50d1e127dd5b992c",
+      "size": 1605
     },
     {
       "path": "app/core/sync/sync_engine.py",
@@ -1045,8 +1075,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "407c491882879bfd3aa3170e6b45ebbebc54baa6fb58a9ba6010fb2d5698779f",
-      "size": 45367
+      "sha256": "17d2852abc32f55b7cc9db19aca47da120a0f7bbe79e800b4a19c42c80e6ec20",
+      "size": 47226
     },
     {
       "path": "project_file_paths.txt",
@@ -1095,8 +1125,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "5970804a4e58173180aeb766717bb39bed872a268586da3fe60902120ce917e6",
-      "size": 246229
+      "sha256": "292982ce5cba315d52cbe84db1054fdfb7ae3415b5344ca256f4d067feee354c",
+      "size": 246553
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1199,6 +1229,11 @@
       "size": 1990
     },
     {
+      "path": "tests/test_metrics_snapshot.py",
+      "sha256": "a00ff0aedfeb6d3c156a3bb0c4deeb88950e2482b460b77ace17102bd72df023",
+      "size": 479
+    },
+    {
       "path": "tests/test_openapi_snapshot.py",
       "sha256": "843dd89b69836e4545c620b38c63dd9a41e30d03e24d798cf920d364895d4965",
       "size": 772
@@ -1269,6 +1304,11 @@
       "size": 743
     },
     {
+      "path": "tests/test_request_id_header.py",
+      "sha256": "e33562ce08cf8424f1f3ab6a6c1e4581c2ff58596b85a7451ca3e7e309ffc9a0",
+      "size": 548
+    },
+    {
       "path": "tests/test_resolver_applies_to.py",
       "sha256": "28f881679c7208999c150335f27fd29ddd684ff0906cb1a8162fc1b1073b107a",
       "size": 816
@@ -1289,6 +1329,11 @@
       "size": 2093
     },
     {
+      "path": "tests/test_supply_chain.py",
+      "sha256": "0f5d6c38def65b7c463d25329b96c0d38ecc254683a0eb09765440ec98934b70",
+      "size": 265
+    },
+    {
       "path": "tests/test_workspace_repro_api.py",
       "sha256": "e59d90619f1fc88f5cffda66e6873f3818876f6ff768f5c9b1d2682f968d1596",
       "size": 838
@@ -1307,6 +1352,11 @@
       "path": "tools/gen_packaging_manifest.py",
       "sha256": "0cd0ab55db508b2372ee19486598e7da487ff9a62ea49b591ff4601d37fecb87",
       "size": 1562
+    },
+    {
+      "path": "tools/runtime_manifest.py",
+      "sha256": "4da96de91e2f1d018fe88db321b152971d9cae32f5981ad58a127bf00b4914ae",
+      "size": 290
     },
     {
       "path": "tools/update_openapi_snapshot.py",

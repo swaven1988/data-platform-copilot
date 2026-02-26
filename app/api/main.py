@@ -56,6 +56,12 @@ from app.api.endpoints.billing import router as billing_router
 
 from app.api.endpoints import supply_chain
 
+from app.api.middleware.request_id import RequestIdMiddleware
+from app.api.middleware.audit import AuditMiddleware
+
+from app.api.endpoints import metrics as metrics_ep
+
+
 app = FastAPI(
     title="Data Platform Copilot API",
     version="0.1.0",
@@ -149,6 +155,8 @@ app.include_router(build_v3_router)
 app.include_router(preflight.router)
 app.include_router(execution_router)
 app.include_router(billing_router)
+app.add_middleware(RequestIdMiddleware)
+app.add_middleware(AuditMiddleware)
 
 # IMPORTANT: do NOT include v1_router unversioned anymore
 
@@ -181,6 +189,8 @@ for prefix in ("/api/v1", "/api/v2"):
 app.include_router(v1_router, prefix="/api/v1")
 
 app.include_router(supply_chain.router, prefix="/api/v1")
+
+app.include_router(metrics_ep.router, prefix="/api/v1")
 
 
 @app.get("/health")
