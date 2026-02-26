@@ -165,8 +165,8 @@
     },
     {
       "path": "app/api/endpoints/release_verify.py",
-      "sha256": "93f576579ac2eb863c30f389667c1c7c43712a4cfafe4f333a8616ca35946c82",
-      "size": 2202
+      "sha256": "78f3fbcb7cff29fcfe4253770a42354ef87ff61410f152d8d321516dc4fabb05",
+      "size": 2497
     },
     {
       "path": "app/api/endpoints/remotes.py",
@@ -220,8 +220,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "a1ea9931fdd0c97c20c33c46b03f2cc5f20851f3620e15c7e00d5f54e401c5ef",
-      "size": 7452
+      "sha256": "4846605721b43a676231613ef35e8d98b2c1d9eaf18acb0228b5625235fa3ae6",
+      "size": 7972
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -739,6 +739,11 @@
       "size": 13915
     },
     {
+      "path": "app/core/release/verify.py",
+      "sha256": "f64c1c38f27c257478f27d2f46c31ee04bfcd2b1834ba2f766eb20a7392dd572",
+      "size": 4845
+    },
+    {
       "path": "app/core/runtime_profiles/__init__.py",
       "sha256": "143c36e2d1adbc76be513d561d3c8736873e658f94a46f0b4f169f6ffc0bc271",
       "size": 304
@@ -1040,8 +1045,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "3b97d3b07c4d50cb34723e712416b828824637f3cb58a21f587da72ed02e54df",
-      "size": 44867
+      "sha256": "407c491882879bfd3aa3170e6b45ebbebc54baa6fb58a9ba6010fb2d5698779f",
+      "size": 45367
     },
     {
       "path": "project_file_paths.txt",
@@ -1074,6 +1079,11 @@
       "size": 238630
     },
     {
+      "path": "tests/openapi_snapshot.json",
+      "sha256": "4c75ad7cbbd60e442549d6aa276f015f0cc9cfdf5ce82d58cf8298282cc31c48",
+      "size": 246317
+    },
+    {
       "path": "tests/reports/latest_report.json",
       "sha256": "14da9a7832f59027b8cd44d5522b798ea20ffac6559f2b02fe75bbae6ace5744",
       "size": 2677
@@ -1085,8 +1095,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "7720660659eb2f284de99cf523a0075a7dd78f7ecf037f53bf1b3ab23a1b7b41",
-      "size": 244544
+      "sha256": "5970804a4e58173180aeb766717bb39bed872a268586da3fe60902120ce917e6",
+      "size": 246229
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1242,6 +1252,11 @@
       "path": "tests/test_registry_run_cache.py",
       "sha256": "3be22f7d2ac0cf5c25e53b272c85cf9593fdb84cf0ce881096a83438bd13ba91",
       "size": 1440
+    },
+    {
+      "path": "tests/test_release_verify.py",
+      "sha256": "e805ded73c4320448c9ad6e3fe35f6024705efa9ac9cff5720186434dec4c5a8",
+      "size": 3477
     },
     {
       "path": "tests/test_release_verify_api.py",
