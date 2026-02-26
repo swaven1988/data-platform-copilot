@@ -73,7 +73,16 @@ RULES: list[PolicyRule] = [
     # -----------------------------
     # Default for all versioned surfaces
     # -----------------------------
+        # -----------------------------
+    # Phase 14: v2 read surfaces are viewer; write surfaces remain admin by default
+    # -----------------------------
     PolicyRule(
+        method="GET",
+        pattern=re.compile(r"^/api/v2/"),
+        required_role="viewer",
+    ),
+
+PolicyRule(
         method="*",
         pattern=re.compile(r"^/api/v[12]/"),
         required_role=DEFAULT_REQUIRED_ROLE,

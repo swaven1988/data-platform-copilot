@@ -101,6 +101,20 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 request.state.principal = p
                 request.state.user = _principal_to_user(p)
 
+
+        # Tenant boundary (Phase 14): require X-Tenant for /api/v2/* surfaces (except health/metrics)
+        # - sets request.state.tenant for downstream logging/handlers
+        if path.startswith("/api/v2/") and not (path.startswith("/api/v2/health/") or path == "/api/v2/metrics"):
+            x_tenant = request.headers.get("x-tenant") or request.headers.get("X-Tenant")
+            if not x_tenant or not x_tenant.strip():
+                return JSONResponse(status_code=400, content={"detail": "Missing X-Tenant header"})
+            request.state.tenant = x_tenant.strip()
+        else:
+            # best-effort for other surfaces
+            x_tenant = request.headers.get("x-tenant") or request.headers.get("X-Tenant")
+            if x_tenant and x_tenant.strip():
+                request.state.tenant = x_tenant.strip()
+
         # RBAC policy for /api/v*
         required = required_role_for(method, path)
         if required is not None:

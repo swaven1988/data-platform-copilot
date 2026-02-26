@@ -230,8 +230,8 @@
     },
     {
       "path": "app/api/middleware/auth.py",
-      "sha256": "ea7f9223327bf78890bdc8e92e1dc3e2b40797c735caaee65d59ddf1a0033457",
-      "size": 5675
+      "sha256": "027c19636b0ec001f7b76ec0c9e05e874a43ff68c0732ee3393ce586661ff5fa",
+      "size": 6523
     },
     {
       "path": "app/api/middleware/request_context.py",
@@ -300,8 +300,8 @@
     },
     {
       "path": "app/core/auth/policy.py",
-      "sha256": "dd6b9c88b20b1faf8166e06a57df697774866cd0f0bdba5aa0b8afb7ef780e2b",
-      "size": 2580
+      "sha256": "9e330bc28aa77649a31b0f7143a0a94045a5696eca9a181152d78afbe9adc852",
+      "size": 2865
     },
     {
       "path": "app/core/auth/provider.py",
@@ -1040,8 +1040,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "f325834ddc760ec34c51646f42be5d534664a5b6b5f58b9c073a3ea8ebaa509c",
-      "size": 44691
+      "sha256": "3b97d3b07c4d50cb34723e712416b828824637f3cb58a21f587da72ed02e54df",
+      "size": 44867
     },
     {
       "path": "project_file_paths.txt",
@@ -1197,6 +1197,11 @@
       "path": "tests/test_packaging_manifest_check.py",
       "sha256": "09cbdfb43f5c2ea45d28cc552cb7a23384aff12545b10fa1c52bc721207cd145",
       "size": 574
+    },
+    {
+      "path": "tests/test_phase14_tenant_and_rbac.py",
+      "sha256": "97bb5e0e69a7925bb40438c7ccb6259588adc6dc14b712ba60db9417e0a292cf",
+      "size": 1841
     },
     {
       "path": "tests/test_plugin_fingerprint.py",
