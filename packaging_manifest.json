@@ -204,6 +204,11 @@
       "size": 2525
     },
     {
+      "path": "app/api/endpoints/system_status.py",
+      "sha256": "d94d9b8e53828572d007a27e86f1013ed9b9359e4bb30081ea775c132cb6dcea",
+      "size": 501
+    },
+    {
       "path": "app/api/endpoints/v1_tenanted.py",
       "sha256": "8c1357c7ec12e6c44da9daebb5cfc4c1a2633f85f5295e7b8a1b4f4a00782210",
       "size": 343
@@ -225,8 +230,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "8806f7fb0faddc2cea7562dff9214d8f259fcae85770b20aca89be75b51b7361",
-      "size": 8392
+      "sha256": "c169020e88f2c0bbd4cf4c394b0e8b5bfe50030f20d8d5e61f3e7241f06bdd83",
+      "size": 8501
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -1075,8 +1080,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "17d2852abc32f55b7cc9db19aca47da120a0f7bbe79e800b4a19c42c80e6ec20",
-      "size": 47226
+      "sha256": "0f42feea8dc43ad6313c71cb5b7e63074cfd9c1adfdf76da5f25dc8f83dbb463",
+      "size": 47057
     },
     {
       "path": "project_file_paths.txt",
@@ -1109,11 +1114,6 @@
       "size": 238630
     },
     {
-      "path": "tests/openapi_snapshot.json",
-      "sha256": "4c75ad7cbbd60e442549d6aa276f015f0cc9cfdf5ce82d58cf8298282cc31c48",
-      "size": 246317
-    },
-    {
       "path": "tests/reports/latest_report.json",
       "sha256": "14da9a7832f59027b8cd44d5522b798ea20ffac6559f2b02fe75bbae6ace5744",
       "size": 2677
@@ -1125,8 +1125,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "292982ce5cba315d52cbe84db1054fdfb7ae3415b5344ca256f4d067feee354c",
-      "size": 246553
+      "sha256": "dfe04ef5b6645d1d0b1500dcd0db433cf734114b9f4ecedda94303305fc72d6a",
+      "size": 246965
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1332,6 +1332,11 @@
       "path": "tests/test_supply_chain.py",
       "sha256": "0f5d6c38def65b7c463d25329b96c0d38ecc254683a0eb09765440ec98934b70",
       "size": 265
+    },
+    {
+      "path": "tests/test_system_status.py",
+      "sha256": "82da8fb3aa52870c44efb2453edd76be171a4965e8571cc81300ae3c2b268b1f",
+      "size": 370
     },
     {
       "path": "tests/test_workspace_repro_api.py",
