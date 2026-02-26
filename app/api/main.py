@@ -182,3 +182,20 @@ app.include_router(v1_router, prefix="/api/v1")
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+
+# ---- Phase 15: Release verification endpoint ----
+try:
+    from app.api.endpoints.release_verify import router as release_verify_router  # noqa: F401
+
+    _has_release = False
+    for r in app.router.routes:
+        if getattr(r, "path", None) == "/api/v2/release/verify":
+            _has_release = True
+            break
+    if not _has_release:
+        app.include_router(release_verify_router)
+except Exception:
+    # keep app bootable even if optional deps break during partial dev
+    pass
+

@@ -761,6 +761,38 @@
         "title": "IntelligenceThresholds",
         "type": "object"
       },
+      "LegacyTarballVerifyRequest": {
+        "properties": {
+          "expected_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Expected sha256",
+            "title": "Expected Sha256"
+          },
+          "require_packaging_manifest": {
+            "default": true,
+            "description": "If false, sha-only verify",
+            "title": "Require Packaging Manifest",
+            "type": "boolean"
+          },
+          "tarball_path": {
+            "description": "Local filesystem path to tar.gz",
+            "title": "Tarball Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tarball_path"
+        ],
+        "title": "LegacyTarballVerifyRequest",
+        "type": "object"
+      },
       "PreflightReport": {
         "properties": {
           "estimate": {
@@ -872,6 +904,44 @@
           "spec"
         ],
         "title": "RegisterModelRequest",
+        "type": "object"
+      },
+      "ReleaseVerifyRequest": {
+        "properties": {
+          "artifact_path": {
+            "description": "Local filesystem path to release tar.gz",
+            "title": "Artifact Path",
+            "type": "string"
+          },
+          "require_packaging_manifest": {
+            "default": true,
+            "description": "If false, only sha256 is verified (legacy)",
+            "title": "Require Packaging Manifest",
+            "type": "boolean"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Expected sha256 of artifact (optional)",
+            "title": "Sha256"
+          },
+          "strict_no_extras": {
+            "default": false,
+            "description": "If true, fail when tar contains extra files not listed in manifest",
+            "title": "Strict No Extras",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "artifact_path"
+        ],
+        "title": "ReleaseVerifyRequest",
         "type": "object"
       },
       "ReproCompareResponse": {
@@ -1203,76 +1273,6 @@
           "plan_id"
         ],
         "title": "SyncRebaseSimulateRequest",
-        "type": "object"
-      },
-      "TarballVerifyRequest": {
-        "properties": {
-          "expected_sha256": {
-            "description": "Expected sha256 hex digest",
-            "title": "Expected Sha256",
-            "type": "string"
-          },
-          "require_packaging_manifest": {
-            "default": true,
-            "description": "If true, tarball must contain packaging_manifest.json at repo root",
-            "title": "Require Packaging Manifest",
-            "type": "boolean"
-          },
-          "tarball_path": {
-            "description": "Local filesystem path to .tar.gz",
-            "title": "Tarball Path",
-            "type": "string"
-          }
-        },
-        "required": [
-          "tarball_path",
-          "expected_sha256"
-        ],
-        "title": "TarballVerifyRequest",
-        "type": "object"
-      },
-      "TarballVerifyResponse": {
-        "properties": {
-          "actual_sha256": {
-            "title": "Actual Sha256",
-            "type": "string"
-          },
-          "contains_packaging_manifest": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Contains Packaging Manifest"
-          },
-          "expected_sha256": {
-            "title": "Expected Sha256",
-            "type": "string"
-          },
-          "kind": {
-            "title": "Kind",
-            "type": "string"
-          },
-          "sha256_match": {
-            "title": "Sha256 Match",
-            "type": "boolean"
-          },
-          "tarball_path": {
-            "title": "Tarball Path",
-            "type": "string"
-          }
-        },
-        "required": [
-          "kind",
-          "tarball_path",
-          "expected_sha256",
-          "actual_sha256",
-          "sha256_match"
-        ],
-        "title": "TarballVerifyResponse",
         "type": "object"
       },
       "TransformationSpec": {
@@ -5671,6 +5671,66 @@
         ]
       }
     },
+    "/api/v2/release/verify": {
+      "post": {
+        "operationId": "v2_release_verify",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response V2 Release Verify",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify Release",
+        "tags": [
+          "release"
+        ]
+      }
+    },
     "/api/v2/repo/conflicts": {
       "get": {
         "operationId": "repo_conflicts_api_v2_repo_conflicts_get",
@@ -7979,12 +8039,12 @@
     },
     "/release/verify/tarball": {
       "post": {
-        "operationId": "verify_release_tarball_release_verify_tarball_post",
+        "operationId": "legacy_release_verify_tarball",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TarballVerifyRequest"
+                "$ref": "#/components/schemas/LegacyTarballVerifyRequest"
               }
             }
           },
@@ -7995,7 +8055,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TarballVerifyResponse"
+                  "title": "Response Legacy Release Verify Tarball",
+                  "type": "object"
                 }
               }
             },
@@ -8012,7 +8073,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Verify Release Tarball",
+        "summary": "Verify Release Legacy",
         "tags": [
           "release"
         ]
