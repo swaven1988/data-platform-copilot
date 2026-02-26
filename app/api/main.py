@@ -54,6 +54,8 @@ from app.api.endpoints import preflight
 from app.api.endpoints.execution import router as execution_router
 from app.api.endpoints.billing import router as billing_router
 
+from app.api.endpoints import supply_chain
+
 app = FastAPI(
     title="Data Platform Copilot API",
     version="0.1.0",
@@ -177,6 +179,8 @@ for prefix in ("/api/v1", "/api/v2"):
 
 # Tenanted router: v1 only
 app.include_router(v1_router, prefix="/api/v1")
+
+app.include_router(supply_chain.router, prefix="/api/v1")
 
 
 @app.get("/health")

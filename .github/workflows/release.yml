@@ -66,3 +66,7 @@ jobs:
 
       - name: Verify packaging manifest
         run: python tools/gen_packaging_manifest.py --check
+
+      - name: Generate SHA256
+        run: |
+          sha256sum data-platform-copilot.tar.gz > data-platform-copilot.tar.gz.sha256
