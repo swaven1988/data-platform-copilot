@@ -39,3 +39,4 @@ release_metadata.json
 tests/openapi_snapshot.json
 
 pytest.logpytest.log
+pytest.log
