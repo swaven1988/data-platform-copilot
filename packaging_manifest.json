@@ -1,4 +1,20 @@
 {
+  "kind": "packaging_manifest",
+  "include_paths": [
+    ".github",
+    "Makefile",
+    "README.md",
+    "app",
+    "deploy",
+    "docs",
+    "packaging_manifest.json",
+    "project_file_paths.txt",
+    "project_tree.txt",
+    "templates",
+    "tests",
+    "tools",
+    "ui"
+  ],
   "excludes": [
     "**/*.egg-info/**",
     "**/*.log",
@@ -205,8 +221,8 @@
     },
     {
       "path": "app/api/endpoints/sync.py",
-      "sha256": "5eab41f67befcc4187531fb4a6d9635f5053612a1a2f8c847c145cdecac2a287",
-      "size": 2525
+      "sha256": "21a883855f80d7841a0e5f4b23111023c931b534d8572c74ad4faae43a108540",
+      "size": 3071
     },
     {
       "path": "app/api/endpoints/system_status.py",
@@ -235,8 +251,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "cb137b4ffcae1c000e55b70c759ea96b0b2fc36cd06da65efbae8403194f3f0a",
-      "size": 8734
+      "sha256": "36f1a477563c80476c89ddd887670a001b3ef35275c5dc4fff92bf11c511d18c",
+      "size": 8675
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -630,13 +646,18 @@
     },
     {
       "path": "app/core/git_ops/repo_manager.py",
-      "sha256": "3341d251bb76eccf74731c58f8ae9f4681a09383abb45681259a0f002280b3e2",
-      "size": 9927
+      "sha256": "56eb6df601a3aafdd43931cbfe2f39c7af0ebb41c0865a9e3abb11f43e2cc85c",
+      "size": 11473
     },
     {
       "path": "app/core/git_ops/semantic_diff.py",
       "sha256": "574def207158fc339be81788752424f437fc4f47216ed639fcf05c8bd23146a9",
       "size": 5241
+    },
+    {
+      "path": "app/core/git_ops/sync_engine.py",
+      "sha256": "a26e96f563871ac7299c50773387b7b854f19adc6145ac7da6924cfb4451b933",
+      "size": 877
     },
     {
       "path": "app/core/intelligence/advisor_hint_injector.py",
@@ -1105,7 +1126,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "d23752699569364f0e6b99072540b5705b01cb3ea1f8edac007df16796f24567",
+      "sha256": "6bfc0bec350c0307f23be3cb3f5bba2cb96fc47f6937438e84c2138abe700d5a",
       "size": 48424
     },
     {
@@ -1150,8 +1171,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "702ed677480198894e9943bbeb609248c2817a30090006a28a9939e8d9a498f4",
-      "size": 250239
+      "sha256": "d14fc1152380c2a852afd042ea23ee728fbae456bfa845b7b2b0b0bbea7108bb",
+      "size": 253282
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1277,6 +1298,11 @@
       "path": "tests/test_phase14_tenant_and_rbac.py",
       "sha256": "97bb5e0e69a7925bb40438c7ccb6259588adc6dc14b712ba60db9417e0a292cf",
       "size": 1841
+    },
+    {
+      "path": "tests/test_phase21_git_sync.py",
+      "sha256": "b361700c0ecb8e52a41be7a4587349f0289ff07bc389b6a5b01edc3e5e1f468d",
+      "size": 2088
     },
     {
       "path": "tests/test_plugin_fingerprint.py",
@@ -1418,21 +1444,5 @@
       "sha256": "24e9f7dd5363297bdc0f364e83c4c5d7960f742e79bddc37bf8345ffee8ed39c",
       "size": 27707
     }
-  ],
-  "include_paths": [
-    ".github",
-    "Makefile",
-    "README.md",
-    "app",
-    "deploy",
-    "docs",
-    "packaging_manifest.json",
-    "project_file_paths.txt",
-    "project_tree.txt",
-    "templates",
-    "tests",
-    "tools",
-    "ui"
-  ],
-  "kind": "packaging_manifest"
+  ]
 }

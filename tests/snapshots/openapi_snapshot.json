@@ -1318,6 +1318,45 @@
         }
       }
     },
+    "/sync/sync/apply": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "summary": "Sync Apply",
+        "operationId": "sync_apply_sync_sync_apply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncApplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/build/plans": {
       "get": {
         "tags": [
@@ -5053,6 +5092,45 @@
         }
       }
     },
+    "/api/v1/sync/sync/apply": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "summary": "Sync Apply",
+        "operationId": "sync_apply_api_v1_sync_sync_apply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncApplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/build/plans": {
       "get": {
         "tags": [
@@ -7087,6 +7165,45 @@
                   "type": "object",
                   "title": "Response Simulate Rebase Api V2 Sync Rebase Simulate Post"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/sync/sync/apply": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "summary": "Sync Apply",
+        "operationId": "sync_apply_api_v2_sync_sync_apply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncApplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },

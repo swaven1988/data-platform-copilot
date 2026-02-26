@@ -196,8 +196,6 @@ app.include_router(v1_router, prefix="/api/v1")
 
 app.include_router(supply_chain.router, prefix="/api/v1")
 
-app.include_router(metrics_ep.router, prefix="/api/v1")
-
 app.include_router(system_status.router, prefix="/api/v1")
 
 app.include_router(executions_lifecycle.router, prefix="/api/v1")
