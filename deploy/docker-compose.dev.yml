@@ -4,8 +4,8 @@ services:
       context: ..
       dockerfile: Dockerfile
     container_name: copilot-api-dev
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
     environment:
       - COPILOT_AUTH_MODE=static_token
       - COPILOT_AUTH_ENABLED=true
@@ -14,11 +14,22 @@ services:
       - COPILOT_SIGNING_KEY=dev_secret_key
       - COPILOT_TRUST_PROXY_HEADERS=true
 
+  web:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: copilot-web-dev
+    depends_on:
+      - api
+    expose:
+      - "80"
+
   gateway:
     image: nginx:1.27-alpine
     container_name: copilot-gateway-dev
     depends_on:
       - api
+      - web
     ports:
       - "8080:80"
     volumes:
