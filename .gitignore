@@ -39,3 +39,4 @@ release_metadata.json
 tests/openapi_snapshot.json
 validate_prod.sh
 PROD_VALIDATION_CHECKLIST.md
+pytest.log

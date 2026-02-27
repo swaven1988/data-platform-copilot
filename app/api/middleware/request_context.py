@@ -1,183 +1,207 @@
 from __future__ import annotations
 
-import logging
 import os
 import time
 import uuid
-from typing import Callable, Optional
+from dataclasses import dataclass
+from typing import Callable, Dict, Optional
 
-from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-log = logging.getLogger("copilot.request")
-
-from app.api.observability.metrics import (
-    HTTP_REQUESTS_TOTAL,
-    HTTP_REQUEST_DURATION_SECONDS,
-    normalize_path,
-)
-
-from app.core.observability.metrics import inc_request as inc_request_core
+from app.core.observability.metrics import inc_http
 
 
-def _json_log(event: str, **fields):
-    msg = {"event": event, **fields}
-    log.info("%s", msg)
-
-
+# ------------------------------------------------------------
+# RequestContextMiddleware
+# - assigns request_id
+# - attaches to request.state
+# - echoes X-Request-Id in response
+# - increments HTTP metrics (single source of truth)
+# ------------------------------------------------------------
 class RequestContextMiddleware(BaseHTTPMiddleware):
-    """
-    Request ID + structured request logs + metrics.
-    Keeps request_id coherent if another middleware already set it.
-    """
+    def __init__(self, app):
+        super().__init__(app)
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        # respect existing request_id if already set by RequestIdMiddleware
-        rid = getattr(request.state, "request_id", None) or request.headers.get("x-request-id") or str(uuid.uuid4())
+        rid = (request.headers.get("X-Request-Id") or "").strip()
+        if not rid:
+            rid = str(uuid.uuid4())
+
         request.state.request_id = rid
 
-        start = time.time()
-        resp = await call_next(request)
-        dur_ms = int((time.time() - start) * 1000)
-
+        resp: Response = await call_next(request)
         resp.headers.setdefault("X-Request-Id", rid)
 
-        # Metrics (Prometheus)
-        p = normalize_path(request.url.path)
-        m = request.method.upper()
-        s = str(getattr(resp, "status_code", 0))
-        HTTP_REQUESTS_TOTAL.labels(method=m, path=p, status=s).inc()
-        HTTP_REQUEST_DURATION_SECONDS.labels(method=m, path=p).observe(dur_ms / 1000.0)
+        # single metrics system
+        inc_http(request.method, request.url.path, getattr(resp, "status_code", None))
 
-        # Metrics (snapshot backing store)
-        inc_request_core(p, getattr(resp, "status_code", None))
-
-        if request.url.path.startswith("/api/"):
-            tenant: Optional[str] = getattr(request.state, "tenant", None) or getattr(request.state, "tenant_id", None)
-            user = getattr(request.state, "user", None) or {}
-            _json_log(
-                "request",
-                request_id=rid,
-                method=request.method,
-                path=request.url.path,
-                status_code=resp.status_code,
-                duration_ms=dur_ms,
-                tenant=tenant,
-                sub=user.get("sub"),
-                role=user.get("role"),
-            )
         return resp
 
 
+# ------------------------------------------------------------
+# SecurityHeadersMiddleware
+# ------------------------------------------------------------
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, enabled: bool = True):
         super().__init__(app)
-        self.enabled = enabled
+        self.enabled = bool(enabled)
+
+    def _env_enabled(self) -> bool:
+        env = (os.getenv("COPILOT_ENV") or "dev").strip().lower()
+        raw = os.getenv("COPILOT_SECURITY_HEADERS_ENABLED")
+        if raw is None:
+            # default: ON in prod, OFF elsewhere
+            return env == "prod"
+        return raw.strip().lower() in ("1", "true", "yes", "on")
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        resp = await call_next(request)
-        if not self.enabled:
+        resp: Response = await call_next(request)
+
+        enabled = self.enabled and self._env_enabled()
+        if not enabled:
             return resp
 
+        # minimal, safe defaults
         resp.headers.setdefault("X-Content-Type-Options", "nosniff")
         resp.headers.setdefault("X-Frame-Options", "DENY")
         resp.headers.setdefault("Referrer-Policy", "no-referrer")
-        resp.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
-        resp.headers.setdefault("Cross-Origin-Resource-Policy", "same-origin")
+        resp.headers.setdefault("X-XSS-Protection", "0")
         return resp
+
+
+# ------------------------------------------------------------
+# RateLimitMiddleware
+# - env-toggle must work after app import (pytest monkeypatch)
+# - apply to mutating methods (POST/PUT/PATCH/DELETE)
+# ------------------------------------------------------------
+@dataclass
+class _Bucket:
+    window_start: float
+    count: int
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, enabled: bool = False, rpm: int = 120):
         super().__init__(app)
-        self.enabled = enabled
-        self.rpm = max(10, int(rpm))
-        self._bucket = {}  # key -> (window_start_epoch_minute, count)
+        self.enabled = bool(enabled)
+        self.rpm = int(rpm)
+        self._buckets: Dict[str, _Bucket] = {}
 
-    def _key(self, request: Request) -> str:
-        xf = request.headers.get("x-forwarded-for") or request.headers.get("X-Forwarded-For")
-        ip = (xf.split(",")[0].strip() if xf else request.client.host) if request.client else "unknown"
-        return ip
+    def _env_enabled(self) -> bool:
+        raw = os.getenv("COPILOT_RATE_LIMIT_ENABLED")
+        if raw is None:
+            return self.enabled
+        return raw.strip().lower() in ("1", "true", "yes", "on")
+
+    def _env_rpm(self) -> int:
+        raw = os.getenv("COPILOT_RATE_LIMIT_RPM")
+        if raw is None:
+            return max(1, int(self.rpm))
+        try:
+            return max(1, int(raw.strip()))
+        except Exception:
+            return max(1, int(self.rpm))
+
+    def _client_key(self, request: Request) -> str:
+        # prefer forwarded-for for tests / gateways
+        xff = (request.headers.get("X-Forwarded-For") or "").strip()
+        ip = xff.split(",")[0].strip() if xff else None
+        if not ip:
+            ip = getattr(getattr(request, "client", None), "host", None) or "unknown"
+
+        tenant = getattr(request.state, "tenant", None) or (request.headers.get("X-Tenant") or "").strip() or "default"
+        return f"{ip}|{tenant}"
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        if not self.enabled:
+        if request.method.upper() not in ("POST", "PUT", "PATCH", "DELETE"):
             return await call_next(request)
 
-        now_min = int(time.time() // 60)
-        key = self._key(request)
-        win, cnt = self._bucket.get(key, (now_min, 0))
+        if not self._env_enabled():
+            return await call_next(request)
 
-        if win != now_min:
-            win, cnt = now_min, 0
+        rpm = self._env_rpm()
+        now = time.time()
+        key = self._client_key(request)
 
-        cnt += 1
-        self._bucket[key] = (win, cnt)
+        bucket = self._buckets.get(key)
+        if bucket is None or (now - bucket.window_start) >= 60.0:
+            bucket = _Bucket(window_start=now, count=0)
+            self._buckets[key] = bucket
 
-        if cnt > self.rpm:
+        bucket.count += 1
+        if bucket.count > rpm:
             return JSONResponse(status_code=429, content={"detail": "Rate limit exceeded"})
 
         return await call_next(request)
 
 
+# ------------------------------------------------------------
+# TenantIsolationMiddleware
+# - default tenant if missing except billing + /tenants/*
+# - enforce /tenants/{t} matches header tenant (when header present)
+# ------------------------------------------------------------
 class TenantIsolationMiddleware(BaseHTTPMiddleware):
     """
-    Tenant isolation:
-      - reads X-Tenant or tenant in path (/api/v1/tenants/{tenant}/...)
-      - sets request.state.tenant AND request.state.tenant_id (alias)
-      - strict mode enforces explicit tenant for versioned APIs
+    Tenant behavior:
+      - If X-Tenant is missing:
+          * for billing endpoints and /tenants/* endpoints -> 400
+          * otherwise -> default_tenant is applied
+      - If path includes /tenants/{t}/... then header tenant must match => 403
     """
 
     def __init__(self, app, strict: bool = False, default_tenant: str = "default"):
         super().__init__(app)
-        self.strict = strict
-        self.default_tenant = default_tenant
+        self.strict = bool(strict)
+        self.default_tenant = (default_tenant or "default").strip() or "default"
 
-    def _extract_path_tenant(self, path: str) -> Optional[str]:
-        parts = path.split("/")
-        try:
-            i = parts.index("tenants")
-            return parts[i + 1] if len(parts) > i + 1 else None
-        except ValueError:
-            return None
+    def _is_public(self, path: str) -> bool:
+        public_prefixes = (
+            "/health",
+            "/api/v1/health",
+            "/api/v2/health",
+            "/metrics",
+            "/api/v1/metrics",
+            "/api/v2/metrics",
+            "/openapi.json",
+            "/api/v1/openapi.json",
+            "/api/v2/openapi.json",
+            "/docs",
+            "/redoc",
+        )
+        return path == "/" or path.startswith(public_prefixes)
+
+    def _requires_explicit_tenant(self, path: str) -> bool:
+        if path.startswith("/api/v1/billing") or path.startswith("/api/v2/billing"):
+            return True
+        if path.startswith("/api/v1/tenants/") or path.startswith("/api/v2/tenants/"):
+            return True
+        return False
+
+    def _extract_tenant_from_path(self, path: str) -> Optional[str]:
+        # /api/v1/tenants/{tenant}/...
+        parts = [p for p in path.split("/") if p]
+        # ["api","v1","tenants","{tenant}",...]
+        if len(parts) >= 4 and parts[0] == "api" and parts[2] == "tenants":
+            return parts[3]
+        return None
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         path = request.url.path
-        if not path.startswith("/api/"):
-            return await call_next(request)
+        header_tenant = (request.headers.get("X-Tenant") or "").strip()
+        tenant = header_tenant or self.default_tenant
 
-        # only versioned surfaces
-        if not (path.startswith("/api/v1") or path.startswith("/api/v2")):
-            request.state.tenant = self.default_tenant
-            request.state.tenant_id = self.default_tenant
-            return await call_next(request)
+        if not self._is_public(path):
+            if not header_tenant and self._requires_explicit_tenant(path):
+                return JSONResponse(status_code=400, content={"detail": "Missing X-Tenant header"})
 
-        # allow no-tenant probes
-        if path.startswith("/api/v1/health/") or path.startswith("/api/v2/health/"):
-            request.state.tenant = self.default_tenant
-            request.state.tenant_id = self.default_tenant
-            return await call_next(request)
+            path_tenant = self._extract_tenant_from_path(path)
+            if path_tenant and header_tenant and path_tenant != header_tenant:
+                return JSONResponse(status_code=403, content={"detail": "Cross-tenant request denied"})
 
-        if path.startswith("/api/v1/metrics") or path.startswith("/api/v2/metrics"):
-            request.state.tenant = self.default_tenant
-            request.state.tenant_id = self.default_tenant
-            return await call_next(request)
+            if self.strict and not header_tenant:
+                return JSONResponse(status_code=400, content={"detail": "Missing X-Tenant header"})
 
-        header_tenant = request.headers.get("x-tenant") or request.headers.get("X-Tenant")
-        path_tenant = self._extract_path_tenant(path)
-
-        if self.strict and not header_tenant and not path_tenant:
-            return JSONResponse(status_code=400, content={"detail": "Missing X-Tenant header"})
-
-        effective = header_tenant or path_tenant or self.default_tenant
-
-        request.state.tenant = effective
-        request.state.tenant_id = effective  # alias for older codepaths
-
-        if self.strict and path_tenant and header_tenant and (path_tenant != header_tenant):
-            return JSONResponse(
-                status_code=403,
-                content={"detail": "Tenant mismatch", "path_tenant": path_tenant, "header_tenant": header_tenant},
-            )
-
+        request.state.tenant = tenant
         return await call_next(request)

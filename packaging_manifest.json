@@ -1,4 +1,20 @@
 {
+  "kind": "packaging_manifest",
+  "include_paths": [
+    ".github",
+    "Makefile",
+    "README.md",
+    "app",
+    "deploy",
+    "docs",
+    "packaging_manifest.json",
+    "project_file_paths.txt",
+    "project_tree.txt",
+    "templates",
+    "tests",
+    "tools",
+    "ui"
+  ],
   "excludes": [
     "**/*.egg-info/**",
     "**/*.log",
@@ -25,8 +41,8 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "sha256": "1d85dfe3e0200153c0a25704c629b16ea8d6a04e4c2c6edff65aad843f94e419",
-      "size": 2132
+      "sha256": "274168e4c787a53d4e6032ab0771b378746c2878e71453c07f24e9c535be1af0",
+      "size": 1931
     },
     {
       "path": "Makefile",
@@ -119,6 +135,11 @@
       "size": 1753
     },
     {
+      "path": "app/api/endpoints/health_mutating.py",
+      "sha256": "5aab7147e192e2455d6722e8387f198686cb80f48263409d911a57f0859e98fb",
+      "size": 416
+    },
+    {
       "path": "app/api/endpoints/impact_graph.py",
       "sha256": "ded692064e0d8d9f21dcee5205579fd53252b3c01a8412ad6b7e8effbcd1b374",
       "size": 838
@@ -130,8 +151,8 @@
     },
     {
       "path": "app/api/endpoints/metrics.py",
-      "sha256": "92bf013e3030c0b2692666b53df7b6694a96ac6318a144cf24e5a0a56dca789b",
-      "size": 250
+      "sha256": "def2d454830bd7e692931e29551e8b656822e938771652b804dca98dbbbadfdd",
+      "size": 198
     },
     {
       "path": "app/api/endpoints/modeling_advanced.py",
@@ -205,8 +226,8 @@
     },
     {
       "path": "app/api/endpoints/sync.py",
-      "sha256": "21a883855f80d7841a0e5f4b23111023c931b534d8572c74ad4faae43a108540",
-      "size": 3071
+      "sha256": "de9d522b40862281d6c791edbaea9d430aaaf87fa3484b9591c844713a1995ad",
+      "size": 3288
     },
     {
       "path": "app/api/endpoints/system_status.py",
@@ -215,8 +236,8 @@
     },
     {
       "path": "app/api/endpoints/v1_tenanted.py",
-      "sha256": "8c1357c7ec12e6c44da9daebb5cfc4c1a2633f85f5295e7b8a1b4f4a00782210",
-      "size": 343
+      "sha256": "40c45725909858ea57170673d89732217b3fd4cb10608448e5b091ee7a053e7d",
+      "size": 463
     },
     {
       "path": "app/api/endpoints/workspace_repro.py",
@@ -245,8 +266,8 @@
     },
     {
       "path": "app/api/middleware/audit.py",
-      "sha256": "9989c23b159c926de94fcd79a6e26bc5924b07578eff190462094be4dd827d54",
-      "size": 1737
+      "sha256": "ea9545b435961e7e5144caab180c5535aae7c4b184eb75bd7a3b57790d84258e",
+      "size": 1740
     },
     {
       "path": "app/api/middleware/auth.py",
@@ -255,13 +276,18 @@
     },
     {
       "path": "app/api/middleware/auth_context.py",
-      "sha256": "f07dd1297967680c213d3211fd0f1b40230c3accfb6324e67fb0967b2c190cfa",
-      "size": 685
+      "sha256": "5f8f7d5a5eabff50433ce0846aface9a9797d579f2797a69ab6ec062d0885006",
+      "size": 587
+    },
+    {
+      "path": "app/api/middleware/error_shaping.py",
+      "sha256": "3105fe0113a01ad133782eaa2138b66a24f06ee5d4283d009b962a6d9ed5dd0f",
+      "size": 1163
     },
     {
       "path": "app/api/middleware/request_context.py",
-      "sha256": "8b19f4cc188202d3f4601ee23f6a6b6170ccda74a4d6b6c7a6c753a51864c53b",
-      "size": 7122
+      "sha256": "0c2448066ed1feeed9802fbda201e188fad3c44b0791606c27b46e7f529c23a8",
+      "size": 6901
     },
     {
       "path": "app/api/middleware/request_id.py",
@@ -350,8 +376,8 @@
     },
     {
       "path": "app/core/auth/tenant_guard.py",
-      "sha256": "1a1e413c61b3b8451b29f2d144fb049c0aa4900cbdb941bcfec913b6cfdf9f09",
-      "size": 392
+      "sha256": "d5e75cb69c11395665fa145d42fe30a4a21b977cbdc34f74e5e4f1b24436d30d",
+      "size": 443
     },
     {
       "path": "app/core/billing/ledger.py",
@@ -502,6 +528,11 @@
       "path": "app/core/compiler/spark_optimizer.py",
       "sha256": "1a945fdca47359f54c0c4e75155e05c5ccd825ec41516e576c643a5e43df5a23",
       "size": 518
+    },
+    {
+      "path": "app/core/config.py",
+      "sha256": "0e515b6b21ba243d351692ba47276e30196f0b5c7c61d8c6af615808e05364de",
+      "size": 86
     },
     {
       "path": "app/core/cost/__init__.py",
@@ -709,6 +740,11 @@
       "size": 399
     },
     {
+      "path": "app/core/metrics.py",
+      "sha256": "5add36c905496b8edfa5f02a063928d29badb23a64507a426e570cf387ed78eb",
+      "size": 422
+    },
+    {
       "path": "app/core/observability/audit.py",
       "sha256": "44c273dab885e39372018d03dc15b0398da52fc9dd8059bd423f2b8e5b7fccd9",
       "size": 1091
@@ -800,8 +836,8 @@
     },
     {
       "path": "app/core/release/release_metadata.py",
-      "sha256": "3f9331ae43e010d33650e9d41a90b62ba869a0f511c0b44a079dcb6cc6849b42",
-      "size": 1229
+      "sha256": "9191ecd107270d9faa77ada7384833875a270d642f64869919b6ed67d92129e0",
+      "size": 1903
     },
     {
       "path": "app/core/release/verify.py",
@@ -1119,14 +1155,24 @@
       "size": 240
     },
     {
+      "path": "docs/production_checklist.md",
+      "sha256": "51beed11e11e1be724d1f849d5eea1435fe9aa29c0c5b526050df7282d8b1a8e",
+      "size": 779
+    },
+    {
+      "path": "docs/role_matrix.md",
+      "sha256": "c92d0a3dd09277ae244ae84bd6e3477f6f42ed15b3f0a6a29c4dd40bac1f7821",
+      "size": 979
+    },
+    {
       "path": "docs/stage3_contract.md",
       "sha256": "07fed48f0dc0bec2c7a99f71b918b4b116108b9f6f9dc415bb20f1d31cfac808",
       "size": 2017
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "15308a5123ec3b510f130012feb38de9527a25a6a7b96bb58d451ee739bf4ae8",
-      "size": 49405
+      "sha256": "7b907e0c3c3a0e8adf7b944b20daabd7cb879103cd6d5077fc93a3b922cd6fe3",
+      "size": 50992
     },
     {
       "path": "project_file_paths.txt",
@@ -1150,8 +1196,8 @@
     },
     {
       "path": "tests/conftest.py",
-      "sha256": "d826c6c67274425df14121a8b50debe6da2fa91a0504f4ed9f4d8dcac319ae69",
-      "size": 115
+      "sha256": "6e86657502d28a2032c00e17c02bd817ae9be19f83f700e2809f98eaf9a83c7c",
+      "size": 842
     },
     {
       "path": "tests/fixtures/openapi_snapshot.json",
@@ -1170,8 +1216,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "43c671e48bc8e6c6cddb929d0afbf6b8dc6787317d90813a433398917acd7d36",
-      "size": 253282
+      "sha256": "eb6df8b60baba22f7b42a6f56b86c2da85e5fb67c7f62a8b8fa493086253944c",
+      "size": 251183
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1289,6 +1335,11 @@
       "size": 1990
     },
     {
+      "path": "tests/test_metrics_health_increment.py",
+      "sha256": "28f1587ef3c1c1982ef1a8cf60da49c0ffa5926dff885fb28a94b653859a52f3",
+      "size": 286
+    },
+    {
       "path": "tests/test_metrics_snapshot.py",
       "sha256": "a00ff0aedfeb6d3c156a3bb0c4deeb88950e2482b460b77ace17102bd72df023",
       "size": 479
@@ -1327,6 +1378,16 @@
       "path": "tests/test_phase24_metrics_increment_consistency.py",
       "sha256": "1cff1cd71de2cf6f1511a7e35923d6cb54d44dcb847bcdd9dafc437c2ea6febb",
       "size": 713
+    },
+    {
+      "path": "tests/test_phase26_rate_limit.py",
+      "sha256": "4d977af9af90033aec1b91d62313d4bbf1293b6c79bdb3b60a431a23f9319651",
+      "size": 704
+    },
+    {
+      "path": "tests/test_phase26_safe_errors_no_traceback.py",
+      "sha256": "7c0ee145d802a61847fb41cc41d08722f6ce2139d3ab9174aa5ddb3ce57741e0",
+      "size": 357
     },
     {
       "path": "tests/test_plugin_fingerprint.py",
@@ -1493,21 +1554,5 @@
       "sha256": "24e9f7dd5363297bdc0f364e83c4c5d7960f742e79bddc37bf8345ffee8ed39c",
       "size": 27707
     }
-  ],
-  "include_paths": [
-    ".github",
-    "Makefile",
-    "README.md",
-    "app",
-    "deploy",
-    "docs",
-    "packaging_manifest.json",
-    "project_file_paths.txt",
-    "project_tree.txt",
-    "templates",
-    "tests",
-    "tools",
-    "ui"
-  ],
-  "kind": "packaging_manifest"
+  ]
 }

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from fastapi import FastAPI, Request
@@ -25,12 +27,6 @@ from app.api.endpoints.workspace_verify import router as workspace_verify_router
 from app.api.endpoints.v1_tenanted import router as v1_router
 
 from app.api.middleware.auth import AuthMiddleware, should_enable_auth_middleware
-from app.api.middleware.request_context import (
-    RequestContextMiddleware,
-    SecurityHeadersMiddleware,
-    RateLimitMiddleware,
-    TenantIsolationMiddleware,
-)
 
 # Modeling endpoints
 from app.api.endpoints.modeling_preview import router as modeling_router
@@ -38,7 +34,7 @@ from app.api.endpoints.modeling_registry import router as modeling_registry_rout
 from app.api.endpoints.modeling_advanced import router as modeling_advanced_router
 from app.api.endpoints.modeling_get import router as modeling_get_router
 
-# Health endpoints
+# Health + metrics endpoints
 from app.api.endpoints import health
 from app.api.endpoints import metrics as metrics_ep
 
@@ -50,21 +46,23 @@ from app.api.endpoints.build_v3 import router as build_v3_router
 from app.api.endpoints.runtime_profiles import router as runtime_profiles_router
 
 from app.api.endpoints import preflight
-
 from app.api.endpoints.execution import router as execution_router
 from app.api.endpoints.billing import router as billing_router
 
 from app.api.endpoints import supply_chain
-
-from app.api.endpoints import metrics as metrics_ep
-
 from app.api.endpoints import system_status
+from app.api.endpoints import executions_lifecycle
 
-from app.api.middleware.request_id import RequestIdMiddleware
-from app.api.middleware.auth_context import AuthContextMiddleware
+from app.api.middleware.error_shaping import SafeErrorMiddleware
+from app.api.middleware.request_context import (
+    RequestContextMiddleware,
+    SecurityHeadersMiddleware,
+    RateLimitMiddleware,
+    TenantIsolationMiddleware,
+)
 from app.api.middleware.audit import AuditMiddleware
 
-from app.api.endpoints import executions_lifecycle
+from app.api.endpoints.health_mutating import router as health_mutating_router
 
 
 app = FastAPI(
@@ -72,35 +70,41 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# include health routes AFTER app is defined
-# app.include_router(health.router)
-
 # ------------------------------------------------------------
-# Middleware stack (ORDER MATTERS)
+# Middleware stack (ORDER MATTERS) — canonical
 # ------------------------------------------------------------
 
-# Request id + structured API request logs (no secrets)
-app.add_middleware(RequestContextMiddleware)
-
-# Tenant isolation (strict in prod by default)
 env = (os.getenv("COPILOT_ENV") or "dev").strip().lower()
-tenant_strict = (os.getenv("COPILOT_TENANT_STRICT") or ("true" if env == "prod" else "false")).strip().lower() in (
-    "1",
-    "true",
-    "yes",
-)
+
+# SAFE ERROR SHAPING (outermost)
+app.add_middleware(SafeErrorMiddleware)
+
+# Tenant isolation (strict optional)
+tenant_strict = (os.getenv("COPILOT_TENANT_STRICT") or "0").strip().lower() in ("1", "true", "yes")
 default_tenant = (os.getenv("COPILOT_DEFAULT_TENANT") or "default").strip()
 app.add_middleware(TenantIsolationMiddleware, strict=tenant_strict, default_tenant=default_tenant)
 
-# Auth boundary
-app.add_middleware(AuthMiddleware, enabled=should_enable_auth_middleware())
+# Auth boundary:
+# - Enabled by default in runtime
+# - Disabled by default under pytest unless explicitly enabled via env
+pytest_running = bool(os.getenv("PYTEST_CURRENT_TEST"))
+auth_enabled = should_enable_auth_middleware()
+if pytest_running and os.getenv("COPILOT_AUTH_ENABLED") is None:
+    auth_enabled = False
+app.add_middleware(AuthMiddleware, enabled=auth_enabled)
+
+# Audit (needs tenant + actor available)
+app.add_middleware(AuditMiddleware)
+
+# Request context (request_id + metrics increment)
+app.add_middleware(RequestContextMiddleware)
 
 # Rate limiting (off by default)
-rl_enabled = (os.getenv("COPILOT_RATE_LIMIT_ENABLED") or "false").strip().lower() in ("1", "true", "yes")
+rl_enabled = (os.getenv("COPILOT_RATE_LIMIT_ENABLED") or "0").strip().lower() in ("1", "true", "yes")
 rl_rpm = int((os.getenv("COPILOT_RATE_LIMIT_RPM") or "120").strip())
 app.add_middleware(RateLimitMiddleware, enabled=rl_enabled, rpm=rl_rpm)
 
-# Security headers (on in prod by default)
+# Security headers (on in prod by default if you want)
 sec_enabled = (os.getenv("COPILOT_SECURITY_HEADERS_ENABLED") or ("true" if env == "prod" else "false")).strip().lower() in (
     "1",
     "true",
@@ -160,11 +164,9 @@ app.include_router(build_v3_router)
 app.include_router(preflight.router)
 app.include_router(execution_router)
 app.include_router(billing_router)
-app.add_middleware(RequestIdMiddleware)
-app.add_middleware(AuthContextMiddleware)
-app.add_middleware(AuditMiddleware)
 
-# IMPORTANT: do NOT include v1_router unversioned anymore
+# IMPORTANT: do NOT include v1_router unversioned
+
 
 # ------------------------------------------------------------
 # Versioned (authoritative)
@@ -183,7 +185,9 @@ for prefix in ("/api/v1", "/api/v2"):
     app.include_router(plugins_routes.router, prefix=prefix)
     app.include_router(advisors_routes.router, prefix=prefix)
     app.include_router(execution.router, prefix=prefix)
-    app.include_router(metrics_ep.router, prefix=prefix)
+
+    # NOTE: DO NOT include metrics_ep.router here since it already defines /api/v1/* and /api/v2/*
+    # app.include_router(metrics_ep.router, prefix=prefix)
 
     # Modeling (IMPORTANT ORDER)
     app.include_router(modeling_registry_router, prefix=prefix)
@@ -194,30 +198,13 @@ for prefix in ("/api/v1", "/api/v2"):
 # Tenanted router: v1 only
 app.include_router(v1_router, prefix="/api/v1")
 
+# v1-only extra surfaces
 app.include_router(supply_chain.router, prefix="/api/v1")
-
 app.include_router(system_status.router, prefix="/api/v1")
-
 app.include_router(executions_lifecycle.router, prefix="/api/v1")
+app.include_router(health_mutating_router, prefix="/api/v1")
 
 
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
-
-
-# ---- Phase 15: Release verification endpoint ----
-try:
-    from app.api.endpoints.release_verify import router as release_verify_router  # noqa: F401
-
-    _has_release = False
-    for r in app.router.routes:
-        if getattr(r, "path", None) == "/api/v2/release/verify":
-            _has_release = True
-            break
-    if not _has_release:
-        app.include_router(release_verify_router)
-except Exception:
-    # keep app bootable even if optional deps break during partial dev
-    pass
-

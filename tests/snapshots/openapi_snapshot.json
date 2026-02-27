@@ -1997,6 +1997,38 @@
         }
       }
     },
+    "/health/live": {
+      "get": {
+        "summary": "Live",
+        "operationId": "live_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "summary": "Ready",
+        "operationId": "ready_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/health/live": {
       "get": {
         "summary": "Liveness",
@@ -2016,7 +2048,7 @@
     "/api/v1/health/ready": {
       "get": {
         "summary": "Readiness",
-        "description": "Readiness should reflect ability to serve real traffic.\nKeep checks fast + local (no slow downstream calls).",
+        "description": "Readiness reflects ability to serve traffic.\nIn non-prod environments, skip strict secret validation.",
         "operationId": "readiness_api_v1_health_ready_get",
         "responses": {
           "200": {
@@ -2034,6 +2066,38 @@
       "get": {
         "summary": "Metrics Snapshot",
         "operationId": "metrics_snapshot_metrics_snapshot_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/metrics/snapshot": {
+      "get": {
+        "summary": "Metrics Snapshot V1",
+        "operationId": "metrics_snapshot_v1_api_v1_metrics_snapshot_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/metrics/snapshot": {
+      "get": {
+        "summary": "Metrics Snapshot V2",
+        "operationId": "metrics_snapshot_v2_api_v2_metrics_snapshot_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5457,22 +5521,6 @@
         }
       }
     },
-    "/api/v1/metrics/snapshot": {
-      "get": {
-        "summary": "Metrics Snapshot",
-        "operationId": "metrics_snapshot_api_v1_metrics_snapshot_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/modeling/list": {
       "get": {
         "tags": [
@@ -7508,22 +7556,6 @@
         }
       }
     },
-    "/api/v2/metrics/snapshot": {
-      "get": {
-        "summary": "Metrics Snapshot",
-        "operationId": "metrics_snapshot_api_v2_metrics_snapshot_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v2/modeling/list": {
       "get": {
         "tags": [
@@ -8020,6 +8052,22 @@
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/ping": {
+      "post": {
+        "summary": "Health Ping Mutating",
+        "operationId": "health_ping_mutating_api_v1_health_ping_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           }
