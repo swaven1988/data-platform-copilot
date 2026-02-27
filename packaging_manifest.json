@@ -106,8 +106,8 @@
     },
     {
       "path": "app/api/endpoints/execution.py",
-      "sha256": "6ee78a359ec036fd6b525401af2a8f0ef4afa785156155f37d67aeb46ef994f1",
-      "size": 7868
+      "sha256": "a315e718192fd46030ba1213e4d86af70dcc14161270744028ccddf8ad3a16be",
+      "size": 8648
     },
     {
       "path": "app/api/endpoints/execution.py.bak",
@@ -271,8 +271,8 @@
     },
     {
       "path": "app/api/middleware/auth.py",
-      "sha256": "76ae65f7995fc30c23334d137d2b6542cd24d97f0a27ed3b9a0cbbf311591349",
-      "size": 5145
+      "sha256": "8d919b620595b4fa4c038afbe8d41301a51bd703c00ece4ecb65f08c7a18450a",
+      "size": 5629
     },
     {
       "path": "app/api/middleware/auth_context.py",
@@ -361,8 +361,8 @@
     },
     {
       "path": "app/core/auth/provider.py",
-      "sha256": "5e47077572228bbc93ded1749e2ce096318f552d4ac9d2f1e3e68974099c2ee2",
-      "size": 4446
+      "sha256": "dad968a2d9eb7b6b798a4f284cabaca79866a5ab4a4ef02b9efb53df78e5bb48",
+      "size": 5085
     },
     {
       "path": "app/core/auth/rbac.py",
@@ -871,8 +871,8 @@
     },
     {
       "path": "app/core/signing/signing.py",
-      "sha256": "b15ae66c4a2aebe248099d9e513f841b2d1e0c19bbcf230ec0c4f5ef64f1417c",
-      "size": 2024
+      "sha256": "95e76b3e844727bcf38cec7ccfc3eaa87672cdb1dc0638b82152edaa7cee8b5d",
+      "size": 2026
     },
     {
       "path": "app/core/spec_schema.py",
@@ -1171,8 +1171,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "ebae49771793a1b576a74c1e528d0ac26e4ee3a5ee5ddfd72148180c7b3797dc",
-      "size": 52505
+      "sha256": "4a803d801d7af2a90b2ea7c763e77725d5717928e017caa39b4a8f264b18ebe8",
+      "size": 53023
     },
     {
       "path": "project_file_paths.txt",
@@ -1241,13 +1241,13 @@
     },
     {
       "path": "tests/test_billing_ledger_budget.py",
-      "sha256": "bd9b41f196b5b8338febd6ffd24a9eb801040ab53c992d01619309a202f5b9b2",
-      "size": 1564
+      "sha256": "025655a860dc1160f0a3458dfd4764b8ae4a4e4f34d4d7c844b469f12d8732ae",
+      "size": 1657
     },
     {
       "path": "tests/test_billing_summary_api.py",
-      "sha256": "59b700040305b056bc00b6d43e7a669153341377e0851148dc8c2547067c980f",
-      "size": 1624
+      "sha256": "e6f79808c76455357e54191861a283b2743696eb426704906e490e66393a542d",
+      "size": 1682
     },
     {
       "path": "tests/test_build_v2_contract.py",
@@ -1276,8 +1276,8 @@
     },
     {
       "path": "tests/test_execution_actuals_to_ledger.py",
-      "sha256": "4af907ea905027d6d44388a61d07fb1ff5923da4f6749f5e1cb7269732b4a9ea",
-      "size": 2074
+      "sha256": "0f975e012ab42eca976b906d10d890350faeefe7ff24fa375bb6a03a98cfc685",
+      "size": 1848
     },
     {
       "path": "tests/test_execution_backend_registry.py",
@@ -1316,8 +1316,8 @@
     },
     {
       "path": "tests/test_execution_policy_enforcement.py",
-      "sha256": "55eb0674223c1ad55e2330076207f7a853e28f0e0f2a66c9fcf88fffad49f3fc",
-      "size": 1662
+      "sha256": "f4fee138064e4e1549ce4e19ea87d71968ee56d98e2893a6b03d10ec9b6e6023",
+      "size": 1358
     },
     {
       "path": "tests/test_federation_api.py",
@@ -1343,6 +1343,16 @@
       "path": "tests/test_intent_contract.py",
       "sha256": "ad03660796572d40bda972d09ba9461399555fccb2db8a98614120daa1501d3b",
       "size": 1990
+    },
+    {
+      "path": "tests/test_ledger_concurrent_writes.py",
+      "sha256": "148dfdd9776669427ceee28db6bf0c8f52fb937f5d70015fa92432b2bbd7afdf",
+      "size": 1652
+    },
+    {
+      "path": "tests/test_local_backend_no_exec.py",
+      "sha256": "ac673590669bd9eb5ceb30c71ee1924d9bb49924799b61e18e3b339b5ba29dc8",
+      "size": 1089
     },
     {
       "path": "tests/test_metrics_health_increment.py",
@@ -1381,8 +1391,8 @@
     },
     {
       "path": "tests/test_phase24_audit_log_includes_tenant_actor.py",
-      "sha256": "f99dc403326d9d8bfa71567c140fce36bd09bf0a0c236b127926c23b128a81de",
-      "size": 838
+      "sha256": "3b643ddee42ca0a699e3d8ce52cf40a13adc72bd6f5116af701c727f424a95f3",
+      "size": 883
     },
     {
       "path": "tests/test_phase24_metrics_increment_consistency.py",

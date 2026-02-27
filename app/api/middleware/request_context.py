@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import os
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, Optional, Set
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -88,6 +89,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.enabled = bool(enabled)
         self.rpm = int(rpm)
         self._buckets: Dict[str, _Bucket] = {}
+        self._lock = asyncio.Lock()  # Fix 4: protect _buckets from concurrent access
 
     def _env_enabled(self) -> bool:
         raw = os.getenv("COPILOT_RATE_LIMIT_ENABLED")
@@ -104,15 +106,25 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         except Exception:
             return max(1, int(self.rpm))
 
+    def _trusted_proxies(self) -> Set[str]:
+        raw = os.getenv("COPILOT_TRUSTED_PROXIES", "").strip()
+        if not raw:
+            return set()
+        return {ip.strip() for ip in raw.split(",") if ip.strip()}
+
     def _client_key(self, request: Request) -> str:
-        # prefer forwarded-for for tests / gateways
+        # Only trust X-Forwarded-For if the request comes from a trusted proxy
+        trusted = self._trusted_proxies()
+        direct_ip = getattr(getattr(request, "client", None), "host", None) or "unknown"
         xff = (request.headers.get("X-Forwarded-For") or "").strip()
-        ip = xff.split(",")[0].strip() if xff else None
-        if not ip:
-            ip = getattr(getattr(request, "client", None), "host", None) or "unknown"
+        if xff and (not trusted or direct_ip in trusted):
+            ip = xff.split(",")[0].strip() or direct_ip
+        else:
+            ip = direct_ip
 
         tenant = getattr(request.state, "tenant", None) or (request.headers.get("X-Tenant") or "").strip() or "default"
         return f"{ip}|{tenant}"
+
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         if request.method.upper() not in ("POST", "PUT", "PATCH", "DELETE"):
@@ -125,16 +137,20 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         now = time.time()
         key = self._client_key(request)
 
-        bucket = self._buckets.get(key)
-        if bucket is None or (now - bucket.window_start) >= 60.0:
-            bucket = _Bucket(window_start=now, count=0)
-            self._buckets[key] = bucket
+        async with self._lock:  # Fix 4: atomic read-modify-write
+            bucket = self._buckets.get(key)
+            if bucket is None or (now - bucket.window_start) >= 60.0:
+                bucket = _Bucket(window_start=now, count=0)
+                self._buckets[key] = bucket
 
-        bucket.count += 1
-        if bucket.count > rpm:
+            bucket.count += 1
+            over_limit = bucket.count > rpm
+
+        if over_limit:
             return JSONResponse(status_code=429, content={"detail": "Rate limit exceeded"})
 
         return await call_next(request)
+
 
 
 # ------------------------------------------------------------

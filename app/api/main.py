@@ -65,6 +65,8 @@ from app.api.middleware.audit import AuditMiddleware
 from app.api.endpoints.health_mutating import router as health_mutating_router
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="Data Platform Copilot API",
     version="0.1.0",
@@ -72,14 +74,15 @@ app = FastAPI(
 
 # ------------------------------------------------------------
 # Middleware stack (ORDER MATTERS) — canonical
+# Note: Starlette reverses add_middleware order — the LAST call = OUTERMOST wrapper.
+# Desired runtime order (outermost → innermost):
+#   SafeErrorMiddleware → CORSMiddleware → SecurityHeaders → RateLimit
+#   → RequestContext → Audit → Auth → TenantIsolation → handler
 # ------------------------------------------------------------
 
 env = (os.getenv("COPILOT_ENV") or "dev").strip().lower()
 
-# SAFE ERROR SHAPING (outermost)
-app.add_middleware(SafeErrorMiddleware)
-
-# Tenant isolation (strict optional)
+# Tenant isolation (innermost of the stack — added first)
 tenant_strict = (os.getenv("COPILOT_TENANT_STRICT") or "0").strip().lower() in ("1", "true", "yes")
 default_tenant = (os.getenv("COPILOT_DEFAULT_TENANT") or "default").strip()
 app.add_middleware(TenantIsolationMiddleware, strict=tenant_strict, default_tenant=default_tenant)
@@ -111,6 +114,23 @@ sec_enabled = (os.getenv("COPILOT_SECURITY_HEADERS_ENABLED") or ("true" if env =
     "yes",
 )
 app.add_middleware(SecurityHeadersMiddleware, enabled=sec_enabled)
+
+# Fix 5: CORSMiddleware — second-to-last so OPTIONS preflight is handled outside Auth
+# (last-added = outermost; second-to-last = second outermost, after SafeErrorMiddleware)
+_cors_origins_raw = os.getenv("COPILOT_CORS_ORIGINS", "").strip()
+_cors_origins = [o.strip() for o in _cors_origins_raw.split(",") if o.strip()] if _cors_origins_raw else ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Fix 9: SafeErrorMiddleware LAST = outermost (catches all exceptions from inner middleware)
+app.add_middleware(SafeErrorMiddleware)
+
+
 
 # ------------------------------------------------------------
 # Deprecation headers for unversioned endpoints

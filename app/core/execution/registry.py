@@ -1,11 +1,34 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .models import ExecutionEvent, ExecutionRecord, ExecutionState, _utc_now_iso
 from .state_machine import ensure_transition
+
+try:
+    import fcntl as _fcntl
+    _HAS_FCNTL = True
+except ImportError:
+    _HAS_FCNTL = False
+    logging.getLogger("copilot.locking").warning(
+        "fcntl not available (non-POSIX). File locking is disabled for execution registry."
+    )
+
+
+def _locked_write(path: Path, data: str) -> None:
+    """Write data to path with exclusive flock (POSIX only)."""
+    with open(path, "w", encoding="utf-8") as fh:
+        if _HAS_FCNTL:
+            _fcntl.flock(fh, _fcntl.LOCK_EX)
+        try:
+            fh.write(data)
+        finally:
+            if _HAS_FCNTL:
+                _fcntl.flock(fh, _fcntl.LOCK_UN)
+
 
 
 def _exec_dir(workspace_dir: Path) -> Path:
@@ -36,7 +59,8 @@ class ExecutionRegistry:
 
     def upsert(self, rec: ExecutionRecord) -> None:
         p = _exec_path(self.workspace_dir, rec.job_name)
-        p.write_text(json.dumps(rec.to_dict(), indent=2, sort_keys=True), encoding="utf-8")
+        _locked_write(p, json.dumps(rec.to_dict(), indent=2, sort_keys=True))
+
 
     def init_if_missing(
         self,

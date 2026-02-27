@@ -1,10 +1,36 @@
 from __future__ import annotations
 
 import json
+import logging
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Generator, List, Optional
+
+try:
+    import fcntl as _fcntl
+    _HAS_FCNTL = True
+except ImportError:
+    _HAS_FCNTL = False
+    logging.getLogger("copilot.locking").warning(
+        "fcntl not available (non-POSIX). File locking is disabled. "
+        "Do not run concurrent ledger writes in production on this platform."
+    )
+
+
+@contextmanager
+def _locked_file(path: Path, mode: str) -> Generator:
+    """Open a file and apply an exclusive flock (POSIX only). No-op on Windows."""
+    with open(path, mode, encoding="utf-8") as fh:
+        if _HAS_FCNTL:
+            _fcntl.flock(fh, _fcntl.LOCK_EX)
+        try:
+            yield fh
+        finally:
+            if _HAS_FCNTL:
+                _fcntl.flock(fh, _fcntl.LOCK_UN)
+
 
 
 def utc_month_key(dt: Optional[datetime] = None) -> str:
@@ -65,13 +91,17 @@ class LedgerStore:
         if not p.exists():
             return {"kind": "ledger", "entries": []}
         try:
-            return json.loads(p.read_text(encoding="utf-8"))
+            with _locked_file(p, "r") as fh:
+                return json.loads(fh.read())
         except Exception:
             return {"kind": "ledger", "entries": []}
 
     def _save(self, obj: Dict[str, Any]) -> None:
         p = _ledger_path(self.workspace_dir)
-        p.write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with _locked_file(p, "w") as fh:
+            fh.write(json.dumps(obj, indent=2, sort_keys=True))
+
 
     def upsert_estimate(
         self,
