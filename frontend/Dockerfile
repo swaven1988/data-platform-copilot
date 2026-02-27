@@ -12,10 +12,10 @@ RUN npm run build
 # -----------------------------
 FROM nginx:1.27-alpine
 
-# Remove default nginx config if replacing
-# RUN rm /etc/nginx/conf.d/default.conf
-
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Use custom nginx config that includes try_files for SPA routing
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Non-root nginx (already runs as nginx user in alpine image)
 EXPOSE 80
