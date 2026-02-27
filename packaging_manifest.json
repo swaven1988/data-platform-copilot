@@ -256,8 +256,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "1b043be15edc3dce393626f845c375882a73274486981243fb6674d4f274a70c",
-      "size": 8535
+      "sha256": "43beb9ae73769bf5f917be4d68f44aba9bee4cff3148f213a19587fb2ae83aca",
+      "size": 9489
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -286,8 +286,8 @@
     },
     {
       "path": "app/api/middleware/request_context.py",
-      "sha256": "a0c3bce2cb347b4fd8f5a25dbd3fd62769f15bc4f320cdd1330ea9b24bc9df8e",
-      "size": 7850
+      "sha256": "f477c131ae39c5cb733ee624a60cef58ea71b5a4c53785b56ef4d58741edf947",
+      "size": 8469
     },
     {
       "path": "app/api/middleware/request_id.py",
@@ -381,8 +381,8 @@
     },
     {
       "path": "app/core/billing/ledger.py",
-      "sha256": "8f4a274473608141226889c9edcba62a8ebea36c80dc138bdc9af541083cf5dc",
-      "size": 7025
+      "sha256": "7b963c66c0b4d0ed6673998806b1a36e09363a6d054451c9b0f0508375310879",
+      "size": 7928
     },
     {
       "path": "app/core/billing/tenant_budget.py",
@@ -596,8 +596,8 @@
     },
     {
       "path": "app/core/execution/backends/local.py",
-      "sha256": "d54c54c83fece6bc856aa5f1376902ab21deca0461ba284f3b7856c940d63771",
-      "size": 817
+      "sha256": "8733dc888c84565fab125156441dc328ba90e80dd7f9f9a08376d7b031790d15",
+      "size": 1014
     },
     {
       "path": "app/core/execution/executor.py",
@@ -621,8 +621,8 @@
     },
     {
       "path": "app/core/execution/registry.py",
-      "sha256": "291ec22622bfdb1a60eb5865b663f165aa030f3820c2651279abcacf1ecc3cb7",
-      "size": 4363
+      "sha256": "b2f1d4c030f37341be1bb8a7cfc9c4b7176a969f996a083cd7ea812b3e8ea71d",
+      "size": 5003
     },
     {
       "path": "app/core/execution/state_machine.py",
@@ -1171,8 +1171,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "4a803d801d7af2a90b2ea7c763e77725d5717928e017caa39b4a8f264b18ebe8",
-      "size": 53023
+      "sha256": "71cd774389b6b78a24baeebe5f8c2cffa3e21dbd2450b7e740f6fb226e88134c",
+      "size": 53374
     },
     {
       "path": "project_file_paths.txt",

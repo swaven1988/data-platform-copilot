@@ -1,10 +1,4 @@
-# ================================
-# Phase 7.1 — Build Gate Integration (Preflight Mandatory)
-# ================================
-
-# --------------------------------
-# app/core/preflight/gate.py
-# --------------------------------
+from pathlib import Path
 
 from app.core.preflight.models import PreflightRequest, PreflightReport
 from app.core.preflight.estimator import estimate
@@ -16,7 +10,7 @@ class PreflightBlockedException(Exception):
     pass
 
 
-def run_preflight_gate(req: PreflightRequest) -> PreflightReport:
+def run_preflight_gate(req: PreflightRequest, workspace_dir: Path = Path(".")) -> PreflightReport:
     preflight_hash, estimate_obj = estimate(req)
     risk_obj = assess(req, estimate_obj)
     decision = policy_decision(risk_obj, estimate_obj, req)
@@ -29,7 +23,8 @@ def run_preflight_gate(req: PreflightRequest) -> PreflightReport:
         policy_decision=decision,
     )
 
-    persist_report(report)
+    persist_report(report, workspace_dir=workspace_dir)
+
 
     if decision == "BLOCK":
         raise PreflightBlockedException(

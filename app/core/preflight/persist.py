@@ -1,25 +1,26 @@
 # app/core/preflight/persist.py
 
-import os
 import json
+from pathlib import Path
 from .models import PreflightReport
 
 
-def persist_report(report: PreflightReport, base_path: str = ".") -> str:
-    path = os.path.join(base_path, ".copilot", "preflight")
-    os.makedirs(path, exist_ok=True)
-
-    file_path = os.path.join(path, f"{report.preflight_hash}.json")
-
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(report.dict(), f, indent=2)
-
-    return file_path
+def _preflight_dir(workspace_dir: Path) -> Path:
+    d = workspace_dir / ".copilot" / "preflight"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 
 
-def load_report(job_name: str, preflight_hash: str, base_path: str = "."):
-    file_path = os.path.join(base_path, ".copilot", "preflight", f"{preflight_hash}.json")
-    if not os.path.exists(file_path):
+def persist_report(report: PreflightReport, workspace_dir: Path) -> str:
+    """Persist a preflight report to workspace_dir/.copilot/preflight/<hash>.json."""
+    path = _preflight_dir(workspace_dir) / f"{report.preflight_hash}.json"
+    path.write_text(json.dumps(report.model_dump(), indent=2), encoding="utf-8")
+    return str(path)
+
+
+def load_report(job_name: str, preflight_hash: str, workspace_dir: Path):
+    """Load a preflight report; returns None if not found."""
+    path = _preflight_dir(workspace_dir) / f"{preflight_hash}.json"
+    if not path.exists():
         return None
-    with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return json.loads(path.read_text(encoding="utf-8"))

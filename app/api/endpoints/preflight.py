@@ -1,5 +1,7 @@
 # app/api/endpoints/preflight.py
 
+from pathlib import Path
+
 from fastapi import APIRouter, HTTPException
 from app.core.preflight.models import (
     PreflightRequest,
@@ -10,6 +12,9 @@ from app.core.preflight.risk import assess, policy_decision
 from app.core.preflight.persist import persist_report, load_report
 
 router = APIRouter(prefix="/api/v2/preflight", tags=["preflight"])
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+_DEFAULT_PREFLIGHT_WORKSPACE = _PROJECT_ROOT / "workspace" / ".preflight"
 
 
 @router.post("/analyze", response_model=PreflightReport)
@@ -26,13 +31,13 @@ def analyze(req: PreflightRequest):
         policy_decision=decision,
     )
 
-    persist_report(report)
+    persist_report(report, workspace_dir=_DEFAULT_PREFLIGHT_WORKSPACE)
     return report
 
 
 @router.get("/report/{job_name}/{preflight_hash}")
 def get_report(job_name: str, preflight_hash: str):
-    data = load_report(job_name, preflight_hash)
+    data = load_report(job_name, preflight_hash, workspace_dir=_DEFAULT_PREFLIGHT_WORKSPACE)
     if not data:
         raise HTTPException(status_code=404, detail="preflight_report_not_found")
     return data
