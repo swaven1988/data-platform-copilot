@@ -1,4 +1,4 @@
-.PHONY: api ui snapshot verify-snapshot ci manifest-gen manifest-check
+.PHONY: api ui snapshot verify-snapshot ci manifest-gen manifest-check manifest
 
 api:
 	uvicorn app.api.main:app --reload --port 8001
@@ -26,3 +26,12 @@ manifest-check:
 ci:
 	@echo "Running CI checks..."
 	@python -m pytest -q
+
+## Shortcut: regenerate packaging_manifest.json using the project venv
+manifest: manifest-gen
+
+manifest-gen:
+	@.venv/Scripts/python.exe tools/gen_packaging_manifest.py
+
+manifest-check:
+	@.venv/Scripts/python.exe tools/gen_packaging_manifest.py --check
