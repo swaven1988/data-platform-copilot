@@ -35,6 +35,12 @@ def verify_artifact_integrity(artifact_path: Path, sha_path: Path) -> Dict:
     }
 
 
+_EXCLUDED_DIRS = {
+    "workspace", "node_modules", ".venv", "venv", "__pycache__",
+    ".mypy_cache", ".pytest_cache", ".git", ".egg-info",
+}
+
+
 def generate_runtime_manifest(project_root: Path) -> Dict:
     manifest = {
         "files": [],
@@ -42,14 +48,20 @@ def generate_runtime_manifest(project_root: Path) -> Dict:
     }
 
     for path in project_root.rglob("*"):
-        if path.is_file() and ".git" not in str(path):
-            manifest["files"].append({
-                "path": str(path.relative_to(project_root)),
-                "sha256": sha256_file(path)
-            })
+        if not path.is_file():
+            continue
+        # Skip excluded directories anywhere in the path
+        parts = set(path.relative_to(project_root).parts)
+        if parts & _EXCLUDED_DIRS:
+            continue
+        manifest["files"].append({
+            "path": str(path.relative_to(project_root)),
+            "sha256": sha256_file(path),
+        })
 
     manifest["total_files"] = len(manifest["files"])
     return manifest
+
 
 
 def write_runtime_manifest(project_root: Path, output_path: Path):

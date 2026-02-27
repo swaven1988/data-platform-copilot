@@ -186,8 +186,8 @@
     },
     {
       "path": "app/api/endpoints/preflight.py",
-      "sha256": "dc773336e704ec00a895019353203a23e7a30583a45cea4de60be50f9f70bc50",
-      "size": 1200
+      "sha256": "7163838df6fe56f2cec539032600e98e2d129514ea0cbfd960db85dc3c67ee2e",
+      "size": 1448
     },
     {
       "path": "app/api/endpoints/release_verify.py",
@@ -746,8 +746,8 @@
     },
     {
       "path": "app/core/observability/audit.py",
-      "sha256": "44c273dab885e39372018d03dc15b0398da52fc9dd8059bd423f2b8e5b7fccd9",
-      "size": 1091
+      "sha256": "3acd2ba4a45d629df09ddbcdbd3707d6b8fb0cbad8f0e2fe4adb5d3f9004b912",
+      "size": 1988
     },
     {
       "path": "app/core/observability/metrics.py",
@@ -811,8 +811,8 @@
     },
     {
       "path": "app/core/preflight/gate.py",
-      "sha256": "3758048f3ddcbe93b74d03937c728a1c4484d0f06477aa0eb1bf73bd48520140",
-      "size": 1198
+      "sha256": "c1f55c678e60acfeb47f7729e1c874aa2a5dfc90db7cf33d7862025c16d8eccb",
+      "size": 1050
     },
     {
       "path": "app/core/preflight/models.py",
@@ -821,8 +821,8 @@
     },
     {
       "path": "app/core/preflight/persist.py",
-      "sha256": "b7a59e0dc95569d8b84b8b0c06b67ae906ca92621437703021b7b3b9c98271f2",
-      "size": 787
+      "sha256": "10a32d22ee1160a4d06fc786f14072cbce41a2ab9bbea82a86dc03cf1f205b7f",
+      "size": 932
     },
     {
       "path": "app/core/preflight/risk.py",
@@ -931,8 +931,8 @@
     },
     {
       "path": "app/main.py",
-      "sha256": "4bbaa99acacf94330dbfd169543d0b1748445aa37998b96d464d9fa44d5128e2",
-      "size": 132
+      "sha256": "d7aea1b759ff1bf86e995f5f5a41ec51958182988fdd30b2c03bd1f12e2d5b8c",
+      "size": 237
     },
     {
       "path": "app/modeling/__init__.py",
@@ -1171,8 +1171,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "71cd774389b6b78a24baeebe5f8c2cffa3e21dbd2450b7e740f6fb226e88134c",
-      "size": 53374
+      "sha256": "4a34ef7a01a684fcd87bc311469f1ea128ffc96f976bc99bcb9cd0cabf4f3c14",
+      "size": 53375
     },
     {
       "path": "project_file_paths.txt",

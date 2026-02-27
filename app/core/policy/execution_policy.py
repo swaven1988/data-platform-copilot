@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
 
@@ -16,14 +17,32 @@ class ExecutionPolicyConfig:
     max_executors: int = 200
 
 
+def _env_float(key: str, default: float) -> float:
+    try:
+        return float(os.getenv(key, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _env_int(key: str, default: int) -> int:
+    try:
+        return int(os.getenv(key, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
 def _tenant_defaults(tenant: str) -> ExecutionPolicyConfig:
-    if tenant == "default":
-        return ExecutionPolicyConfig(
-            max_total_cost_usd=50.0,
-            max_runtime_minutes=180.0,
-            max_executors=200,
-        )
-    return ExecutionPolicyConfig()
+    # Fix 17: policy limits are env-configurable
+    max_cost = _env_float("COPILOT_MAX_COST_USD", 50.0)
+    max_runtime = _env_float("COPILOT_MAX_RUNTIME_MINUTES", 180.0)
+    max_executors = _env_int("COPILOT_MAX_EXECUTORS", 200)
+
+    return ExecutionPolicyConfig(
+        max_total_cost_usd=max_cost,
+        max_runtime_minutes=max_runtime,
+        max_executors=max_executors,
+    )
+
 
 
 def evaluate_execution_policy(

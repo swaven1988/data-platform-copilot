@@ -3,10 +3,22 @@
 from __future__ import annotations
 
 import json
+import logging
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Optional, Tuple, Dict, Any, List
 from datetime import datetime, timezone
+
+_log = logging.getLogger("copilot.git")
+
+# Fix 19: Check git availability at import time — avoids FileNotFoundError in callers
+GIT_AVAILABLE: bool = shutil.which("git") is not None
+if not GIT_AVAILABLE:
+    _log.warning(
+        "git executable not found on PATH. All git operations will raise "
+        "GitRepositoryError instead of propagating FileNotFoundError."
+    )
 
 # ---------------------------------------------------------------------
 # Core git runner (deterministic, no debug prints, strict semantics)
@@ -14,7 +26,6 @@ from datetime import datetime, timezone
 
 class GitRepositoryError(Exception):
     pass
-
 
 class RepoManager:
     def __init__(self, repo_path: str):

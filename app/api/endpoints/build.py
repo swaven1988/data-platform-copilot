@@ -35,7 +35,7 @@ from app.api.models.build_responses import (
     BuildIntentDryRunResponse,
     BuildIntentBuildResponse,
 )
-from app.api.models.build_responses import BuildV2Response
+
 
 from datetime import datetime
 

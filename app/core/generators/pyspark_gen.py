@@ -86,8 +86,12 @@ def main():
     try:
         df = spark.table({spec.source_table!r})
 
-        # TODO: Replace with real transformation logic
-        df_out = df.withColumn("copilot_run_ts", F.current_timestamp())
+        # Transformation not implemented — spec type: {spec.preset!r}
+        # See: docs/generators.md for supported transformation catalog.
+        raise NotImplementedError(
+            f"PySpark transformation not implemented for preset={{spec.preset!r}}. "
+            "Implement generate_pyspark_job() for this preset or use a supported one."
+        )
 {write_block.rstrip()}
 
         spark.stop()

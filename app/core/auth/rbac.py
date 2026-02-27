@@ -5,10 +5,14 @@ from typing import Callable, Iterable, List, Optional
 from fastapi import HTTPException, Request
 
 
-# Role hierarchy (simple, extensible)
+# Role hierarchy (viewer < operator < admin)
+# - viewer (1):   read-only access to endpoints and reports
+# - operator (2): can trigger executions and manage jobs, but not admin system operations
+# - admin (3):    full access including system endpoints and user management
 ROLE_ORDER = {
     "viewer": 1,
-    "admin": 2,
+    "operator": 2,
+    "admin": 3,
 }
 
 
