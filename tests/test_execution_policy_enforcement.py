@@ -13,14 +13,9 @@ AUTH_HEADERS = {
 }
 
 
-def test_apply_blocks_when_cost_too_high(tmp_path: Path):
-    # workspace under tmp
-    ws = tmp_path / "workspace" / "job_block"
-    ws.mkdir(parents=True, exist_ok=True)
-
+def test_apply_blocks_when_cost_too_high():
     body = {
         "job_name": "job_block",
-        "workspace_dir": str(ws),
         "cost_estimate": {
             "estimated_total_cost_usd": 9999.0,
             "confidence": 0.9,
@@ -35,14 +30,11 @@ def test_apply_blocks_when_cost_too_high(tmp_path: Path):
     assert j["detail"]["decision"] == "BLOCK"
 
 
-def test_apply_warn_allows_continue(tmp_path: Path):
-    ws = tmp_path / "workspace" / "job_warn"
-    ws.mkdir(parents=True, exist_ok=True)
 
+def test_apply_warn_allows_continue():
     # cost under threshold -> allow
     body = {
         "job_name": "job_warn",
-        "workspace_dir": str(ws),
         "cost_estimate": {
             "estimated_total_cost_usd": 10.0,
             "confidence": 0.9,

@@ -1,6 +1,7 @@
 # app/core/auth/provider.py
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass
 from typing import Optional
@@ -8,6 +9,8 @@ from typing import Optional
 from fastapi import Request
 
 from app.core.auth.models import Principal
+
+_log = logging.getLogger("copilot.auth")
 
 
 class AuthError(Exception):
@@ -120,7 +123,18 @@ def get_auth_provider() -> AuthProvider:
             StaticTokenConfig(allow_in_prod=allow_in_prod, admin_token=admin_token, viewer_token=viewer_token)
         )
     except FileNotFoundError:
-        # Default dev tokens (matches your existing usage)
+        # Guard: never fall back to default dev tokens in prod
+        _env = (os.getenv("COPILOT_ENV", "dev") or "dev").strip().lower()
+        if _env == "prod":
+            raise AuthError(
+                "FATAL: Running in prod with no token configuration. "
+                "Set COPILOT_ADMIN_TOKEN + COPILOT_VIEWER_TOKEN or configure secret files."
+            )
+        _log.warning(
+            "AUTH: Using default dev tokens (dev_admin_token / dev_viewer_token). "
+            "This is insecure. Set COPILOT_ADMIN_TOKEN and COPILOT_VIEWER_TOKEN env vars."
+        )
+        # Default dev tokens (matches existing curl/test usage)
         return StaticTokenAuthProvider(
             StaticTokenConfig(allow_in_prod=allow_in_prod, admin_token="dev_admin_token", viewer_token="dev_viewer_token")
         )

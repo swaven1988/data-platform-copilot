@@ -31,7 +31,7 @@ def ensure_signing_key_present() -> None:
 
 def sign_bytes(payload: bytes) -> str:
     key = _get_key()
-    sig = hmac.new(key, payload, hashlib.sha256).digest()
+    sig = hmac.HMAC(key, payload, hashlib.sha256).digest()
     return base64.urlsafe_b64encode(sig).decode("utf-8").rstrip("=")
 
 
@@ -42,7 +42,7 @@ def verify_bytes(payload: bytes, signature: str) -> bool:
         sig = base64.urlsafe_b64decode(padded.encode("utf-8"))
     except Exception:
         return False
-    expected = hmac.new(key, payload, hashlib.sha256).digest()
+    expected = hmac.HMAC(key, payload, hashlib.sha256).digest()
     return hmac.compare_digest(sig, expected)
 
 

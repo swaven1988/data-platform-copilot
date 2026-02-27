@@ -18,10 +18,14 @@ from app.core.execution.guards import evaluate_apply_guardrails
 from app.core.execution.models import ExecutionState
 from app.core.execution.registry import ExecutionRegistry
 
+import os
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_WORKSPACE = PROJECT_ROOT / "workspace"
+_workspace_root_env = os.getenv("COPILOT_WORKSPACE_ROOT", "")
+DEFAULT_WORKSPACE = Path(_workspace_root_env).resolve() if _workspace_root_env else PROJECT_ROOT / "workspace"
 
 router = APIRouter(prefix="/api/v2/build", tags=["execution"])
+
 
 
 class ApplyRequest(BaseModel):
@@ -46,10 +50,30 @@ class CancelRequest(BaseModel):
     workspace_dir: Optional[str] = None
 
 
+import re
+
+_JOB_NAME_RE = re.compile(r'^[a-zA-Z0-9_\-]{1,128}$')
+
+
 def _workspace_dir(workspace_dir: Optional[str], job_name: str) -> Path:
+    if not _JOB_NAME_RE.match(job_name):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid job_name: must be alphanumeric, underscores, or hyphens, max 128 chars",
+        )
     if workspace_dir:
-        return Path(workspace_dir)
+        candidate = Path(workspace_dir).resolve()
+        allowed = DEFAULT_WORKSPACE.resolve()
+        try:
+            candidate.relative_to(allowed)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid workspace_dir: must be within the allowed workspace root",
+            )
+        return candidate
     return DEFAULT_WORKSPACE / job_name
+
 
 
 def _tenant(x_tenant: Optional[str]) -> str:

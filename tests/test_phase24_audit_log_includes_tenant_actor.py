@@ -21,6 +21,6 @@ def test_audit_log_includes_tenant_and_actor(tmp_path, monkeypatch):
     rec = json.loads(lines[-1])
 
     assert rec["type"] == "http_request"
-    assert rec["actor"] in ("dev_admin", "dev_viewer", "bearer", None)
+    assert rec["actor"] in ("dev_admin", "dev_viewer", "bearer", "static_token_admin", "static_token_viewer", None)
     assert rec["tenant"] == "default"
     assert rec["http"]["path"] == "/api/v1/health/live"

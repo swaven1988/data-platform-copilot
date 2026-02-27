@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import logging
 from typing import Any, Callable, Dict, Optional
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
+
+_log = logging.getLogger("copilot.auth")
+
 
 
 def should_enable_auth_middleware() -> bool:
@@ -112,11 +116,19 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return path.startswith(public_prefixes)
 
     def _apply_identity_if_token_present(self, request: Request) -> None:
-        token = self._parse_token(request)
-        if token == "dev_admin_token":
-            self._set_user(request, "dev_admin", "admin")
-        elif token == "dev_viewer_token":
-            self._set_user(request, "dev_viewer", "viewer")
+        from app.core.auth.provider import get_auth_provider, AuthError
+        try:
+            provider = get_auth_provider()
+            principal = provider.authenticate(request)
+            if principal:
+                role = principal.roles[0] if principal.roles else "viewer"
+                self._set_user(request, principal.subject, role)
+        except AuthError:
+            # In auth-disabled mode, unrecognised tokens are silently ignored
+            pass
+        except Exception as e:
+            _log.debug("_apply_identity_if_token_present: unexpected error: %s", e)
+
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         self._clear_user(request)
@@ -138,16 +150,14 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # auth enabled: protected routes require token
-        token = self._parse_token(request)
-        if token is None:
+        from app.core.auth.provider import get_auth_provider, AuthError
+        try:
+            provider = get_auth_provider()
+            principal = provider.authenticate(request)
+            if principal:
+                role = principal.roles[0] if principal.roles else "viewer"
+                self._set_user(request, principal.subject, role)
+                return await call_next(request)
             return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
-
-        if token == "dev_admin_token":
-            self._set_user(request, "dev_admin", "admin")
-            return await call_next(request)
-
-        if token == "dev_viewer_token":
-            self._set_user(request, "dev_viewer", "viewer")
-            return await call_next(request)
-
-        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+        except AuthError:
+            return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
