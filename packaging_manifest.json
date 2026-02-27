@@ -76,8 +76,8 @@
     },
     {
       "path": "app/api/endpoints/build.py",
-      "sha256": "8ba4e876bac926c00f48df3e01cdc502e3a99debb471f3850a114e255aa037bb",
-      "size": 16390
+      "sha256": "ea04d550e0e394d62fda96859cedf3ac5c3339ab0993a33dda5bd4619ac50f79",
+      "size": 16332
     },
     {
       "path": "app/api/endpoints/build_v2_impl.py",
@@ -366,8 +366,8 @@
     },
     {
       "path": "app/core/auth/rbac.py",
-      "sha256": "2ca220c36f3d45f214266ab116d03e81f9e75df0ad9c96355f312204ec04f8f8",
-      "size": 2381
+      "sha256": "b07e3dda6ab9786d8252bbdbca27d0b5912d1882d5b17104ff664b5e61fb60f1",
+      "size": 2638
     },
     {
       "path": "app/core/auth/rbac_ext.py",
@@ -641,8 +641,8 @@
     },
     {
       "path": "app/core/generators/pyspark_gen.py",
-      "sha256": "7f97af298b4ec8c6b99ea8a333de1ba3c329f6371e289a8743ae54c78578c5fa",
-      "size": 3593
+      "sha256": "7f11ba4101ea6cfbd2a848b24f6731d1d8c5bb0e82ef06e6d5cc022d6eade9f6",
+      "size": 3831
     },
     {
       "path": "app/core/generators/spark_conf_gen.py",
@@ -661,8 +661,8 @@
     },
     {
       "path": "app/core/git_ops/repo_manager.py",
-      "sha256": "56eb6df601a3aafdd43931cbfe2f39c7af0ebb41c0865a9e3abb11f43e2cc85c",
-      "size": 11473
+      "sha256": "9ed2dbc330ab1e34927dc125a90ed840e9a5385777ba2b05f6de54279302c2e8",
+      "size": 11888
     },
     {
       "path": "app/core/git_ops/semantic_diff.py",
@@ -791,8 +791,8 @@
     },
     {
       "path": "app/core/policy/execution_policy.py",
-      "sha256": "f8ee02ce257ce444acbcfcb4b40a5e7e151d04fa14166ca763826ea9b84792dc",
-      "size": 4951
+      "sha256": "e010ca660dda9a8db4ecc76132baaca7861f4efccb6a8542a56a0fe2ad350277",
+      "size": 5486
     },
     {
       "path": "app/core/policy/models.py",
@@ -881,8 +881,8 @@
     },
     {
       "path": "app/core/supply_chain/verification.py",
-      "sha256": "269d7c4cb1920f77c52824f16c8bbd58f3ed9333bb855ebb50d1e127dd5b992c",
-      "size": 1605
+      "sha256": "95916b23f156f1c2f3f8b2a0ea0c4526c2f24753cf77a71e22eaf77703c7c320",
+      "size": 1916
     },
     {
       "path": "app/core/sync/guardrails.py",
@@ -1171,7 +1171,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "4a34ef7a01a684fcd87bc311469f1ea128ffc96f976bc99bcb9cd0cabf4f3c14",
+      "sha256": "a95d5dcdd13b18c9156f4082edd74302fe2eb2c9a5734a4a796caa6dd26ce72a",
       "size": 53375
     },
     {
