@@ -3,11 +3,19 @@ from __future__ import annotations
 from collections import Counter
 from typing import Dict, Optional
 
+from prometheus_client import Counter as PromCounter
+
 # Requests counters (HTTP-level)
 _REQUESTS = Counter()
 
 # Named counters (custom)
 _NAMED = Counter()
+
+_PROM_REQUESTS = PromCounter(
+    "copilot_http_requests_total",
+    "Total HTTP requests",
+    ["method", "path", "status"],
+)
 
 
 def reset_metrics() -> None:
@@ -31,6 +39,7 @@ def inc_http(method: str, path: str, status: Optional[int] = None) -> None:
     _REQUESTS[f"requests_{m}"] += 1
     _REQUESTS[f"path_{p}"] += 1
     _REQUESTS[f"path_{p}|{s}"] += 1
+    _PROM_REQUESTS.labels(method=m, path=p, status=str(s)).inc()
 
 
 def inc_request(path: str, status: Optional[int]) -> None:

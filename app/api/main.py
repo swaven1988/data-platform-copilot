@@ -37,6 +37,7 @@ from app.api.endpoints.modeling_get import router as modeling_get_router
 # Health + metrics endpoints
 from app.api.endpoints import health
 from app.api.endpoints import metrics as metrics_ep
+from app.api.endpoints.metrics_export import router as metrics_export_router
 
 from app.api.endpoints.contracts import router as contracts_router
 from app.api.endpoints.plans import router as plans_router
@@ -174,6 +175,7 @@ app.include_router(repro_compare_router)
 app.include_router(release_verify_router)
 app.include_router(health.router)
 app.include_router(metrics_ep.router)
+app.include_router(metrics_export_router)
 app.include_router(federation_router)
 app.include_router(workspace_verify_router)
 app.include_router(modeling_registry_router)

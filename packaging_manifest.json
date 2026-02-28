@@ -144,6 +144,11 @@
       "size": 760
     },
     {
+      "path": "app/api/endpoints/metrics_export.py",
+      "sha256": "41439a32b3da843754487b9a69b5ca0b3c2f7da580680942c69c322b36fc9444",
+      "size": 537
+    },
+    {
       "path": "app/api/endpoints/modeling_advanced.py",
       "sha256": "f88d107526052d0c2dd5bf9a5fb36b54ffacad527c46f9ceff539bd132d6be4d",
       "size": 1577
@@ -1110,8 +1115,8 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/Chart.yaml",
-      "sha256": "4bbf216267e61b9c4f56883bb707b03702ae72f961687f68b1f2cbf225440485",
-      "size": 182
+      "sha256": "3b3e3d3fb44ce77650bb2caf54241b4264235f4973dded829f2f0b6d2b232c20",
+      "size": 183
     },
     {
       "path": "deploy/helm/data-platform-copilot/templates/_helpers.tpl",
@@ -1145,7 +1150,7 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/values.yaml",
-      "sha256": "82579baf990b05fbfad40e4785eefa268a984c03d9f858646b2939053d3e7c82",
+      "sha256": "8508ed019eaf8848473dd595ec7ede7fe312b9a69b6d15da4315453e9d3e537e",
       "size": 474
     },
     {
@@ -1215,8 +1220,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "0658887820363c242e2617be3243307408bca81d49b8272b7eeb38fb1665e805",
-      "size": 58615
+      "sha256": "29cba4117f94900612f1b4d0d37a571482996e794376b7fe59882e217bfc3a2e",
+      "size": 58434
     },
     {
       "path": "project_file_paths.txt",
@@ -1554,6 +1559,11 @@
       "size": 1709
     },
     {
+      "path": "tests/test_prometheus_export.py",
+      "sha256": "aac500ce0c0e108feb658484f65c22a7364ca343f941e469120ce8fac92a60cf",
+      "size": 557
+    },
+    {
       "path": "tests/test_pyspark_presets.py",
       "sha256": "dfb7b9347c842327191f2fcb4c0c7ade71f3eaee3dfdc33c4fc68bfa4dfe2235",
       "size": 3493
@@ -1665,8 +1675,8 @@
     },
     {
       "path": "tools/build_release_tarball.py",
-      "sha256": "ae722040aa7dd984c7152aeedbbe1980c2e0d1dbb0f4449877ed443bad986950",
-      "size": 3170
+      "sha256": "d328fbeffba6754a9f3039b49575bfb7b4ae799bdbe0ef016acdcd9178819344",
+      "size": 3724
     },
     {
       "path": "tools/gen_packaging_manifest.py",
@@ -1675,8 +1685,8 @@
     },
     {
       "path": "tools/generate_release_metadata.py",
-      "sha256": "e5fd3400d143cf174c00fea98edbc5c3437e51fe6c9521cdbb18e3dcded55d64",
-      "size": 1032
+      "sha256": "c311787295b898fec023f3b3c9e3815e9dfa37ef28adacd02114706c344cc91c",
+      "size": 1133
     },
     {
       "path": "tools/runtime_manifest.py",

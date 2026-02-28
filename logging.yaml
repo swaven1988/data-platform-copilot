@@ -3,7 +3,7 @@ disable_existing_loggers: False
 
 formatters:
   json:
-    format: '{"ts":"%(asctime)s","level":"%(levelname)s","name":"%(name)s","msg":"%(message)s"}'
+    format: '{"ts":"%(asctime)s","level":"%(levelname)s","request_id":"%(request_id)s","name":"%(name)s","msg":"%(message)s"}'
 
 handlers:
   console:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import time
 import uuid
@@ -25,6 +26,15 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
 
+    class _RequestIdFilter(logging.Filter):
+        def __init__(self, request_id: str):
+            super().__init__()
+            self.request_id = request_id
+
+        def filter(self, record: logging.LogRecord) -> bool:
+            record.request_id = self.request_id
+            return True
+
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         rid = (request.headers.get("X-Request-Id") or "").strip()
         if not rid:
@@ -32,7 +42,15 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
 
         request.state.request_id = rid
 
-        resp: Response = await call_next(request)
+        filt = self._RequestIdFilter(rid)
+        root_logger = logging.getLogger()
+        root_logger.addFilter(filt)
+
+        try:
+            resp: Response = await call_next(request)
+        finally:
+            root_logger.removeFilter(filt)
+
         resp.headers.setdefault("X-Request-Id", rid)
 
         # single metrics system
