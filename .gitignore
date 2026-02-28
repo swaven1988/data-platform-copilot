@@ -40,3 +40,9 @@ tests/openapi_snapshot.json
 validate_prod.sh
 PROD_VALIDATION_CHECKLIST.md
 pytest.log
+
+# Frontend test output artifacts
+frontend/test-results/
+
+# Windows reserved-name artifact accidentally created in repo root
+nul
