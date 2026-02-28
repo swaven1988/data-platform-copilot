@@ -100,8 +100,8 @@
     },
     {
       "path": "app/api/endpoints/execution.py",
-      "sha256": "a315e718192fd46030ba1213e4d86af70dcc14161270744028ccddf8ad3a16be",
-      "size": 8648
+      "sha256": "26ae8f4fee6d88ae55dc325370a489c449a3361489a720c9599abec5de8c8b4c",
+      "size": 10269
     },
     {
       "path": "app/api/endpoints/execution.py.bak",
@@ -240,8 +240,8 @@
     },
     {
       "path": "app/api/endpoints/triage.py",
-      "sha256": "edc6b5dcd4ec7bce12f3c47d2a056dfd611a13658d84bacca1d48073b4174040",
-      "size": 2418
+      "sha256": "ac67b197a5064418c6175a2197392998a9e60296a29d279241176c735de3dd35",
+      "size": 3349
     },
     {
       "path": "app/api/endpoints/v1_tenanted.py",
@@ -1225,7 +1225,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "d8ae078e5e481c25639cb1a27b12c5b333c33958d40a56c9e667733a1a430cc9",
+      "sha256": "55d005298b9e894a2f6e1903fc846f560ea074e93bd705cd914d617753985670",
       "size": 58449
     },
     {
@@ -1265,8 +1265,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "0d105f2bcd3039f247fceb1b9fdbc2dc02df85ced2e25a2d1ce7f3e3d61795bf",
-      "size": 271787
+      "sha256": "49f692c2245cee2de4bf9c430cf0efb4451241a1520971fe73277e3a9dfcb059",
+      "size": 273187
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1282,6 +1282,11 @@
       "path": "tests/test_ai_gateway.py",
       "sha256": "51488724b57594ced0a5cb28228f397878f058f18bdcd459df46d2f8696ec28b",
       "size": 5011
+    },
+    {
+      "path": "tests/test_ai_hardening.py",
+      "sha256": "1aa0dbba16e764d635834e8b103e686272fd9d3b368c8cf2db0947e522ebdf09",
+      "size": 7512
     },
     {
       "path": "tests/test_ai_memory_triage.py",

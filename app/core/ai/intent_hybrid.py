@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from typing import Any, Dict
 
@@ -32,6 +33,8 @@ _ALLOWED_PATCH_FIELDS = {
     "spark_dynamic_allocation",
     "spark_conf_overrides",
 }
+
+_TABLE_NAME_RE = re.compile(r"^[A-Za-z0-9_]+\.[A-Za-z0-9_]+$")
 
 
 def _default_model() -> str:
@@ -69,6 +72,14 @@ def _build_gapfill_prompt(requirement: str, spec: Dict[str, Any]) -> str:
 
 
 def _coerce_patch_field(key: str, value: Any) -> Any:
+    if key in {"source_table", "target_table"}:
+        if not isinstance(value, str):
+            return None
+        v = value.strip()
+        if not _TABLE_NAME_RE.match(v):
+            return None
+        return v
+
     if key == "tags":
         if isinstance(value, list):
             return [str(v).strip() for v in value if str(v).strip()]
