@@ -216,6 +216,43 @@ class LedgerStore:
                 total += float(v)
         return total
 
+    def spent_actual_breakdown_usd(self, *, tenant: str, month: str) -> Dict[str, float]:
+        """Return actual spend split by AI vs non-AI job entries for a tenant/month."""
+        obj = self._load()
+        entries = obj.get("entries", [])
+        if not isinstance(entries, list):
+            return {
+                "ai_actual_usd": 0.0,
+                "non_ai_actual_usd": 0.0,
+                "total_actual_usd": 0.0,
+            }
+
+        ai_total = 0.0
+        non_ai_total = 0.0
+
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            if e.get("tenant") != tenant:
+                continue
+            if e.get("month") != month:
+                continue
+            v = e.get("actual_cost_usd")
+            if not isinstance(v, (int, float)):
+                continue
+
+            job_name = str(e.get("job_name") or "")
+            if job_name.startswith("ai_"):
+                ai_total += float(v)
+            else:
+                non_ai_total += float(v)
+
+        return {
+            "ai_actual_usd": ai_total,
+            "non_ai_actual_usd": non_ai_total,
+            "total_actual_usd": ai_total + non_ai_total,
+        }
+
     def entries_count(self, *, tenant: str, month: str) -> int:
         obj = self._load()
         entries = obj.get("entries", [])

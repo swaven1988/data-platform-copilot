@@ -297,6 +297,14 @@
       },
       "BillingSummaryResponse": {
         "properties": {
+          "ai_spent_actual_usd": {
+            "title": "Ai Spent Actual Usd",
+            "type": "number"
+          },
+          "budget_status": {
+            "title": "Budget Status",
+            "type": "string"
+          },
           "entries_count": {
             "title": "Entries Count",
             "type": "integer"
@@ -308,6 +316,18 @@
           "month": {
             "title": "Month",
             "type": "string"
+          },
+          "non_ai_spent_actual_usd": {
+            "title": "Non Ai Spent Actual Usd",
+            "type": "number"
+          },
+          "projected_spent_usd": {
+            "title": "Projected Spent Usd",
+            "type": "number"
+          },
+          "projected_utilization": {
+            "title": "Projected Utilization",
+            "type": "number"
           },
           "remaining_estimated_usd": {
             "title": "Remaining Estimated Usd",
@@ -336,8 +356,13 @@
           "limit_usd",
           "spent_estimated_usd",
           "spent_actual_usd",
+          "ai_spent_actual_usd",
+          "non_ai_spent_actual_usd",
           "remaining_estimated_usd",
           "utilization_estimated",
+          "projected_spent_usd",
+          "projected_utilization",
+          "budget_status",
           "entries_count"
         ],
         "title": "BillingSummaryResponse",

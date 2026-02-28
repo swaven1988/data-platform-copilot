@@ -260,8 +260,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "21d56640a195dbe9ab11b2db18dec6294fc303428a17be787d1b4c9c6f68b57f",
-      "size": 10112
+      "sha256": "04c73668d456b1de015da7d7ed83b0e4e8e0645f13bb34c43f8906407ba1c90d",
+      "size": 10233
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -290,8 +290,8 @@
     },
     {
       "path": "app/api/middleware/request_context.py",
-      "sha256": "f477c131ae39c5cb733ee624a60cef58ea71b5a4c53785b56ef4d58741edf947",
-      "size": 8469
+      "sha256": "ed2af567c1386fc2c7f8d0cec12915f158e77e25027383e893617f61d8d3fbfe",
+      "size": 8999
     },
     {
       "path": "app/api/middleware/request_id.py",
@@ -795,8 +795,8 @@
     },
     {
       "path": "app/core/observability/metrics.py",
-      "sha256": "7de7c649eea8cc2fa7bcd6e1eb5381a63427c2f527d2c4ba27baa1239ad464dc",
-      "size": 1688
+      "sha256": "b39bd838fb2d0e0c5cfa46c58a90e3a08c19713c0702f69365c75c40dafe1117",
+      "size": 1947
     },
     {
       "path": "app/core/packaging/package_manifest.py",
@@ -1220,8 +1220,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "29cba4117f94900612f1b4d0d37a571482996e794376b7fe59882e217bfc3a2e",
-      "size": 58434
+      "sha256": "ce9b44f14fcf3d8f6460128a5888011f186c065dd93c3b11868a373164df38f2",
+      "size": 58776
     },
     {
       "path": "project_file_paths.txt",
@@ -1479,6 +1479,11 @@
       "size": 713
     },
     {
+      "path": "tests/test_phase25_budget_enforcement.py",
+      "sha256": "4e037e67c4d68e6867850c700e403bec85cf51c6dc1912745e266a8b0d10842d",
+      "size": 4463
+    },
+    {
       "path": "tests/test_phase26_rate_limit.py",
       "sha256": "4d977af9af90033aec1b91d62313d4bbf1293b6c79bdb3b60a431a23f9319651",
       "size": 704
@@ -1600,8 +1605,8 @@
     },
     {
       "path": "tests/test_request_id_header.py",
-      "sha256": "e33562ce08cf8424f1f3ab6a6c1e4581c2ff58596b85a7451ca3e7e309ffc9a0",
-      "size": 548
+      "sha256": "eca2c8d2de22e964b4d184aad3c5db76796b4cbf84991ed5377e75d1b2b972d8",
+      "size": 790
     },
     {
       "path": "tests/test_resolver_applies_to.py",
