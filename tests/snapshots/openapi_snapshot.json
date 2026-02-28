@@ -3235,6 +3235,45 @@
         }
       }
     },
+    "/api/v2/triage/failure": {
+      "post": {
+        "tags": [
+          "triage"
+        ],
+        "summary": "Triage Failure",
+        "operationId": "triage_failure_api_v2_triage_failure_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v2/policy/evaluate": {
       "post": {
         "tags": [
@@ -9925,6 +9964,48 @@
           "type"
         ],
         "title": "TransformationSpec"
+      },
+      "TriageRequest": {
+        "properties": {
+          "job_name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Job Name"
+          },
+          "build_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Build Id"
+          },
+          "error_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Text"
+          },
+          "workspace_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workspace Dir"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_name",
+          "build_id"
+        ],
+        "title": "TriageRequest"
       },
       "ValidationError": {
         "properties": {

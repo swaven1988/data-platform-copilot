@@ -234,6 +234,11 @@
       "size": 622
     },
     {
+      "path": "app/api/endpoints/triage.py",
+      "sha256": "edc6b5dcd4ec7bce12f3c47d2a056dfd611a13658d84bacca1d48073b4174040",
+      "size": 2418
+    },
+    {
       "path": "app/api/endpoints/v1_tenanted.py",
       "sha256": "40c45725909858ea57170673d89732217b3fd4cb10608448e5b091ee7a053e7d",
       "size": 463
@@ -255,8 +260,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "9a0761587eb0f095c30c060de64156509fbdc63d3bdef5965ff032f087b4f4a2",
-      "size": 9791
+      "sha256": "d4bcaf6e530da5312152834297ede538c3e74a57abbc72fb7b0abfba64c307a1",
+      "size": 9906
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -354,9 +359,19 @@
       "size": 5406
     },
     {
+      "path": "app/core/ai/memory_store.py",
+      "sha256": "8bc6c928049a223d03388cdf0a524b16778fb7cf8381ea05f8241274983aa518",
+      "size": 3254
+    },
+    {
       "path": "app/core/ai/models.py",
       "sha256": "f76c0b576d9199fdac69540acd0afde272da1ea4398e73e8d3298bd48e1c5693",
       "size": 2670
+    },
+    {
+      "path": "app/core/ai/triage_engine.py",
+      "sha256": "4a22c7688fd9b3bd59e1dfdf5f4cfe68896407b4a8987db11add4aa782bd00bf",
+      "size": 4936
     },
     {
       "path": "app/core/audit/architecture_audit.py",
@@ -1195,8 +1210,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "4917d16000b65d57fc8d821a2f988e0aaf88a7ac528819803d46751c45930227",
-      "size": 56585
+      "sha256": "78a51e4f95868b5c8500311faab0615ca18f04f3bb3ef5fa300908c82d15d1e8",
+      "size": 57090
     },
     {
       "path": "project_file_paths.txt",
@@ -1235,8 +1250,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "344224ec06bbe92a85b648640b71a103ca7bd92c1d5448196041647b3e1707e6",
-      "size": 263981
+      "sha256": "27b410625cad0edd5a86e652ea7aa53033165c0fbe4b61cc23a93532dbd7a501",
+      "size": 267242
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1247,6 +1262,11 @@
       "path": "tests/test_ai_gateway.py",
       "sha256": "51488724b57594ced0a5cb28228f397878f058f18bdcd459df46d2f8696ec28b",
       "size": 5011
+    },
+    {
+      "path": "tests/test_ai_memory_triage.py",
+      "sha256": "49eedbfac370e873fc672c91f07635098e07e4e6f1d852078480e05b643f4e45",
+      "size": 5205
     },
     {
       "path": "tests/test_api_versioning.py",
