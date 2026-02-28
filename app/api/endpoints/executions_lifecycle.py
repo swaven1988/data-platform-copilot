@@ -2,12 +2,20 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 
 from app.core.auth.rbac import require_role
-from app.core.execution.lifecycle import ExecutionStore, ExecutionRecord, now_ts, request_cancel, reconcile_stale_runs
+from app.core.execution.lifecycle import (
+    ExecutionRecord,
+    get_shared_store,
+    now_ts,
+    request_cancel,
+    request_retry,
+    reconcile_stale_runs,
+)
 
 router = APIRouter()
 
-# process-wide store (matches existing patterns in repo; swap later)
-STORE = ExecutionStore()
+
+def _store():
+    return get_shared_store()
 
 
 class CreateRunReq(BaseModel):
@@ -16,6 +24,7 @@ class CreateRunReq(BaseModel):
 
 @router.post("/executions/create", dependencies=[Depends(require_role("admin"))])
 def create_run(req: CreateRunReq):
+    store = _store()
     rec = ExecutionRecord(
         run_id=req.run_id,
         status="RUNNING",
@@ -24,14 +33,15 @@ def create_run(req: CreateRunReq):
         cancel_requested=False,
         terminal_reason=None,
     )
-    STORE.put(rec)
+    store.put(rec)
     return {"run_id": rec.run_id, "status": rec.status}
 
 
 @router.post("/executions/{run_id}/cancel", dependencies=[Depends(require_role("admin"))])
 def cancel_run(run_id: str):
+    store = _store()
     try:
-        rec = request_cancel(STORE, run_id)
+        rec = request_cancel(store, run_id)
     except KeyError:
         raise HTTPException(status_code=404, detail="run_not_found")
     return {"run_id": rec.run_id, "status": rec.status, "cancel_requested": rec.cancel_requested}
@@ -39,5 +49,21 @@ def cancel_run(run_id: str):
 
 @router.post("/executions/reconcile", dependencies=[Depends(require_role("admin"))])
 def reconcile(stale_after_seconds: int = 60):
-    n = reconcile_stale_runs(STORE, stale_after_seconds=stale_after_seconds)
+    n = reconcile_stale_runs(_store(), stale_after_seconds=stale_after_seconds)
     return {"reconciled": n}
+
+
+@router.post("/executions/{run_id}/retry", dependencies=[Depends(require_role("admin"))])
+def retry_run(run_id: str):
+    store = _store()
+    try:
+        rec = request_retry(store, run_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="run_not_found")
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    return {
+        "run_id": rec.run_id,
+        "status": rec.status,
+        "retry_count": rec.retry_count,
+    }

@@ -85,8 +85,8 @@
     },
     {
       "path": "app/api/endpoints/build_v3.py",
-      "sha256": "5acb7d5111f5b885f32b664af21953698b9c319eae14b4b9ace1cf022e09bfea",
-      "size": 3254
+      "sha256": "23d9ea1c2fa50b7508f13e83652a7480762232bfb71022b6338c52bc6810e258",
+      "size": 5134
     },
     {
       "path": "app/api/endpoints/compiler.py",
@@ -265,8 +265,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "04c73668d456b1de015da7d7ed83b0e4e8e0645f13bb34c43f8906407ba1c90d",
-      "size": 10233
+      "sha256": "fd0f03b7f0764750f2abdd26f3a125359e872dda74df8b3d7c4db699bed65842",
+      "size": 10357
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -1230,8 +1230,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "efaf4e68928d0059e92dd3c9a6faa76932b2c19e3609621ac5e4aba00ccbb51c",
-      "size": 58955
+      "sha256": "0d406db741636648251fd3118d2ef9ea9e62ccedda915853f55ed10730fd1642",
+      "size": 59467
     },
     {
       "path": "project_file_paths.txt",
@@ -1270,8 +1270,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "00f38fe18a0b3a10f95094e45c69b985c9e4f9e7059ce4893c8e11cd134f1eba",
-      "size": 273982
+      "sha256": "7aad351c3707c0b42619d58f6b73593b84265cba75cf4a86fe967b4ebeb4f450",
+      "size": 277679
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1525,8 +1525,13 @@
     },
     {
       "path": "tests/test_phase30_build_v3.py",
-      "sha256": "0a331a8463e8f56b28bb5c99de824f876f420d1e7f2a363094a143865195c1bd",
-      "size": 6992
+      "sha256": "1fd1429c96d5e547cf11b9e87f1eb8054b7af3e6fe3213474fe83f97075853d7",
+      "size": 9577
+    },
+    {
+      "path": "tests/test_phase31_execution_retry.py",
+      "sha256": "a098a7fdd5a11545fda7045307f8e2cc2233c4ca5413da5d5abab44ea3a9f217",
+      "size": 2503
     },
     {
       "path": "tests/test_phase40_api_contract_parity.py",

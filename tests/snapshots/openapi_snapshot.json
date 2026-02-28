@@ -2730,6 +2730,43 @@
         "summary": "Cancel Run"
       }
     },
+    "/api/v1/executions/{run_id}/retry": {
+      "post": {
+        "operationId": "retry_run_api_v1_executions__run_id__retry_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Retry Run"
+      }
+    },
     "/api/v1/health/live": {
       "get": {
         "operationId": "liveness_api_v1_health_live_get",

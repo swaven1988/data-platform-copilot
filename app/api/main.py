@@ -70,6 +70,7 @@ from app.api.middleware.request_context import (
 from app.api.middleware.audit import AuditMiddleware
 
 from app.api.endpoints.health_mutating import router as health_mutating_router
+from app.core.execution.lifecycle import reconcile_shared_store
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -78,6 +79,12 @@ app = FastAPI(
     title="Data Platform Copilot API",
     version="0.1.0",
 )
+
+
+@app.on_event("startup")
+def _startup_reconcile_stale_runs() -> None:
+    stale_after_seconds = int((os.getenv("COPILOT_EXEC_RECONCILE_STALE_SECONDS") or "3600").strip())
+    reconcile_shared_store(stale_after_seconds=stale_after_seconds)
 
 # ------------------------------------------------------------
 # Middleware stack (ORDER MATTERS) — canonical
