@@ -188,6 +188,9 @@ def test_build_v3_returns_expected_response_contract(monkeypatch, tmp_path):
         "decision",
         "policy_profile",
         "policy_reasons",
+        "risk_score",
+        "approval_required",
+        "approval",
         "lineage",
         "build_result",
     }
@@ -196,3 +199,65 @@ def test_build_v3_returns_expected_response_contract(monkeypatch, tmp_path):
     assert body["policy_profile"] == "default"
     assert body["policy_reasons"] == ["all checks passed"]
     assert body["lineage"] == {"stored": True, "path": "workspace/test_job/.copilot/build_lineage/abc.json"}
+
+
+def test_build_v3_high_risk_requires_approval(monkeypatch, tmp_path):
+    from app.api.endpoints import build_v3 as build_v3_mod
+
+    monkeypatch.setattr(build_v3_mod, "WORKSPACE_ROOT", tmp_path)
+
+    workspace_job_dir = tmp_path / BASE_PARAMS["job_name"]
+    intelligence_dir = workspace_job_dir / ".copilot" / "intelligence"
+    intelligence_dir.mkdir(parents=True, exist_ok=True)
+    (intelligence_dir / f"{BASE_PARAMS['intelligence_hash']}.json").write_text(
+        '{"risk_score": 0.95}',
+        encoding="utf-8",
+    )
+
+    with patch("app.api.endpoints.build_v3.gate") as mock_gate:
+        mock_gate.validate_inputs.return_value = _mock_verdict("allow")
+        mock_gate.record_lineage.return_value = _mock_lineage()
+
+        r = client.post("/api/v3/build/run", params=BASE_PARAMS, headers=HEADERS)
+
+    assert r.status_code == 409, r.text
+    j = r.json()["detail"]
+    assert j["code"] == "approval_required"
+    assert j["plan_hash"] == BASE_PARAMS["plan_hash"]
+
+
+def test_build_v3_high_risk_with_approval_succeeds(monkeypatch, tmp_path):
+    from app.api.endpoints import build_v3 as build_v3_mod
+    from app.api.endpoints import build_approvals as approvals_mod
+    from app.core.build_approval import BuildApprovalStore
+
+    monkeypatch.setattr(build_v3_mod, "WORKSPACE_ROOT", tmp_path)
+    monkeypatch.setattr(approvals_mod, "WORKSPACE_ROOT", tmp_path)
+
+    workspace_job_dir = tmp_path / BASE_PARAMS["job_name"]
+    intelligence_dir = workspace_job_dir / ".copilot" / "intelligence"
+    intelligence_dir.mkdir(parents=True, exist_ok=True)
+    (intelligence_dir / f"{BASE_PARAMS['intelligence_hash']}.json").write_text(
+        '{"risk_score": 0.92}',
+        encoding="utf-8",
+    )
+
+    store = BuildApprovalStore(workspace_root=tmp_path)
+    store.save_approval(
+        job_name=BASE_PARAMS["job_name"],
+        plan_hash=BASE_PARAMS["plan_hash"],
+        approver="platform_admin",
+        notes="approved for rollout",
+    )
+
+    with patch("app.api.endpoints.build_v3.gate") as mock_gate:
+        mock_gate.validate_inputs.return_value = _mock_verdict("allow")
+        mock_gate.record_lineage.return_value = _mock_lineage()
+
+        r = client.post("/api/v3/build/run", params=BASE_PARAMS, headers=HEADERS)
+
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["approval_required"] is True
+    assert isinstance(body["approval"], dict)
+    assert body["approval"]["approver"] == "platform_admin"

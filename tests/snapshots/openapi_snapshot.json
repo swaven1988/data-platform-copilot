@@ -295,6 +295,51 @@
         "title": "ApplyRequest",
         "type": "object"
       },
+      "ApprovalCreateRequest": {
+        "properties": {
+          "approver": {
+            "title": "Approver",
+            "type": "string"
+          },
+          "job_name": {
+            "title": "Job Name",
+            "type": "string"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "plan_hash": {
+            "title": "Plan Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_name",
+          "plan_hash",
+          "approver"
+        ],
+        "title": "ApprovalCreateRequest",
+        "type": "object"
+      },
       "BillingSummaryResponse": {
         "properties": {
           "ai_spent_actual_usd": {
@@ -4773,6 +4818,100 @@
         "summary": "Apply Build",
         "tags": [
           "execution"
+        ]
+      }
+    },
+    "/api/v2/build/approvals": {
+      "post": {
+        "operationId": "create_approval_api_v2_build_approvals_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Create Approval Api V2 Build Approvals Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Approval",
+        "tags": [
+          "build_approvals"
+        ]
+      }
+    },
+    "/api/v2/build/approvals/{job_name}/{plan_hash}": {
+      "get": {
+        "operationId": "get_approval_api_v2_build_approvals__job_name___plan_hash__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_name",
+            "required": true,
+            "schema": {
+              "title": "Job Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "plan_hash",
+            "required": true,
+            "schema": {
+              "title": "Plan Hash",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Get Approval Api V2 Build Approvals  Job Name   Plan Hash  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Approval",
+        "tags": [
+          "build_approvals"
         ]
       }
     },

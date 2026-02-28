@@ -44,6 +44,7 @@ from app.api.endpoints.plans import router as plans_router
 from app.api.endpoints.intelligence import router as intelligence_router
 from app.api.endpoints.policy_eval import router as policy_router
 from app.api.endpoints.build_v3 import router as build_v3_router
+from app.api.endpoints.build_approvals import router as build_approvals_router
 from app.api.endpoints.runtime_profiles import router as runtime_profiles_router
 from app.api.endpoints.spark_optimizer_api import router as spark_optimizer_router
 from app.api.endpoints.ai_gateway import router as ai_gateway_router
@@ -193,6 +194,7 @@ app.include_router(triage_router)
 app.include_router(ai_explain_router)
 app.include_router(policy_router)
 app.include_router(build_v3_router)
+app.include_router(build_approvals_router)
 app.include_router(preflight.router)
 app.include_router(execution_router)
 app.include_router(billing_router)
