@@ -7,6 +7,7 @@ when parser confidence is below a configurable threshold.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from typing import Any, Dict
 
@@ -31,6 +32,10 @@ _ALLOWED_PATCH_FIELDS = {
     "spark_dynamic_allocation",
     "spark_conf_overrides",
 }
+
+
+def _default_model() -> str:
+    return os.getenv("AI_MODEL", "gpt-4o-mini")
 
 
 @dataclass
@@ -133,7 +138,7 @@ def parse_intent_hybrid(
 
     req = AIGatewayRequest(
         task="intent_gapfill",
-        model="gpt-4o-mini",
+        model=_default_model(),
         system_prompt=(
             "You are assisting with Copilot intent parsing. "
             "Return strict JSON object only. No markdown."
@@ -141,10 +146,25 @@ def parse_intent_hybrid(
         user_content=_build_gapfill_prompt(requirement=requirement, spec=parser_result.spec),
         json_mode=True,
     )
-    llm = gateway.complete(req, tenant=tenant)
-    patch_raw = json.loads(llm.content)
-    if not isinstance(patch_raw, dict):
-        patch_raw = {}
+
+    try:
+        llm = gateway.complete(req, tenant=tenant)
+        patch_raw = json.loads(llm.content)
+        if not isinstance(patch_raw, dict):
+            patch_raw = {}
+    except Exception as exc:
+        # Gateway unavailable or budget exceeded — return deterministic result safely
+        explain["llm_used"] = False
+        explain["llm_fallback_reason"] = str(exc)
+        return HybridIntentResult(
+            spec=parser_result.spec,
+            parser_confidence=parser_conf,
+            final_confidence=parser_conf,
+            parser_warning_count=len(parser_result.warnings),
+            augmented=False,
+            augmentation=None,
+            explain=explain,
+        )
 
     merged_spec, fields_filled = _merge_patch(parser_result.spec, patch_raw)
     delta = _confidence_delta(len(fields_filled))

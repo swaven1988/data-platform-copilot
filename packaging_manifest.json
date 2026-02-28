@@ -60,8 +60,8 @@
     },
     {
       "path": "app/api/endpoints/audit.py",
-      "sha256": "463dbed32937ed3d14aa09cd431bf55aa39c8dd4e05c7abfd481a666cca5880c",
-      "size": 427
+      "sha256": "53755afeaf3a5b91d873675a6cdf5c4e29f73074e2eafc0e9946bc9794270af3",
+      "size": 1233
     },
     {
       "path": "app/api/endpoints/billing.py",
@@ -80,8 +80,8 @@
     },
     {
       "path": "app/api/endpoints/build_v3.py",
-      "sha256": "89b3f01b158a67924f5d40a17bb9f3f31362a07200c84321aca537cf4e669b03",
-      "size": 1644
+      "sha256": "5acb7d5111f5b885f32b664af21953698b9c319eae14b4b9ace1cf022e09bfea",
+      "size": 3254
     },
     {
       "path": "app/api/endpoints/compiler.py",
@@ -690,8 +690,8 @@
     },
     {
       "path": "app/core/generators/pyspark_gen.py",
-      "sha256": "7f11ba4101ea6cfbd2a848b24f6731d1d8c5bb0e82ef06e6d5cc022d6eade9f6",
-      "size": 3831
+      "sha256": "8b8bbdf05ad4e23d7286658b5f14a6864bb96bd77f58d3af5d66c982b1a506cc",
+      "size": 6503
     },
     {
       "path": "app/core/generators/spark_conf_gen.py",
@@ -855,8 +855,8 @@
     },
     {
       "path": "app/core/preflight/estimator.py",
-      "sha256": "b74c0b069a914b00524162dcd6a10e0925f9e63f6d96f98acde814759e151e3f",
-      "size": 1036
+      "sha256": "793e66da6512dca02f084814ccf178f58115e47ce52e1e17994f633661c16c59",
+      "size": 1044
     },
     {
       "path": "app/core/preflight/gate.py",
@@ -925,8 +925,8 @@
     },
     {
       "path": "app/core/spec_schema.py",
-      "sha256": "b610e8e878543fbafa689a23283b3247494f6e31cdc463cb001001017c7bbacf",
-      "size": 2677
+      "sha256": "bb2047cbd128a2e68e20ba9a08e8bed3ef91397789f5d0b3bce229c145a90a10",
+      "size": 2825
     },
     {
       "path": "app/core/supply_chain/verification.py",
@@ -1225,7 +1225,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "fbe2c8d63cc9518159a445618a007c06f28392b5f031efe4b3458bd1d2b77e0d",
+      "sha256": "b1aefacfc4b5f66e9bc0297eae7fa6ca9bfff6d6294cd0820eadfaad1270ec10",
       "size": 58448
     },
     {

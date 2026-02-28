@@ -139,7 +139,14 @@ class AIGatewayService:
         month_key = month or utc_month_key()
 
         spent_before, limit_usd = self._spent_and_limit(tenant=tenant, month=month_key)
-        if spent_before >= limit_usd:
+
+        # Budget gate: ceiling estimate prevents overspend. TOCTOU risk is documented — see KNOWN_LIMITATIONS.md
+        CEILING_TOKENS_ESTIMATE = 2000
+        ceiling_cost_estimate = self._estimate_cost_usd(
+            prompt_tokens=CEILING_TOKENS_ESTIMATE,
+            completion_tokens=CEILING_TOKENS_ESTIMATE,
+        )
+        if spent_before + ceiling_cost_estimate > limit_usd:
             raise AIBudgetExceededError(
                 tenant=tenant,
                 month=month_key,
@@ -187,15 +194,6 @@ class AIGatewayService:
             task=req.task,
             cost_usd=cost_usd,
         )
-
-        projected = spent_before + cost_usd
-        if projected > limit_usd:
-            raise AIBudgetExceededError(
-                tenant=tenant,
-                month=month_key,
-                limit_usd=limit_usd,
-                current_usd=projected,
-            )
 
         return LLMResponse(
             content=content,
