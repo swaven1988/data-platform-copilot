@@ -6,10 +6,11 @@ It does not call external LLM APIs and does not execute any pipeline actions.
 
 from __future__ import annotations
 
+import os
 from enum import Enum
 from typing import Literal, Protocol
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RootCauseClass(str, Enum):
@@ -88,9 +89,13 @@ class LLMClient(Protocol):
         ...
 
 
+def _default_ai_model() -> str:
+    return os.getenv("AI_MODEL", "gpt-4o-mini")
+
+
 class AIGatewayRequest(BaseModel):
     task: str
-    model: str = "gpt-4o-mini"
+    model: str = Field(default_factory=_default_ai_model)
     system_prompt: str
     user_content: str
     json_mode: bool = False

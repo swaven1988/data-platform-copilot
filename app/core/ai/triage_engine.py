@@ -116,7 +116,6 @@ class FailureTriageEngine:
 
         req = AIGatewayRequest(
             task="failure_triage",
-            model="gpt-4o-mini",
             system_prompt=(
                 "You are a build failure triage assistant. "
                 "Respond with strict JSON only."

@@ -36,6 +36,7 @@ class LLMExplainableAdvisor(ExplainableAdvisor):
     applies_to = ["build", "diff", "review"]
 
     gateway: Optional[AIGatewayService] = None
+    tenant: str = "default"
 
     def _gateway(self) -> AIGatewayService:
         if self.gateway is None:
@@ -45,7 +46,6 @@ class LLMExplainableAdvisor(ExplainableAdvisor):
     def explain_finding(self, code: str, finding: Dict[str, Any]) -> Optional[str]:
         req = AIGatewayRequest(
             task="semantic_diff_explain",
-            model="gpt-4o-mini",
             system_prompt=(
                 "You explain semantic diffs safely. "
                 "Never include secrets. Return strict JSON only."
@@ -54,7 +54,7 @@ class LLMExplainableAdvisor(ExplainableAdvisor):
             json_mode=True,
         )
         try:
-            out = self._gateway().complete(req, tenant="default")
+            out = self._gateway().complete(req, tenant=self.tenant)
             obj = json.loads(out.content)
             if not isinstance(obj, dict):
                 return None
@@ -79,7 +79,6 @@ def explain_semantic_diff_with_llm(
 ) -> Dict[str, str]:
     req = AIGatewayRequest(
         task="semantic_diff_explain",
-        model="gpt-4o-mini",
         system_prompt="Return strict JSON with keys summary, impact, recommendation.",
         user_content=_build_diff_prompt(finding),
         json_mode=True,

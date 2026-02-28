@@ -355,13 +355,13 @@
     },
     {
       "path": "app/core/ai/gateway.py",
-      "sha256": "f3104d29ea32a3b96a42c27f2c2c7c4820987005f22912f30246aa77d2d20a49",
-      "size": 7143
+      "sha256": "b7cbcb61341e8c0c6f2ed24009a8533436ccd170f219c831d07f239cb6bd8877",
+      "size": 7218
     },
     {
       "path": "app/core/ai/intent_hybrid.py",
-      "sha256": "f8b1a4d4efbddb0bb1514916bf59aac64d54c53d3fc92e443a1d1264c5a81f19",
-      "size": 5406
+      "sha256": "50cbd2068ac35a789354f24c9e13a6602dd3d1d956c9bdffbd636f980e511234",
+      "size": 6065
     },
     {
       "path": "app/core/ai/llm_advisor.py",
@@ -370,8 +370,8 @@
     },
     {
       "path": "app/core/ai/memory_store.py",
-      "sha256": "8bc6c928049a223d03388cdf0a524b16778fb7cf8381ea05f8241274983aa518",
-      "size": 3254
+      "sha256": "58f7fd4f7c903b0bcc13f4901fb91ac291f24a9e4e5abe5bccf97494706a9670",
+      "size": 3961
     },
     {
       "path": "app/core/ai/models.py",
@@ -1225,8 +1225,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "b1aefacfc4b5f66e9bc0297eae7fa6ca9bfff6d6294cd0820eadfaad1270ec10",
-      "size": 58448
+      "sha256": "b42b2139ddc97ca9e4f73de540463aad840adf243e96e3145acdc0ad3b43e145",
+      "size": 58449
     },
     {
       "path": "project_file_paths.txt",
