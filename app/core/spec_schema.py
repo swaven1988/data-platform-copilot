@@ -5,13 +5,17 @@ from pydantic import BaseModel, Field, field_validator
 
 Language = Literal["pyspark", "scala"]
 WriteMode = Literal["merge", "append", "overwrite"]
-Preset = Literal["generic", "enterprise_a", "enterprise_b"]
+Preset = Literal[
+    "generic", "enterprise_a", "enterprise_b",  # original
+    "copy", "filter", "dedup", "cast", "join",  # Phase C catalog
+]
 
 
 class CopilotSpec(BaseModel):
     # Identity
     job_name: str = Field(..., min_length=1, pattern=r"^[a-zA-Z0-9_\-]+$")
     preset: Preset = "generic"
+    metadata: Dict[str, str] = Field(default_factory=dict)
 
     # Runtime / scheduling
     owner: str = "data-platform"

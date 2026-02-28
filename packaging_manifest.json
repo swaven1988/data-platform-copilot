@@ -265,8 +265,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "b796d33f640863a8e9266fcec8c1bca34b1eac1eb3b948667fce52c174184daf",
-      "size": 10003
+      "sha256": "21d56640a195dbe9ab11b2db18dec6294fc303428a17be787d1b4c9c6f68b57f",
+      "size": 10112
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -1225,8 +1225,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "ab5ba1df5f635afecf29e1ceaf18c7f87a9f0c36b1c55039b0969faebfbd07ab",
-      "size": 57758
+      "sha256": "fbe2c8d63cc9518159a445618a007c06f28392b5f031efe4b3458bd1d2b77e0d",
+      "size": 58448
     },
     {
       "path": "project_file_paths.txt",
@@ -1265,8 +1265,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "84f302d58564ad81588d8a33214eabbd5df3491c4aa24999fdfb43f530027026",
-      "size": 269251
+      "sha256": "681f0ae676bc56fb56d096864409f7c473648d80c783786de6be50b16a8ec3b2",
+      "size": 271826
     },
     {
       "path": "tests/test_advisor_explain_api.py",

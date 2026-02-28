@@ -5,6 +5,57 @@ from typing import Dict
 from app.core.spec_schema import CopilotSpec
 
 
+# ---------------------------------------------------------------------------
+# Preset transformation catalog
+# Each value is a Python expression string that produces `df_out` from `df`.
+# Available locals inside the generated job: spark, df, F, args, partition_col.
+# ---------------------------------------------------------------------------
+_PRESET_CATALOG: Dict[str, str] = {
+    # ── legacy/default presets (explicit passthrough) ───────────────────────
+    "generic": "df_out = df",
+    "enterprise_a": "df_out = df",
+    "enterprise_b": "df_out = df",
+
+    # ── passthrough ─────────────────────────────────────────────────────────
+    "copy": "df_out = df",
+
+    # ── null-partition filter ────────────────────────────────────────────────
+    "filter": "df_out = df.filter(F.col(partition_col).isNotNull())",
+
+    # ── deduplication on partition column ───────────────────────────────────
+    "dedup": "df_out = df.dropDuplicates([partition_col])",
+
+    # ── safe string-cast (coerce all columns to StringType) ─────────────────
+    "cast": (
+        "from pyspark.sql.types import StringType\n"
+        "df_out = df.select([F.col(c).cast(StringType()).alias(c) for c in df.columns])"
+    ),
+
+    # ── left-join with a lookup table (lookup_table from spec metadata) ─────
+    "join": (
+        "lookup_table = spec_meta.get('lookup_table', '')\n"
+        "join_key    = spec_meta.get('join_key', partition_col)\n"
+        "if lookup_table:\n"
+        "    df_lookup = spark.table(lookup_table)\n"
+        "    df_out = df.join(df_lookup, on=join_key, how='left')\n"
+        "else:\n"
+        "    df_out = df"
+    ),
+}
+
+def _build_transform_block(preset: str) -> str:
+    """Return the indented transformation lines for the given preset."""
+    transform = _PRESET_CATALOG.get(preset)
+    if transform is None:
+        transform = (
+            f"# PRESET_NOT_IMPLEMENTED: {preset!r}; using passthrough fallback\n"
+            "df_out = df"
+        )
+    # Indent each line by 8 spaces (inside main())
+    lines = transform.splitlines()
+    return "\n".join(f"        {ln}" for ln in lines)
+
+
 def generate_pyspark_job(spec: CopilotSpec) -> Dict[str, str]:
     """
     Canonical PySpark job generator.
@@ -23,7 +74,7 @@ def generate_pyspark_job(spec: CopilotSpec) -> Dict[str, str]:
         df_out.createOrReplaceTempView("staging_{spec.job_name}")
 
         # Generic MERGE template (Iceberg/Delta style).
-        spark.sql(\"\"\"
+        spark.sql(\"\"\"\
         MERGE INTO {spec.target_table} t
         USING staging_{spec.job_name} s
         ON t.{partition_col} = s.{partition_col}
@@ -51,6 +102,11 @@ def generate_pyspark_job(spec: CopilotSpec) -> Dict[str, str]:
 """
     else:
         raise ValueError(f"Unsupported write_mode: {spec.write_mode}")
+
+    # ------------------------------------------------------------------
+    # Transformation block
+    # ------------------------------------------------------------------
+    transform_block = _build_transform_block(spec.preset)
 
     # ------------------------------------------------------------------
     # Spark job template
@@ -83,15 +139,15 @@ def main():
     args = parse_args()
     spark = SparkSession.builder.appName({spec.job_name!r}).getOrCreate()
 
+    # Spec metadata available for join preset etc.
+    spec_meta = {getattr(spec, 'metadata', {})!r}  # type: ignore[assignment]  # noqa: F841
+    partition_col = {partition_col!r}
+
     try:
         df = spark.table({spec.source_table!r})
 
-        # Transformation not implemented — spec type: {spec.preset!r}
-        # See: docs/generators.md for supported transformation catalog.
-        raise NotImplementedError(
-            f"PySpark transformation not implemented for preset={{spec.preset!r}}. "
-            "Implement generate_pyspark_job() for this preset or use a supported one."
-        )
+        # ── Preset: {spec.preset!r} ──
+{transform_block}
 {write_block.rstrip()}
 
         spark.stop()

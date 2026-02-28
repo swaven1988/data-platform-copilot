@@ -6,7 +6,7 @@ from .models import PreflightRequest, CostEstimate
 
 
 def _hash_request(req: PreflightRequest) -> str:
-    payload = json.dumps(req.dict(), sort_keys=True).encode("utf-8")
+    payload = json.dumps(req.model_dump(), sort_keys=True).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()[:16]
 
 
