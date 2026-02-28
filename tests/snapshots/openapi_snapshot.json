@@ -7725,6 +7725,57 @@
         ]
       }
     },
+    "/api/v2/triage/failure/{job_name}": {
+      "get": {
+        "description": "Retrieve the most recent triage reports for a job from memory store.",
+        "operationId": "get_triage_report_api_v2_triage_failure__job_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_name",
+            "required": true,
+            "schema": {
+              "title": "Job Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Triage Report",
+        "tags": [
+          "triage"
+        ]
+      }
+    },
     "/api/v3/build/run": {
       "post": {
         "operationId": "run_build_api_v3_build_run_post",

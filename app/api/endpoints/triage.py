@@ -67,3 +67,33 @@ def triage_failure(req: TriageRequest, request: Request):
         "report": report.model_dump(),
     }
 
+
+@router.get(
+    "/failure/{job_name}",
+    dependencies=[Depends(require_roles("viewer", "operator", "admin"))],
+)
+def get_triage_report(job_name: str, request: Request, limit: int = 5):
+    """Retrieve the most recent triage reports for a job from memory store."""
+    tenant = getattr(request.state, "tenant", None) or "default"
+    ws = _DEFAULT_WORKSPACE_ROOT / job_name
+    memory = TenantMemoryStore(workspace_root=ws if ws.name == "workspace" else ws.parent)
+    hits = memory.search(
+        tenant=tenant,
+        collection="build_failures",
+        query=job_name,
+        top_k=limit,
+    )
+    return {
+        "job_name": job_name,
+        "tenant": tenant,
+        "reports": [
+            {
+                "id": h.id,
+                "text": h.text,
+                "metadata": h.metadata,
+                "score": h.score,
+            }
+            for h in hits
+        ],
+    }
+

@@ -9,9 +9,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Query
 from pydantic import BaseModel
 
+from app.core.ai.gateway import AIGatewayService
+from app.core.ai.memory_store import TenantMemoryStore
+from app.core.ai.triage_engine import FailureTriageEngine
 from app.core.execution.audit import audit_context
 from app.core.execution.executor import Executor
 from app.core.execution.guards import evaluate_apply_guardrails
@@ -78,6 +81,34 @@ def _workspace_dir(workspace_dir: Optional[str], job_name: str) -> Path:
 
 def _tenant(x_tenant: Optional[str]) -> str:
     return x_tenant or "default"
+
+
+def _run_background_triage(
+    *,
+    tenant: str,
+    job_name: str,
+    build_id: str,
+    error_text: str,
+    workspace_root: Path,
+) -> None:
+    """Fire-and-forget triage. Errors are logged, never raised."""
+    try:
+        memory = TenantMemoryStore(workspace_root=workspace_root)
+        gateway = AIGatewayService(workspace_dir=workspace_root / "__ai__")
+        engine = FailureTriageEngine(memory=memory, gateway=gateway)
+        engine.triage(
+            tenant=tenant,
+            job_name=job_name,
+            build_id=build_id,
+            error_text=error_text,
+            persist_memory=True,
+        )
+    except Exception:
+        import logging
+
+        logging.getLogger("copilot.triage").warning(
+            "Background triage failed for job=%s build=%s", job_name, build_id, exc_info=True
+        )
 
 
 @router.post("/apply")
@@ -230,6 +261,7 @@ def status(
     job_name: str,
     workspace_dir: Optional[str] = None,
     x_tenant: Optional[str] = Header(default=None, alias="X-Tenant"),
+    background_tasks: BackgroundTasks = None,
 ) -> Dict[str, Any]:
     ws = _workspace_dir(workspace_dir, job_name)
     tenant = _tenant(x_tenant)
@@ -244,6 +276,18 @@ def status(
         updated = exec_.refresh_status(job_name)
     except Exception:
         updated = rec.to_dict()
+
+    if updated.get("state") == ExecutionState.FAILED.value and background_tasks is not None:
+        build_id = str(updated.get("build_id") or "")
+        if build_id:
+            background_tasks.add_task(
+                _run_background_triage,
+                tenant=tenant,
+                job_name=job_name,
+                build_id=build_id,
+                error_text=str(updated.get("last_error") or "execution failed"),
+                workspace_root=ws if ws.name == "workspace" else ws.parent,
+            )
 
     return {"job_name": job_name, "state": updated["state"], "execution": updated, "tenant": tenant}
 

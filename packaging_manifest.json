@@ -50,8 +50,8 @@
     },
     {
       "path": "app/api/endpoints/ai_explain.py",
-      "sha256": "ea5c3d51123364389e71b96169fa26d5c51b25bb1c66224a452b7f6b3cb27a73",
-      "size": 1842
+      "sha256": "7ac71f48dc6b2e90fb529fb26fe7a2ac1763d14c9c587e49db304e5d99231990",
+      "size": 2106
     },
     {
       "path": "app/api/endpoints/ai_gateway.py",
@@ -365,8 +365,8 @@
     },
     {
       "path": "app/core/ai/llm_advisor.py",
-      "sha256": "7d17223b601eeda569a09ecf458beeb2a0667b0cb242c87c61da03a3c8529b24",
-      "size": 3492
+      "sha256": "7cfad1596577563248d9dd0a06c548d55c169b6e3419eb3049e248a5722229f2",
+      "size": 3459
     },
     {
       "path": "app/core/ai/memory_store.py",
@@ -375,13 +375,13 @@
     },
     {
       "path": "app/core/ai/models.py",
-      "sha256": "f76c0b576d9199fdac69540acd0afde272da1ea4398e73e8d3298bd48e1c5693",
-      "size": 2670
+      "sha256": "16665ee55f3911aadccc86653c57dbb0d5d06589889ca4be7c2d6549f414186c",
+      "size": 2801
     },
     {
       "path": "app/core/ai/triage_engine.py",
-      "sha256": "4a22c7688fd9b3bd59e1dfdf5f4cfe68896407b4a8987db11add4aa782bd00bf",
-      "size": 4936
+      "sha256": "5a2ea2ea04e72369633eda6f9904764dc242171bcfe1d5706dc30171c40fec4d",
+      "size": 4902
     },
     {
       "path": "app/core/audit/architecture_audit.py",
@@ -1225,7 +1225,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "b42b2139ddc97ca9e4f73de540463aad840adf243e96e3145acdc0ad3b43e145",
+      "sha256": "d8ae078e5e481c25639cb1a27b12c5b333c33958d40a56c9e667733a1a430cc9",
       "size": 58449
     },
     {
@@ -1265,8 +1265,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "681f0ae676bc56fb56d096864409f7c473648d80c783786de6be50b16a8ec3b2",
-      "size": 271826
+      "sha256": "0d105f2bcd3039f247fceb1b9fdbc2dc02df85ced2e25a2d1ce7f3e3d61795bf",
+      "size": 271787
     },
     {
       "path": "tests/test_advisor_explain_api.py",
