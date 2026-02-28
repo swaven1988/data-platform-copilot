@@ -44,6 +44,8 @@ from app.api.endpoints.intelligence import router as intelligence_router
 from app.api.endpoints.policy_eval import router as policy_router
 from app.api.endpoints.build_v3 import router as build_v3_router
 from app.api.endpoints.runtime_profiles import router as runtime_profiles_router
+from app.api.endpoints.spark_optimizer_api import router as spark_optimizer_router
+from app.api.endpoints.ai_gateway import router as ai_gateway_router
 
 from app.api.endpoints import preflight
 from app.api.endpoints.execution import router as execution_router
@@ -179,6 +181,8 @@ app.include_router(contracts_router)
 app.include_router(plans_router)
 app.include_router(intelligence_router)
 app.include_router(runtime_profiles_router)
+app.include_router(spark_optimizer_router)
+app.include_router(ai_gateway_router)
 app.include_router(policy_router)
 app.include_router(build_v3_router)
 app.include_router(preflight.router)
@@ -214,6 +218,7 @@ for prefix in ("/api/v1", "/api/v2"):
     app.include_router(modeling_advanced_router, prefix=prefix)
     app.include_router(modeling_router, prefix=prefix)
     app.include_router(modeling_get_router, prefix=prefix)
+    app.include_router(spark_optimizer_router, prefix=prefix)
 
 # Tenanted router: v1 only
 app.include_router(v1_router, prefix="/api/v1")

@@ -1,20 +1,4 @@
 {
-  "kind": "packaging_manifest",
-  "include_paths": [
-    ".github",
-    "Makefile",
-    "README.md",
-    "app",
-    "deploy",
-    "docs",
-    "packaging_manifest.json",
-    "project_file_paths.txt",
-    "project_tree.txt",
-    "templates",
-    "tests",
-    "tools",
-    "ui"
-  ],
   "excludes": [
     "**/*.egg-info/**",
     "**/*.log",
@@ -46,8 +30,8 @@
     },
     {
       "path": "Makefile",
-      "sha256": "76e0f619a17e968470d22f714dac2cca4487fd1aca681abd33c339c378de1278",
-      "size": 817
+      "sha256": "7f4fd6dfe452702faa59eb44e6a049e851dc3388792f33c0d74066cdc5b434c4",
+      "size": 1079
     },
     {
       "path": "README.md",
@@ -63,6 +47,11 @@
       "path": "app/api/endpoints/advisor_explain.py",
       "sha256": "536e696804b49d530479b223ab67266258ad00d07e0994324794ec98ab3134ec",
       "size": 1432
+    },
+    {
+      "path": "app/api/endpoints/ai_gateway.py",
+      "sha256": "bf488b40108d4567594fa783da222c8c02d86133bcfaf4aa98d7435e0fd24b5a",
+      "size": 2141
     },
     {
       "path": "app/api/endpoints/audit.py",
@@ -220,6 +209,11 @@
       "size": 1039
     },
     {
+      "path": "app/api/endpoints/spark_optimizer_api.py",
+      "sha256": "34e830a1a158c2f4e21740ee3e47625dff090f4a7b60367852a2ad79c26e4e0a",
+      "size": 1212
+    },
+    {
       "path": "app/api/endpoints/supply_chain.py",
       "sha256": "e5b1479ed7bc81f43390c7a4090931dd0da35e7f7c2ba6270a076cd47b6203cc",
       "size": 414
@@ -338,6 +332,21 @@
       "path": "app/api/versioning.py",
       "sha256": "f42c6a606d921ba784d5fd7ea7a6b003834261aecb295f8fd57df8569a7c5f35",
       "size": 601
+    },
+    {
+      "path": "app/core/ai/__init__.py",
+      "sha256": "53cbadd5da51efda625b6c67d6846e081d986fbcef6ba91c139c47f9c03e408a",
+      "size": 656
+    },
+    {
+      "path": "app/core/ai/gateway.py",
+      "sha256": "f3104d29ea32a3b96a42c27f2c2c7c4820987005f22912f30246aa77d2d20a49",
+      "size": 7143
+    },
+    {
+      "path": "app/core/ai/models.py",
+      "sha256": "f76c0b576d9199fdac69540acd0afde272da1ea4398e73e8d3298bd48e1c5693",
+      "size": 2670
     },
     {
       "path": "app/core/audit/architecture_audit.py",
@@ -548,6 +557,11 @@
       "path": "app/core/cost/models.py",
       "sha256": "0d63f3a8894a42968db52d275783c0c6b99899bc0f1d03bf635e2228f9622d7d",
       "size": 1057
+    },
+    {
+      "path": "app/core/cost/pricing_loader.py",
+      "sha256": "d497367cec6d51b970377a6aafbb03f4dd0078ae19f3b0b1c2d847c41c7cd5ee",
+      "size": 3389
     },
     {
       "path": "app/core/cost/pricing_tables.py",
@@ -1056,8 +1070,8 @@
     },
     {
       "path": "deploy/docker-compose.dev.yml",
-      "sha256": "a1fa0eb008c9763b8c291cc28ec6a022c15780ebf93619f1a89bd4b336aa47d9",
-      "size": 1034
+      "sha256": "aea8157ce5180a58094f8bb4dcb0e7068810719329e0b6bc0899f9d22636eced",
+      "size": 1217
     },
     {
       "path": "deploy/docker-compose.prod.yml",
@@ -1106,8 +1120,8 @@
     },
     {
       "path": "deploy/nginx/dev-gateway.conf",
-      "sha256": "fb5bde915491589a281640b6bbcf12b2883b4e756303bec59c1fa81037996bd5",
-      "size": 428
+      "sha256": "306da531dbeddd3fa9867c0142abf1206bd0bf51f3483f38ce8f394e19892525",
+      "size": 1570
     },
     {
       "path": "deploy/nginx/nginx.conf",
@@ -1116,8 +1130,8 @@
     },
     {
       "path": "deploy/nginx/prod-gateway.conf",
-      "sha256": "61c311c0b3d557a99ab758279fca3a9d76a55aef16d9cabaede2ad77311fe082",
-      "size": 1686
+      "sha256": "7ec97e4e8abeb2555403ff33badc766c44a6db3e31c2712dbdd298acadf88ffb",
+      "size": 2080
     },
     {
       "path": "deploy/secrets/admin_token.txt",
@@ -1171,7 +1185,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "984095bd6b44d9cf621e66fbf2e6a1e883ce4b5d206cd6666c8e07650dd63fe8",
+      "sha256": "c2e77ef52c46da49ac43b1daf171195b15e831d407b363d684f8b999434bc8b6",
       "size": 53375
     },
     {
@@ -1200,11 +1214,6 @@
       "size": 1580
     },
     {
-      "path": "tests/fixtures/openapi_snapshot.json",
-      "sha256": "a897727b22a8db7b38f54889ed2e40cea7d24042ef27399e5e48214eacf4a6e5",
-      "size": 238630
-    },
-    {
       "path": "tests/reports/latest_report.json",
       "sha256": "14da9a7832f59027b8cd44d5522b798ea20ffac6559f2b02fe75bbae6ace5744",
       "size": 2677
@@ -1223,6 +1232,11 @@
       "path": "tests/test_advisor_explain_api.py",
       "sha256": "fe6ecd1cbeed91d42d7fc6b4afbed30d55f6e8e204e5bfd088784c4d7b7bddc2",
       "size": 606
+    },
+    {
+      "path": "tests/test_ai_gateway.py",
+      "sha256": "51488724b57594ced0a5cb28228f397878f058f18bdcd459df46d2f8696ec28b",
+      "size": 5011
     },
     {
       "path": "tests/test_api_versioning.py",
@@ -1268,6 +1282,11 @@
       "path": "tests/test_cost_estimator_v2.py",
       "sha256": "427b082fd11616c29677d2453f9f792052b27da3826b18397ff38d1b6a3046cb",
       "size": 893
+    },
+    {
+      "path": "tests/test_dag_gen.py",
+      "sha256": "d90106fbad9b082599d419a8d2ed9170b1e061744473926bcd4807cf779670bf",
+      "size": 2549
     },
     {
       "path": "tests/test_dirty_workspace_block.py",
@@ -1385,6 +1404,11 @@
       "size": 2088
     },
     {
+      "path": "tests/test_phase22_workspace_repro_verify.py",
+      "sha256": "24de8c9bcd33010fe468ba56fae1e90f396211ec9f931b1b49dc21dd0f1f8b00",
+      "size": 2977
+    },
+    {
       "path": "tests/test_phase23_tenant_isolation_deep_audit.py",
       "sha256": "1938af5482a7ad1eda27e862ee366ecf84976ff2d0cc7b5e608538a29e929ecf",
       "size": 746
@@ -1408,6 +1432,31 @@
       "path": "tests/test_phase26_safe_errors_no_traceback.py",
       "sha256": "7c0ee145d802a61847fb41cc41d08722f6ce2139d3ab9174aa5ddb3ce57741e0",
       "size": 357
+    },
+    {
+      "path": "tests/test_phase27_semantic_diff.py",
+      "sha256": "18bdb8eb1f45844630d7d0312d76f4b7d2695f08e1ce01499067de57efbb8b6f",
+      "size": 3682
+    },
+    {
+      "path": "tests/test_phase28_impact_graph.py",
+      "sha256": "7d60504cae1d355f28712722ceeaa41272b082121344f4583101c3004bcae57f",
+      "size": 3309
+    },
+    {
+      "path": "tests/test_phase29_supply_chain.py",
+      "sha256": "38d1445a1c2b3ee9c7033c5dbbf0f8b7a7c51d3373b7603fbf50714223bc0152",
+      "size": 2202
+    },
+    {
+      "path": "tests/test_phase30_build_v3.py",
+      "sha256": "0a331a8463e8f56b28bb5c99de824f876f420d1e7f2a363094a143865195c1bd",
+      "size": 6992
+    },
+    {
+      "path": "tests/test_phase40_api_contract_parity.py",
+      "sha256": "973468d8d9a6932f75426a7bf9fce4014a5f05fae503b74496366471a08d7fd7",
+      "size": 3079
     },
     {
       "path": "tests/test_plugin_fingerprint.py",
@@ -1443,6 +1492,21 @@
       "path": "tests/test_preflight_gate_integration.py",
       "sha256": "bdfdf9939fe6e4296b1b140966cc8280a6b2105077fca9ba6578d67019d6a35c",
       "size": 3013
+    },
+    {
+      "path": "tests/test_pricing_loader.py",
+      "sha256": "37b3026ac0ed765fa3fcaac0f7743ec07c67ae9a85512af74e098e316215ca5b",
+      "size": 2903
+    },
+    {
+      "path": "tests/test_pricing_tables.py",
+      "sha256": "5fdf48cafb85effe930b0e17ba313d4eb60ce1be960bce4da00b4ba3a33a195e",
+      "size": 1709
+    },
+    {
+      "path": "tests/test_pyspark_presets.py",
+      "sha256": "dfb7b9347c842327191f2fcb4c0c7ade71f3eaee3dfdc33c4fc68bfa4dfe2235",
+      "size": 3493
     },
     {
       "path": "tests/test_rbac_threats.py",
@@ -1503,6 +1567,21 @@
       "path": "tests/test_signing_roundtrip.py",
       "sha256": "073d8675b94cc5903b1a1c3daae90f11a28aafd7d1e9851b008a4f25818a8dec",
       "size": 1187
+    },
+    {
+      "path": "tests/test_spark_conf_gen.py",
+      "sha256": "cee0c6437fa55d49a02df496755a74d843dda46f3d47d9eb4e9cfd8d27ca6edb",
+      "size": 2656
+    },
+    {
+      "path": "tests/test_spark_optimizer.py",
+      "sha256": "311deba6b1a83bf8f182910f3685d05b1d8b1ba28a35072304e3515822478fbf",
+      "size": 2731
+    },
+    {
+      "path": "tests/test_spark_optimizer_api.py",
+      "sha256": "879ee924c8a6f90d0d4f2550bbf389a476cf21e95f96cb88717d19b40bf2b42a",
+      "size": 2177
     },
     {
       "path": "tests/test_supply_chain.py",
@@ -1579,5 +1658,21 @@
       "sha256": "24e9f7dd5363297bdc0f364e83c4c5d7960f742e79bddc37bf8345ffee8ed39c",
       "size": 27707
     }
-  ]
+  ],
+  "include_paths": [
+    ".github",
+    "Makefile",
+    "README.md",
+    "app",
+    "deploy",
+    "docs",
+    "packaging_manifest.json",
+    "project_file_paths.txt",
+    "project_tree.txt",
+    "templates",
+    "tests",
+    "tools",
+    "ui"
+  ],
+  "kind": "packaging_manifest"
 }
