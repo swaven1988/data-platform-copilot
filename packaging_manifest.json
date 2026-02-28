@@ -360,8 +360,8 @@
     },
     {
       "path": "app/core/ai/intent_hybrid.py",
-      "sha256": "50cbd2068ac35a789354f24c9e13a6602dd3d1d956c9bdffbd636f980e511234",
-      "size": 6065
+      "sha256": "1800c17041977603a0fa7faebebd3782248d2dec2121ca2958f4b4661ae5cc26",
+      "size": 6369
     },
     {
       "path": "app/core/ai/llm_advisor.py",
@@ -1225,8 +1225,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "55d005298b9e894a2f6e1903fc846f560ea074e93bd705cd914d617753985670",
-      "size": 58449
+      "sha256": "41d245d74b19f556d1d3e783bcce222561c4b3c258b20bc555ee6b14f52f716f",
+      "size": 58615
     },
     {
       "path": "project_file_paths.txt",
