@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   test:
@@ -47,4 +47,9 @@ jobs:
 
       - name: Fail if openapi drift
         run: |
-          python -m pytest tests/test_openapi_snapshot.py -q          
+          python -m pytest tests/test_openapi_snapshot.py -q
+
+      - name: V1 readiness gate (manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          python tools/check_v1_readiness.py

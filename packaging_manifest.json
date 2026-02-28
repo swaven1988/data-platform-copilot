@@ -110,8 +110,8 @@
     },
     {
       "path": "app/api/endpoints/executions_lifecycle.py",
-      "sha256": "4c9551f3682f912082007c570d32d2077507102df237b51dddb7989da32aa0fe",
-      "size": 1458
+      "sha256": "2b475103ad1e32507f6b9dd964b5892b6b289acd50895e72ecde1bf58ef3d9d6",
+      "size": 2022
     },
     {
       "path": "app/api/endpoints/federation.py",
@@ -265,8 +265,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "fd0f03b7f0764750f2abdd26f3a125359e872dda74df8b3d7c4db699bed65842",
-      "size": 10357
+      "sha256": "01eb3fc6781110592f4430c72991cdebb99fb2d106c0fba1afa887ffe276feb8",
+      "size": 10669
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -665,8 +665,8 @@
     },
     {
       "path": "app/core/execution/lifecycle.py",
-      "sha256": "d9f4fa91c5ea576bbf32e277ed8691d3d44f1dc5f2c9c598e33c973e0ad58072",
-      "size": 2270
+      "sha256": "d1e016e35ddb846069d27903da70497363fd94ef61e20a5e6e9ca740953cf640",
+      "size": 5772
     },
     {
       "path": "app/core/execution/models.py",
@@ -1230,8 +1230,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "0d406db741636648251fd3118d2ef9ea9e62ccedda915853f55ed10730fd1642",
-      "size": 59467
+      "sha256": "8a0ede3502546e59c475490e7cb57f1edab566d3d51809b050aa50a36dd23832",
+      "size": 59643
     },
     {
       "path": "project_file_paths.txt",
@@ -1270,8 +1270,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "7aad351c3707c0b42619d58f6b73593b84265cba75cf4a86fe967b4ebeb4f450",
-      "size": 277679
+      "sha256": "ea133b8aa52c60b6cd67154f84dddf6298abd7712cb96031003e88c95201317a",
+      "size": 278662
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1702,6 +1702,11 @@
       "path": "tools/build_release_tarball.py",
       "sha256": "d328fbeffba6754a9f3039b49575bfb7b4ae799bdbe0ef016acdcd9178819344",
       "size": 3724
+    },
+    {
+      "path": "tools/check_v1_readiness.py",
+      "sha256": "91f061de1af6d396aa395b83c8d5a3adb7c29921eebfe976812636d613c2a4f1",
+      "size": 2313
     },
     {
       "path": "tools/gen_packaging_manifest.py",
