@@ -139,6 +139,11 @@
       "size": 1274
     },
     {
+      "path": "app/api/endpoints/intent_parse.py",
+      "sha256": "72b911c188368378df1a5e0ff12fa2f02859aef48fbedb6aefad192e053b59a0",
+      "size": 2031
+    },
+    {
       "path": "app/api/endpoints/metrics.py",
       "sha256": "b94816d5851fb101c6546b9f0430cad4b16d08ab24f5984714a3f03965677258",
       "size": 760
@@ -250,8 +255,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "43beb9ae73769bf5f917be4d68f44aba9bee4cff3148f213a19587fb2ae83aca",
-      "size": 9489
+      "sha256": "9a0761587eb0f095c30c060de64156509fbdc63d3bdef5965ff032f087b4f4a2",
+      "size": 9791
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -342,6 +347,11 @@
       "path": "app/core/ai/gateway.py",
       "sha256": "f3104d29ea32a3b96a42c27f2c2c7c4820987005f22912f30246aa77d2d20a49",
       "size": 7143
+    },
+    {
+      "path": "app/core/ai/intent_hybrid.py",
+      "sha256": "f8b1a4d4efbddb0bb1514916bf59aac64d54c53d3fc92e443a1d1264c5a81f19",
+      "size": 5406
     },
     {
       "path": "app/core/ai/models.py",
@@ -1185,8 +1195,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "c2e77ef52c46da49ac43b1daf171195b15e831d407b363d684f8b999434bc8b6",
-      "size": 53375
+      "sha256": "4917d16000b65d57fc8d821a2f988e0aaf88a7ac528819803d46751c45930227",
+      "size": 56585
     },
     {
       "path": "project_file_paths.txt",
@@ -1225,8 +1235,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "c9bb1e99f01aa663e02ea1715db75b2d8e66403ab6c29c516800b3ce1e7bb5dc",
-      "size": 252368
+      "sha256": "344224ec06bbe92a85b648640b71a103ca7bd92c1d5448196041647b3e1707e6",
+      "size": 263981
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1362,6 +1372,11 @@
       "path": "tests/test_intent_contract.py",
       "sha256": "ad03660796572d40bda972d09ba9461399555fccb2db8a98614120daa1501d3b",
       "size": 1990
+    },
+    {
+      "path": "tests/test_intent_hybrid.py",
+      "sha256": "fe5118349e2ba1e5ff7728a2fc428324158bb5031cbb0b0b6d3ebf9ab4ebe78b",
+      "size": 3772
     },
     {
       "path": "tests/test_ledger_concurrent_writes.py",

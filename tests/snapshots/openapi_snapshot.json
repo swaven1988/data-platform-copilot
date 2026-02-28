@@ -3194,6 +3194,47 @@
         }
       }
     },
+    "/api/v2/intent/parse": {
+      "post": {
+        "tags": [
+          "intent"
+        ],
+        "summary": "Parse Intent",
+        "operationId": "parse_intent_api_v2_intent_parse_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntentParseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentParseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v2/policy/evaluate": {
       "post": {
         "tags": [
@@ -9253,6 +9294,90 @@
         },
         "type": "object",
         "title": "IntelligenceThresholds"
+      },
+      "IntentParseRequest": {
+        "properties": {
+          "requirement": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Requirement"
+          },
+          "job_name_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Name Hint"
+          },
+          "defaults": {
+            "type": "object",
+            "title": "Defaults"
+          },
+          "confidence_threshold": {
+            "type": "number",
+            "title": "Confidence Threshold",
+            "default": 0.75
+          }
+        },
+        "type": "object",
+        "required": [
+          "requirement"
+        ],
+        "title": "IntentParseRequest"
+      },
+      "IntentParseResponse": {
+        "properties": {
+          "spec": {
+            "type": "object",
+            "title": "Spec"
+          },
+          "parser_confidence": {
+            "type": "number",
+            "title": "Parser Confidence"
+          },
+          "final_confidence": {
+            "type": "number",
+            "title": "Final Confidence"
+          },
+          "parser_warning_count": {
+            "type": "integer",
+            "title": "Parser Warning Count"
+          },
+          "augmented": {
+            "type": "boolean",
+            "title": "Augmented"
+          },
+          "augmentation": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Augmentation"
+          },
+          "explain": {
+            "type": "object",
+            "title": "Explain"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec",
+          "parser_confidence",
+          "final_confidence",
+          "parser_warning_count",
+          "augmented",
+          "augmentation",
+          "explain"
+        ],
+        "title": "IntentParseResponse"
       },
       "LegacyTarballVerifyRequest": {
         "properties": {
