@@ -1,0 +1,9 @@
+{
+  "version": "v0.17.1",
+  "commit": "1ace75a83282a5fbe71319fc527d94f5f16858a0",
+  "packaging_manifest_hash": "0658887820363c242e2617be3243307408bca81d49b8272b7eeb38fb1665e805",
+  "openapi_hash": "eb6df8b60baba22f7b42a6f56b86c2da85e5fb67c7f62a8b8fa493086253944c",
+  "built_at_utc": "2026-02-28T23:00:35.868493Z",
+  "packaging_manifest_sha256": "0658887820363c242e2617be3243307408bca81d49b8272b7eeb38fb1665e805",
+  "openapi_snapshot_sha256": "eb6df8b60baba22f7b42a6f56b86c2da85e5fb67c7f62a8b8fa493086253944c"
+}

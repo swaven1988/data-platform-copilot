@@ -40,6 +40,14 @@ tests/openapi_snapshot.json
 validate_prod.sh
 PROD_VALIDATION_CHECKLIST.md
 pytest.log
+dist/
+mkdir/
+knowledge_base/
+*.bak
+*.bkp
+*.log
+-H
+-d
 
 # Frontend test output artifacts
 frontend/test-results/

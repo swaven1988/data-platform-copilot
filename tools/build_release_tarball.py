@@ -1,4 +1,5 @@
 import hashlib
+import fnmatch
 import json
 import subprocess
 import tarfile
@@ -8,6 +9,29 @@ from datetime import datetime, timezone
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = REPO_ROOT / "packaging_manifest.json"
+
+EXCLUDE_PATTERNS = [
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "**/.pytest_cache/**",
+    "**/.venv/**",
+    "**/dist/**",
+    "**/knowledge_base/**",
+    "**/mkdir/**",
+    "**/*.bak",
+    "**/*.bkp",
+    "**/*.log",
+    "**/nul",
+    "**/-H",
+    "**/-d",
+    "**/.git/**",
+    "**/workspace/**",
+]
+
+
+def _is_excluded(rel_path: str) -> bool:
+    p = rel_path.replace("\\", "/")
+    return any(fnmatch.fnmatch(p, pat) for pat in EXCLUDE_PATTERNS)
 
 
 def sha256_file(path: Path) -> str:
@@ -72,6 +96,8 @@ def build_tar(files: list[str], output_path: Path):
 
     with tarfile.open(output_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
         for rel in files:
+            if _is_excluded(rel):
+                continue
             abs_path = REPO_ROOT / rel
             if abs_path.exists():
                 tar.add(abs_path, arcname=rel, filter=_tarinfo_filter)
