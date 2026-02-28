@@ -3274,6 +3274,47 @@
         }
       }
     },
+    "/api/v2/ai/explain": {
+      "post": {
+        "tags": [
+          "ai"
+        ],
+        "summary": "Ai Explain",
+        "operationId": "ai_explain_api_v2_ai_explain_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIExplainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIExplainResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v2/policy/evaluate": {
       "post": {
         "tags": [
@@ -8473,6 +8514,66 @@
   },
   "components": {
     "schemas": {
+      "AIExplainRequest": {
+        "properties": {
+          "advisor_name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Advisor Name"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Code"
+          },
+          "finding": {
+            "type": "object",
+            "title": "Finding"
+          }
+        },
+        "type": "object",
+        "required": [
+          "advisor_name",
+          "code"
+        ],
+        "title": "AIExplainRequest"
+      },
+      "AIExplainResponse": {
+        "properties": {
+          "advisor_name": {
+            "type": "string",
+            "title": "Advisor Name"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "sections": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Sections"
+          },
+          "finding": {
+            "type": "object",
+            "title": "Finding"
+          }
+        },
+        "type": "object",
+        "required": [
+          "advisor_name",
+          "code",
+          "explanation",
+          "sections",
+          "finding"
+        ],
+        "title": "AIExplainResponse"
+      },
       "AIGatewayRequest": {
         "properties": {
           "task": {

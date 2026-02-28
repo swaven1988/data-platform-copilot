@@ -49,6 +49,11 @@
       "size": 1432
     },
     {
+      "path": "app/api/endpoints/ai_explain.py",
+      "sha256": "ea5c3d51123364389e71b96169fa26d5c51b25bb1c66224a452b7f6b3cb27a73",
+      "size": 1842
+    },
+    {
       "path": "app/api/endpoints/ai_gateway.py",
       "sha256": "bf488b40108d4567594fa783da222c8c02d86133bcfaf4aa98d7435e0fd24b5a",
       "size": 2141
@@ -260,8 +265,8 @@
     },
     {
       "path": "app/api/main.py",
-      "sha256": "d4bcaf6e530da5312152834297ede538c3e74a57abbc72fb7b0abfba64c307a1",
-      "size": 9906
+      "sha256": "b796d33f640863a8e9266fcec8c1bca34b1eac1eb3b948667fce52c174184daf",
+      "size": 10003
     },
     {
       "path": "app/api/middleware/__init__.py",
@@ -357,6 +362,11 @@
       "path": "app/core/ai/intent_hybrid.py",
       "sha256": "f8b1a4d4efbddb0bb1514916bf59aac64d54c53d3fc92e443a1d1264c5a81f19",
       "size": 5406
+    },
+    {
+      "path": "app/core/ai/llm_advisor.py",
+      "sha256": "7d17223b601eeda569a09ecf458beeb2a0667b0cb242c87c61da03a3c8529b24",
+      "size": 3492
     },
     {
       "path": "app/core/ai/memory_store.py",
@@ -1084,6 +1094,11 @@
       "size": 1799
     },
     {
+      "path": "app/plugins/advisors/llm_semantic_diff_explainer.py",
+      "sha256": "a3319eb6d7ce8fa92f0ea0b205726803301268e418c9f8efe985689c3551f42d",
+      "size": 138
+    },
+    {
       "path": "deploy/chart.yaml",
       "sha256": "9e3a8f6567b32e3a2a429f18d230c554ba0637675cf4c2feccba3110920b3129",
       "size": 146
@@ -1210,8 +1225,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "78a51e4f95868b5c8500311faab0615ca18f04f3bb3ef5fa300908c82d15d1e8",
-      "size": 57090
+      "sha256": "ab5ba1df5f635afecf29e1ceaf18c7f87a9f0c36b1c55039b0969faebfbd07ab",
+      "size": 57758
     },
     {
       "path": "project_file_paths.txt",
@@ -1250,13 +1265,18 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "27b410625cad0edd5a86e652ea7aa53033165c0fbe4b61cc23a93532dbd7a501",
-      "size": 267242
+      "sha256": "84f302d58564ad81588d8a33214eabbd5df3491c4aa24999fdfb43f530027026",
+      "size": 269251
     },
     {
       "path": "tests/test_advisor_explain_api.py",
       "sha256": "fe6ecd1cbeed91d42d7fc6b4afbed30d55f6e8e204e5bfd088784c4d7b7bddc2",
       "size": 606
+    },
+    {
+      "path": "tests/test_ai_explainer.py",
+      "sha256": "5e81f655f3bda3107e4e7d6a0e086db5022e1fda3e77479bfe470ddf034dfab3",
+      "size": 3820
     },
     {
       "path": "tests/test_ai_gateway.py",

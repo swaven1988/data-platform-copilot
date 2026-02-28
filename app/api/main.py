@@ -48,6 +48,7 @@ from app.api.endpoints.spark_optimizer_api import router as spark_optimizer_rout
 from app.api.endpoints.ai_gateway import router as ai_gateway_router
 from app.api.endpoints.intent_parse import router as intent_parse_router
 from app.api.endpoints.triage import router as triage_router
+from app.api.endpoints.ai_explain import router as ai_explain_router
 
 from app.api.endpoints import preflight
 from app.api.endpoints.execution import router as execution_router
@@ -187,6 +188,7 @@ app.include_router(spark_optimizer_router)
 app.include_router(ai_gateway_router)
 app.include_router(intent_parse_router)
 app.include_router(triage_router)
+app.include_router(ai_explain_router)
 app.include_router(policy_router)
 app.include_router(build_v3_router)
 app.include_router(preflight.router)
