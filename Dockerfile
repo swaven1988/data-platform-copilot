@@ -10,7 +10,7 @@ WORKDIR /build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml /build/pyproject.toml
 COPY README.md /build/README.md
@@ -33,13 +33,13 @@ WORKDIR /app
 # minimal runtime deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 # Install wheels (no build tools here)
 COPY --from=builder /wheels /wheels
 RUN python -m pip install --no-cache-dir -U pip \
- && python -m pip install --no-cache-dir /wheels/*.whl \
- && rm -rf /wheels
+    && python -m pip install --no-cache-dir /wheels/*.whl \
+    && rm -rf /wheels
 
 # App files
 COPY app /app/app
@@ -56,7 +56,11 @@ RUN adduser --disabled-password --gecos '' appuser
 
 # ---- CREATE WORKSPACE AND FIX OWNERSHIP ----
 RUN mkdir -p /app/workspace \
- && chown -R appuser:appuser /app
+    && chown -R appuser:appuser /app
+
+# Container health check — hits the liveness endpoint
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request, sys; r=urllib.request.urlopen('http://localhost:8001/api/v1/health/live', timeout=4); sys.exit(0 if r.status==200 else 1)" || exit 1
 
 USER appuser
 
