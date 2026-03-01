@@ -7,5 +7,5 @@ spec:
     app: {{ include "data-platform-copilot.fullname" . }}-ui
   ports:
     - name: http
-      port: 8501
-      targetPort: 8501
+      port: 80
+      targetPort: 80
