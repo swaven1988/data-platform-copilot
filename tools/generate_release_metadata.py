@@ -11,6 +11,17 @@ def sha256_file(path: Path):
     return h.hexdigest()
 
 
+def _resolve_git_tag(default_tag: str) -> str:
+    try:
+        return (
+            subprocess.check_output(["git", "describe", "--tags", "--exact-match"])
+            .decode()
+            .strip()
+        )
+    except Exception:
+        return default_tag
+
+
 def main():
     root = Path(".").resolve()
 
@@ -27,6 +38,7 @@ def main():
 
     metadata = {
         "version": version_file,
+        "git_tag": _resolve_git_tag(version_file),
         "commit": commit,
         "packaging_manifest_hash": packaging_hash,
         "openapi_hash": openapi_hash,
