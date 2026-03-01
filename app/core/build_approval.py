@@ -11,18 +11,16 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 
-_DEFAULT_APPROVAL_TTL_SECONDS = 3600  # 1 hour
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _approval_ttl_seconds() -> float:
+    """Read approval TTL from env. Defaults to 3600 (1 hour)."""
     try:
-        return float(os.getenv("COPILOT_APPROVAL_TTL_SECONDS", str(_DEFAULT_APPROVAL_TTL_SECONDS)))
+        return float(os.getenv("COPILOT_APPROVAL_TTL_SECONDS", "3600"))
     except (TypeError, ValueError):
-        return float(_DEFAULT_APPROVAL_TTL_SECONDS)
-
-
-def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        return 3600.0
 
 
 def _approval_root(workspace_root: Path) -> Path:
@@ -70,9 +68,7 @@ class BuildApprovalStore:
         p.write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
         return obj
 
-    def get_approval(
-        self, *, job_name: str, plan_hash: str
-    ) -> Optional[Dict[str, Any]]:
+    def get_approval(self, *, job_name: str, plan_hash: str) -> Optional[Dict[str, Any]]:
         """Return approval if it exists and has not expired. Returns None if missing or stale."""
         p = _approval_file(self.workspace_root, job_name, plan_hash)
         if not p.exists():
@@ -81,26 +77,19 @@ class BuildApprovalStore:
             obj = json.loads(p.read_text(encoding="utf-8"))
         except Exception:
             return None
-
-        # TTL check — approved_at is ISO-8601 UTC string
         approved_at_str = obj.get("approved_at", "")
         if approved_at_str:
             try:
-                approved_at_dt = datetime.fromisoformat(
-                    approved_at_str.replace("Z", "+00:00")
-                )
-                age_seconds = (
-                    datetime.now(timezone.utc) - approved_at_dt
-                ).total_seconds()
-                if age_seconds > _approval_ttl_seconds():
-                    return None  # expired — treat as if no approval exists
+                approved_dt = datetime.fromisoformat(approved_at_str.replace("Z", "+00:00"))
+                age = (datetime.now(timezone.utc) - approved_dt).total_seconds()
+                if age > _approval_ttl_seconds():
+                    return None  # expired
             except Exception:
-                pass  # unparseable timestamp — fail open, return the record
-
+                pass  # unparseable — fail open
         return obj
 
     def revoke_approval(self, *, job_name: str, plan_hash: str) -> bool:
-        """Delete an approval file. Returns True if it existed, False if already gone."""
+        """Delete an approval file. Returns True if deleted, False if not found."""
         p = _approval_file(self.workspace_root, job_name, plan_hash)
         if p.exists():
             p.unlink()
@@ -108,7 +97,7 @@ class BuildApprovalStore:
         return False
 
     def list_approvals(self, *, job_name: str) -> list:
-        """Return all approval records for a job across all plan hashes."""
+        """Return all stored approval records for a job across all plan hashes."""
         root = _approval_root(self.workspace_root)
         safe_job = "".join(
             ch if (ch.isalnum() or ch in {"-", "_"}) else "_"

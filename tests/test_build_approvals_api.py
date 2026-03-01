@@ -50,7 +50,7 @@ def test_build_approval_get_missing_returns_404(monkeypatch, tmp_path):
     assert r.json()["detail"] == "approval_not_found"
 
 
-def test_approval_revoke_deletes_record(monkeypatch, tmp_path):
+def test_approval_revoke_removes_record(monkeypatch, tmp_path):
     from app.api.endpoints import build_approvals as mod
 
     monkeypatch.setattr(mod, "WORKSPACE_ROOT", tmp_path)
@@ -58,15 +58,15 @@ def test_approval_revoke_deletes_record(monkeypatch, tmp_path):
     # create
     c.post(
         "/api/v2/build/approvals",
-        json={"job_name": "j", "plan_hash": "h1", "approver": "alice"},
+        json={"job_name": "rev_job", "plan_hash": "rev_hash", "approver": "alice"},
         headers=HEADERS,
     )
     # revoke
-    r = c.delete("/api/v2/build/approvals/j/h1", headers=HEADERS)
+    r = c.delete("/api/v2/build/approvals/rev_job/rev_hash", headers=HEADERS)
     assert r.status_code == 200
     assert r.json()["revoked"] is True
     # now get should 404
-    r2 = c.get("/api/v2/build/approvals/j/h1", headers=HEADERS)
+    r2 = c.get("/api/v2/build/approvals/rev_job/rev_hash", headers=HEADERS)
     assert r2.status_code == 404
 
 
