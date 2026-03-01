@@ -1125,7 +1125,7 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/Chart.yaml",
-      "sha256": "3b3e3d3fb44ce77650bb2caf54241b4264235f4973dded829f2f0b6d2b232c20",
+      "sha256": "a387b271964e1ac0e847ac633d712b5875522bbb7f17ec1a04731c85b5ae7cfe",
       "size": 183
     },
     {
@@ -1160,7 +1160,7 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/values.yaml",
-      "sha256": "dcf4caf3953bfcf48ac2fa98ae1d89ce313bd9b9746e1b33792abefb6324289e",
+      "sha256": "145088280f06570fa3a22ea85071f563efaaaa83330fd4679b8ee9fa4b66b2c3",
       "size": 944
     },
     {
@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "c1936b6de6a50e2f74063b5e3970245bcd34ab0e8dfff89636c97aca8427ede6",
+      "sha256": "42de87f1337b8e58862b03b524016bcb18725e6c185a45019cd185e4e3c4155e",
       "size": 59994
     },
     {
