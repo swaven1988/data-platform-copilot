@@ -25,8 +25,8 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "sha256": "67a50d2db2131cbe5b97bcec090be771d129b764832e7d3c0d292cbc6379a437",
-      "size": 2368
+      "sha256": "6abcd9a568b5a7e87f98cac28432c804e03484ec2bd6201365cf6a55cb53451b",
+      "size": 2461
     },
     {
       "path": "Makefile",
@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "a35b2745a6666d3b7e015b67147b4809c47107116eed06c71bc4c0f5a4578c89",
+      "sha256": "b62010ec9ee11a8001907b2abcf954eb41fba6a44361710bdad6123d6b392dfe",
       "size": 59995
     },
     {
