@@ -28,8 +28,8 @@
     },
     {
       "path": ".github/workflows/release.yml",
-      "sha256": "6abcd9a568b5a7e87f98cac28432c804e03484ec2bd6201365cf6a55cb53451b",
-      "size": 2461
+      "sha256": "3c719966df54ddd4f97eba4db4a8ee12109e6146e530404ec985c75a87a8e3a7",
+      "size": 2509
     },
     {
       "path": "CLAUDE.md",
@@ -833,8 +833,8 @@
     },
     {
       "path": "app/core/packaging/package_manifest.py",
-      "sha256": "5539ec06ded67b16af620f30d9b4f05d9cac6b05a3f671fd2236604b677a1300",
-      "size": 6419
+      "sha256": "c95041900bd6515ba6d01802fe38a45994ece417f7b0dc119770ebd5d904d235",
+      "size": 6906
     },
     {
       "path": "app/core/packaging/packager.py",
@@ -1428,8 +1428,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "27f809984bf6f4b572dd10838c809e998f6299146109f32261f84b94976e1700",
-      "size": 60345
+      "sha256": "dde3c27b22872fd3521f0f67dfb141bf12566681e60387e47bca285e96722c3b",
+      "size": 67003
     },
     {
       "path": "project_file_paths.txt",
@@ -1818,8 +1818,8 @@
     },
     {
       "path": "tests/test_release_tarball_manifest_excludes.py",
-      "sha256": "e5324544125156460219ad0ed50a9429537a9919bb11017b1fc106a6c8d3e19b",
-      "size": 1446
+      "sha256": "9b812ea691f5ffd468c191a9466a5af450bb205e694229555970289079f44b4a",
+      "size": 1994
     },
     {
       "path": "tests/test_release_verify.py",
@@ -1913,8 +1913,8 @@
     },
     {
       "path": "tools/build_release_tarball.py",
-      "sha256": "9a2eece251efacdf3d27b52eaa90ac6a316b39292b3350dd91a55f68f32760ce",
-      "size": 4459
+      "sha256": "0fd12dbbd65d7f5d2fcfd9eaf80ede0fee7ebf831bc41c3961a333b97c1611a6",
+      "size": 4519
     },
     {
       "path": "tools/check_v1_readiness.py",
@@ -1923,8 +1923,8 @@
     },
     {
       "path": "tools/gen_packaging_manifest.py",
-      "sha256": "0cd0ab55db508b2372ee19486598e7da487ff9a62ea49b591ff4601d37fecb87",
-      "size": 1562
+      "sha256": "000d258159271d6eec91959f229c42a3ec2dd5e58624e5b9879eed85f20f3023",
+      "size": 2432
     },
     {
       "path": "tools/generate_release_metadata.py",
