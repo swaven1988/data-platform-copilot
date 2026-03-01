@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = REPO_ROOT / "packaging_manifest.json"
 
-EXCLUDE_PATTERNS = [
+EXTRA_EXCLUDE_PATTERNS = [
     "**/__pycache__/**",
     "**/*.pyc",
     "**/.pytest_cache/**",
@@ -29,9 +29,12 @@ EXCLUDE_PATTERNS = [
 ]
 
 
-def _is_excluded(rel_path: str) -> bool:
+def _is_excluded(rel_path: str, patterns: list[str] | None = None) -> bool:
     p = rel_path.replace("\\", "/")
-    return any(fnmatch.fnmatch(p, pat) for pat in EXCLUDE_PATTERNS)
+    pats = patterns or EXTRA_EXCLUDE_PATTERNS
+    # Match both plain relative path and slash-prefixed form so patterns like
+    # "**/.venv/**" also match root-level ".venv/..." paths consistently.
+    return any(fnmatch.fnmatch(p, pat) or fnmatch.fnmatch(f"/{p}", pat) for pat in pats)
 
 
 def sha256_file(path: Path) -> str:
@@ -84,7 +87,7 @@ def normalize_manifest_files(manifest: dict) -> list[str]:
     return sorted(set(out))
 
 
-def build_tar(files: list[str], output_path: Path):
+def build_tar(files: list[str], output_path: Path, *, exclude_patterns: list[str]):
     def _tarinfo_filter(ti: tarfile.TarInfo) -> tarfile.TarInfo:
         # deterministic-ish metadata
         ti.uid = 0
@@ -96,7 +99,7 @@ def build_tar(files: list[str], output_path: Path):
 
     with tarfile.open(output_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
         for rel in files:
-            if _is_excluded(rel):
+            if _is_excluded(rel, exclude_patterns):
                 continue
             abs_path = REPO_ROOT / rel
             if abs_path.exists():
@@ -105,6 +108,8 @@ def build_tar(files: list[str], output_path: Path):
 
 def main():
     manifest = load_manifest()
+    manifest_excludes = list(manifest.get("excludes") or [])
+    exclude_patterns = sorted(set(manifest_excludes + EXTRA_EXCLUDE_PATTERNS))
     files = normalize_manifest_files(manifest)
 
     tag, commit = get_git_info()
@@ -112,7 +117,7 @@ def main():
     artifact_path = REPO_ROOT / artifact_name
 
     print(f"Building release artifact: {artifact_name}")
-    build_tar(files, artifact_path)
+    build_tar(files, artifact_path, exclude_patterns=exclude_patterns)
 
     sha = sha256_file(artifact_path)
 

@@ -20,8 +20,8 @@
   "files": [
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "fbafb66400c36fecfe751a4b21a17f27226801b658acd63c68f52e08771ad550",
-      "size": 1216
+      "sha256": "bbee4faf32543726cc4b52c3770bd31a6412505bfbf7ab696d904829b36bd4c9",
+      "size": 1362
     },
     {
       "path": ".github/workflows/release.yml",
@@ -1230,8 +1230,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "8a0ede3502546e59c475490e7cb57f1edab566d3d51809b050aa50a36dd23832",
-      "size": 59643
+      "sha256": "960b2a5b4390bee4a4728b1237c076d23a454e668dccc8f141427ded5b142a4f",
+      "size": 59809
     },
     {
       "path": "project_file_paths.txt",
@@ -1607,6 +1607,11 @@
       "path": "tests/test_release_metadata_integrity.py",
       "sha256": "55b65d82c60781381e29777e49a4ad4ca1a99def5a90e3a49ab663151004a466",
       "size": 302
+    },
+    {
+      "path": "tests/test_release_tarball_manifest_excludes.py",
+      "sha256": "44d7b2553ede5a908d61050c8d96503487b1e499a61cae7811b45e2d476a8e85",
+      "size": 769
     },
     {
       "path": "tests/test_release_verify.py",
