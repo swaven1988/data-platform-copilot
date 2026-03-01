@@ -65,8 +65,8 @@
     },
     {
       "path": "app/api/endpoints/billing.py",
-      "sha256": "b42674ef346961ed8b14d6825871d8884862966b045dfdab864f173d3da6df26",
-      "size": 3472
+      "sha256": "ae344e575783b5ca908836d3bfdb79a5242246fe6fe8a7fb5cd73a0c143b51f2",
+      "size": 3567
     },
     {
       "path": "app/api/endpoints/build.py",
@@ -425,8 +425,8 @@
     },
     {
       "path": "app/core/billing/ledger.py",
-      "sha256": "742f21f5a8375edb367bb58f02ab7da0de2b17b29c585f22cf33bfc08d027bd1",
-      "size": 9162
+      "sha256": "fc50d7f70b8b7a9911c0d673ddfa4d6fef5c250659a2b4477f6c82693f89212d",
+      "size": 9405
     },
     {
       "path": "app/core/billing/tenant_budget.py",
@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "9a04cbcd79e3c60c61c9d3738584a7a031830c9cd301c75a0e4a2d8ed3a5a499",
+      "sha256": "301756f63332aef61dbcd33273e39f8ae45de9cb7c7ae9f0134625d2c1f22a45",
       "size": 59994
     },
     {
@@ -1270,8 +1270,8 @@
     },
     {
       "path": "tests/snapshots/openapi_snapshot.json",
-      "sha256": "fd4afede45e72f7456940dd6b68639a387f8adbac9666931cd6e5e378a7752d6",
-      "size": 281457
+      "sha256": "d3bc1fb1a09e0068e3d12d7db31c0e60deab8a1ef762508b0b5a846cf2a2bfc8",
+      "size": 281679
     },
     {
       "path": "tests/test_advisor_explain_api.py",
@@ -1320,8 +1320,8 @@
     },
     {
       "path": "tests/test_billing_summary_api.py",
-      "sha256": "e6f79808c76455357e54191861a283b2743696eb426704906e490e66393a542d",
-      "size": 1682
+      "sha256": "bbd2e78068d01f950b8946b8e84d135e4ba5fe0ad285c01a632c94ae7b031f45",
+      "size": 3071
     },
     {
       "path": "tests/test_build_approvals_api.py",

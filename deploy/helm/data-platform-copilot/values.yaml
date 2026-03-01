@@ -7,6 +7,17 @@ api:
     COPILOT_AUTH_MODE: "header"
     COPILOT_AUTH_ENABLED: "true"
     COPILOT_TRUST_PROXY_HEADERS: "true"
+    # AI gateway — override LLM_API_KEY via Kubernetes Secret in production
+    AI_MODEL: "gpt-4o-mini"
+    # Build approval workflow
+    COPILOT_HIGH_RISK_APPROVAL_THRESHOLD: "0.70"
+    COPILOT_APPROVAL_TTL_SECONDS: "3600"
+    # Execution reconciliation
+    COPILOT_EXEC_RECONCILE_STALE_SECONDS: "3600"
+    COPILOT_EXEC_RECONCILE_INTERVAL_SECONDS: "60"
+    # Budget guardrails
+    COPILOT_MAX_COST_USD: "50.0"
+    COPILOT_MONTHLY_BUDGET_WARN_RATIO: "0.80"
 
 ui:
   image:

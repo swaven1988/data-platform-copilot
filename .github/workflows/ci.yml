@@ -49,7 +49,6 @@ jobs:
         run: |
           python -m pytest tests/test_openapi_snapshot.py -q
 
-      - name: V1 readiness gate (manual)
-        if: github.event_name == 'workflow_dispatch'
+      - name: V1 readiness gate
         run: |
           python tools/check_v1_readiness.py

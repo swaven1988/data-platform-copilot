@@ -25,11 +25,20 @@ services:
       COPILOT_STATIC_ADMIN_TOKEN_FILE: /run/secrets/admin_token
       COPILOT_STATIC_VIEWER_TOKEN_FILE: /run/secrets/viewer_token
       COPILOT_SIGNING_KEY_FILE: /run/secrets/signing_key
+      # ---- AI gateway
+      AI_MODEL: "gpt-4o-mini"
+      # ---- Build approvals
+      COPILOT_HIGH_RISK_APPROVAL_THRESHOLD: "0.70"
+      COPILOT_APPROVAL_TTL_SECONDS: "3600"
+      # ---- Execution reconciliation
+      COPILOT_EXEC_RECONCILE_STALE_SECONDS: "3600"
+      COPILOT_EXEC_RECONCILE_INTERVAL_SECONDS: "60"
 
     secrets:
       - admin_token
       - viewer_token
       - signing_key
+      - llm_api_key
 
     restart: unless-stopped
     tmpfs:
@@ -82,3 +91,5 @@ secrets:
     file: ./secrets/viewer_token.txt
   signing_key:
     file: ./secrets/signing_key.txt
+  llm_api_key:
+    file: ./secrets/llm_api_key.txt
