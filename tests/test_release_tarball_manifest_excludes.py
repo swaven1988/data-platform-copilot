@@ -37,3 +37,16 @@ def test_tarball_still_includes_source_md():
     assert not _is_excluded("README.md")
     assert not _is_excluded("docs/RUNBOOK.md")
 
+
+def test_tarball_excludes_secret_txt_files():
+    assert _is_excluded("deploy/secrets/admin_token.txt")
+    assert _is_excluded("deploy/secrets/viewer_token.txt")
+    assert _is_excluded("deploy/secrets/signing_key.txt")
+    assert _is_excluded("deploy/secrets/llm_api_key.txt")
+
+
+def test_tarball_includes_secrets_readme_and_setup():
+    # README and setup.sh must be included — only .txt credential files are excluded
+    assert not _is_excluded("deploy/secrets/README.md")
+    assert not _is_excluded("deploy/secrets/setup.sh")
+

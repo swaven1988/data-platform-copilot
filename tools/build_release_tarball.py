@@ -31,6 +31,8 @@ EXTRA_EXCLUDE_PATTERNS = [
     "frontend/.vite/**",
     # Agent working documents — not source
     "antigravity_prompt*.md",
+    # Secret credential files
+    "deploy/secrets/*.txt",
     # Defensive exclusion for legacy bootstrap scripts
     "install.cmd",
 ]

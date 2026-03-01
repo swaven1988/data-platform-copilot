@@ -78,6 +78,7 @@ jobs:
             --exclude='frontend/.vite' \
             --exclude='**/workspace/**' \
             --exclude='antigravity_prompt*.md' \
+            --exclude='deploy/secrets/*.txt' \
             .
 
           sha256sum "$ART" > "$ART.sha256"

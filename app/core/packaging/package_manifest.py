@@ -10,19 +10,31 @@ from typing import Dict, Iterable, List
 
 
 DEFAULT_INCLUDE_PATHS: List[str] = [
-    "app",
-    "tests",
-    "ui",
-    "templates",
-    "docs",
-    ".github",
-    "deploy",
-    "tools",
-    "README.md",
+    # individual root files
+    "VERSION",
+    "pyproject.toml",
+    "Dockerfile",
+    "CLAUDE.md",
+    "KNOWN_LIMITATIONS.md",
+    "PROD_VALIDATION_CHECKLIST.md",
+    "release_metadata.json",
+    "logging.yaml",
+    "copilot_spec.yaml",
     "Makefile",
+    "README.md",
     "packaging_manifest.json",
     "project_tree.txt",
     "project_file_paths.txt",
+    # directories
+    ".github",
+    "app",
+    "deploy",
+    "docs",
+    "frontend",
+    "templates",
+    "tests",
+    "tools",
+    "ui",
 ]
 
 DEFAULT_EXCLUDES: List[str] = [
@@ -43,6 +55,12 @@ DEFAULT_EXCLUDES: List[str] = [
     "**/*.egg-info/**",
     "**/.copilot/**",
     "**/.pytest_cache/**",
+    # Secret credential files must never ship
+    "deploy/secrets/*.txt",
+    # Generated workspace job outputs
+    "**/workspace/**",
+    # Agent working documents
+    "antigravity_prompt*.md",
 ]
 
 
