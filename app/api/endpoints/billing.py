@@ -48,6 +48,7 @@ class BillingSummaryResponse(BaseModel):
     spent_actual_usd: float
     ai_spent_actual_usd: float
     non_ai_spent_actual_usd: float
+    ai_by_task: Dict[str, float] = {}
     remaining_estimated_usd: float
     utilization_estimated: float
     projected_spent_usd: float
@@ -95,6 +96,7 @@ def billing_summary(
         "spent_actual_usd": spent_act,
         "ai_spent_actual_usd": float(breakdown.get("ai_actual_usd", 0.0)),
         "non_ai_spent_actual_usd": float(breakdown.get("non_ai_actual_usd", 0.0)),
+        "ai_by_task": breakdown.get("ai_by_task", {}),
         "remaining_estimated_usd": remaining,
         "utilization_estimated": util,
         "projected_spent_usd": projected_spent,

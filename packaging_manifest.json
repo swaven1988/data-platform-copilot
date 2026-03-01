@@ -435,8 +435,8 @@
     },
     {
       "path": "app/core/build_approval.py",
-      "sha256": "9e8a0aead06926f6beb38b65aa3fde4ac5e541af7b361cf300ac7a0dc7db5515",
-      "size": 4829
+      "sha256": "93f96905f1206b1966cfda9f2d8e3a61e0888b74840de5ee502a23b9441d006c",
+      "size": 4540
     },
     {
       "path": "app/core/build_plan/advisors.py",
@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "ace898b3c84c1149bba9605c12e6be32a9e26fffb24e6ec3899c1f895ed4cb4a",
+      "sha256": "9a04cbcd79e3c60c61c9d3738584a7a031830c9cd301c75a0e4a2d8ed3a5a499",
       "size": 59994
     },
     {
@@ -1325,8 +1325,8 @@
     },
     {
       "path": "tests/test_build_approvals_api.py",
-      "sha256": "f0bc8328df46533df70b0da806abf262451932474c31c78f59152aa48c6ca922",
-      "size": 3532
+      "sha256": "334127567b51f0480561fd9d7e51dec4cfc3b4e1574ca6d3345f0d040c6e2185",
+      "size": 3568
     },
     {
       "path": "tests/test_build_v2_contract.py",
@@ -1530,8 +1530,8 @@
     },
     {
       "path": "tests/test_phase31_execution_retry.py",
-      "sha256": "93514742a8424ea3229fe5839cccd39d6897ae9421bcf073af54c6d4eb711c80",
-      "size": 2822
+      "sha256": "37dc845e16fec91d619803dde980365397889f97f5a1fd91666396d845229287",
+      "size": 2895
     },
     {
       "path": "tests/test_phase40_api_contract_parity.py",

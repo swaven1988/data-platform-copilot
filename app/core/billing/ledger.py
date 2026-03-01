@@ -225,10 +225,12 @@ class LedgerStore:
                 "ai_actual_usd": 0.0,
                 "non_ai_actual_usd": 0.0,
                 "total_actual_usd": 0.0,
+                "ai_by_task": {},
             }
 
         ai_total = 0.0
         non_ai_total = 0.0
+        ai_by_task: Dict[str, float] = {}
 
         for e in entries:
             if not isinstance(e, dict):
@@ -244,6 +246,7 @@ class LedgerStore:
             job_name = str(e.get("job_name") or "")
             if job_name.startswith("ai_"):
                 ai_total += float(v)
+                ai_by_task[job_name] = ai_by_task.get(job_name, 0.0) + float(v)
             else:
                 non_ai_total += float(v)
 
@@ -251,6 +254,7 @@ class LedgerStore:
             "ai_actual_usd": ai_total,
             "non_ai_actual_usd": non_ai_total,
             "total_actual_usd": ai_total + non_ai_total,
+            "ai_by_task": {k: round(v, 6) for k, v in sorted(ai_by_task.items())},
         }
 
     def entries_count(self, *, tenant: str, month: str) -> int:

@@ -342,6 +342,14 @@
       },
       "BillingSummaryResponse": {
         "properties": {
+          "ai_by_task": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "default": {},
+            "title": "Ai By Task",
+            "type": "object"
+          },
           "ai_spent_actual_usd": {
             "title": "Ai Spent Actual Usd",
             "type": "number"
