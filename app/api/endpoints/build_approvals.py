@@ -47,3 +47,27 @@ def get_approval(job_name: str, plan_hash: str) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail="approval_not_found")
     return {"ok": True, "approval": obj}
 
+
+@router.delete(
+    "/{job_name}/{plan_hash}",
+    dependencies=[Depends(require_roles("admin"))],
+)
+def revoke_approval(job_name: str, plan_hash: str) -> Dict[str, Any]:
+    """Revoke (delete) an existing approval. Requires admin role."""
+    store = BuildApprovalStore(workspace_root=WORKSPACE_ROOT)
+    existed = store.revoke_approval(job_name=job_name, plan_hash=plan_hash)
+    if not existed:
+        raise HTTPException(status_code=404, detail="approval_not_found")
+    return {"ok": True, "revoked": True, "job_name": job_name, "plan_hash": plan_hash}
+
+
+@router.get(
+    "/{job_name}",
+    dependencies=[Depends(require_roles("viewer", "operator", "admin"))],
+)
+def list_approvals(job_name: str) -> Dict[str, Any]:
+    """List all stored approvals for a job (across all plan hashes)."""
+    store = BuildApprovalStore(workspace_root=WORKSPACE_ROOT)
+    approvals = store.list_approvals(job_name=job_name)
+    return {"ok": True, "job_name": job_name, "approvals": approvals}
+
