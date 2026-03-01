@@ -299,11 +299,6 @@
       "size": 8999
     },
     {
-      "path": "app/api/middleware/request_id.py",
-      "sha256": "4e0b5c19ae3e4b9ad97ecbc53919c980eb8344263c24bb57952e594ec893e5bb",
-      "size": 588
-    },
-    {
       "path": "app/api/models/build_responses.py",
       "sha256": "3724204d3cbd37840650b0a7e250c928bc72180e6166dda79b02d59d8319f7b3",
       "size": 1798
@@ -1135,8 +1130,8 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/templates/api-deployment.yaml",
-      "sha256": "db86270fceca20788eedc7248f36bf14c6b077ec82df2bfccc9f674d0ea7bed4",
-      "size": 745
+      "sha256": "abedd28bc79fd452a7a2bb516380471712edab8b2d28666307bb0066bf1dd9c8",
+      "size": 1483
     },
     {
       "path": "deploy/helm/data-platform-copilot/templates/api-service.yaml",
@@ -1165,8 +1160,8 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/values.yaml",
-      "sha256": "0c2e1338690bfa2e4954f915a8f609f74d988459f4d972633940d13c55fabc23",
-      "size": 944
+      "sha256": "473e8b1959834dcb242dae473cc2b923d729fc10404eba789c36d9951b31297b",
+      "size": 1161
     },
     {
       "path": "deploy/nginx/dev-gateway.conf",
@@ -1184,9 +1179,19 @@
       "size": 2209
     },
     {
+      "path": "deploy/secrets/README.md",
+      "sha256": "33341d96d31e090a70cbe256f7b38e3cd5d85aad61949dcbf42f53fe74978e77",
+      "size": 1134
+    },
+    {
       "path": "deploy/secrets/admin_token.txt",
       "sha256": "1787191d99c11822c943c9f5627c04186efca80de372688b835a7090a5317912",
       "size": 15
+    },
+    {
+      "path": "deploy/secrets/setup.sh",
+      "sha256": "4fd0479f0447cab9d548b35fc2c1160b019710a621c1ce196c0a8b6591ced388",
+      "size": 1296
     },
     {
       "path": "deploy/secrets/signing_key.txt",
@@ -1235,8 +1240,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "c5973162ea3f438955e84843de5fb6444fec54bdbae7585f6dac8e63ea81d64c",
-      "size": 59995
+      "sha256": "f077f9e3f11924dc01bfdcfda99e903fc4da890654885aa44aa4040bab486b48",
+      "size": 60188
     },
     {
       "path": "project_file_paths.txt",
