@@ -76,6 +76,8 @@ jobs:
             --exclude='**/.git' \
             --exclude='**/node_modules' \
             --exclude='frontend/.vite' \
+            --exclude='**/workspace/**' \
+            --exclude='antigravity_prompt*.md' \
             .
 
           sha256sum "$ART" > "$ART.sha256"
