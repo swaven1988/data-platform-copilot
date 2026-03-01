@@ -13,6 +13,13 @@ services:
       - COPILOT_STATIC_VIEWER_TOKEN=dev_viewer_token
       - COPILOT_SIGNING_KEY=dev_secret_key
       - COPILOT_TRUST_PROXY_HEADERS=true
+      # ---- AI gateway (set LLM_API_KEY in local .env or shell for actual LLM calls)
+      - AI_MODEL=gpt-4o-mini
+      - COPILOT_HIGH_RISK_APPROVAL_THRESHOLD=0.70
+      - COPILOT_APPROVAL_TTL_SECONDS=3600
+      # ---- Execution reconciliation
+      - COPILOT_EXEC_RECONCILE_STALE_SECONDS=300
+      - COPILOT_EXEC_RECONCILE_INTERVAL_SECONDS=60
 
   web:
     build:
