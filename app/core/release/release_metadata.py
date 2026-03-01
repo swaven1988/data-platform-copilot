@@ -33,6 +33,18 @@ def _git_describe(project_root: Path) -> str:
         return "unknown"
 
 
+def _git_exact_tag(project_root: Path) -> str | None:
+    """Return the exact tag on HEAD if present, else None."""
+    try:
+        return (
+            subprocess.check_output(["git", "describe", "--tags", "--exact-match"], cwd=project_root)
+            .decode("utf-8")
+            .strip()
+        )
+    except Exception:
+        return None
+
+
 def write_release_metadata(project_root: Path) -> Dict[str, Any]:
     project_root = project_root.resolve()
 
@@ -41,6 +53,7 @@ def write_release_metadata(project_root: Path) -> Dict[str, Any]:
 
     commit = _git_head(project_root)
     version = _git_describe(project_root)
+    git_tag = _git_exact_tag(project_root) or version
 
     pm_hash = _sha256_file(packaging_manifest) if packaging_manifest.exists() else None
     oa_hash = _sha256_file(openapi_snapshot) if openapi_snapshot.exists() else None
@@ -50,6 +63,7 @@ def write_release_metadata(project_root: Path) -> Dict[str, Any]:
     # Backward compatible + canonical keys
     data: Dict[str, Any] = {
         "version": version,
+        "git_tag": git_tag,
         "commit": commit,
         "built_at_utc": built_at,
         "packaging_manifest_hash": pm_hash,

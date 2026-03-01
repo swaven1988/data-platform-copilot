@@ -890,8 +890,8 @@
     },
     {
       "path": "app/core/release/release_metadata.py",
-      "sha256": "9191ecd107270d9faa77ada7384833875a270d642f64869919b6ed67d92129e0",
-      "size": 1903
+      "sha256": "57a982bcb0fbf4687f281860767eeb81fd3c06f3c53ff05d5823e57a4b744e05",
+      "size": 2349
     },
     {
       "path": "app/core/release/verify.py",
@@ -1125,7 +1125,7 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/Chart.yaml",
-      "sha256": "3d6175109c8506827d207f05269a6c680b79cde2ffcfbf2dbc9dc65449746df6",
+      "sha256": "4fad02e6e774806095e4f37bc2778409f1f96348cb7c36c2aaa477644b4d64ad",
       "size": 183
     },
     {
@@ -1160,7 +1160,7 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/values.yaml",
-      "sha256": "9672f4cbe077e9d5032fcb418ae084c1441de66df4f88494acf4b9dc2cca88e8",
+      "sha256": "d308cd053e948947b07ccfe9ab921421d73915934b0250e7b69f91c2a99c79b1",
       "size": 944
     },
     {
@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "91047b763b49e45bf9330647a6979df088b6434df4883e420b84ecb05ee7383c",
+      "sha256": "47732b95feaeeef5160d77f0944559009d1869241574cc62c9da7ed40d701104",
       "size": 59994
     },
     {
@@ -1710,8 +1710,8 @@
     },
     {
       "path": "tools/check_v1_readiness.py",
-      "sha256": "91f061de1af6d396aa395b83c8d5a3adb7c29921eebfe976812636d613c2a4f1",
-      "size": 2313
+      "sha256": "cb228f26fec0c2d3eaae54e41884fd5faa2f218b3fdff6216736ecaaa882f458",
+      "size": 2563
     },
     {
       "path": "tools/gen_packaging_manifest.py",

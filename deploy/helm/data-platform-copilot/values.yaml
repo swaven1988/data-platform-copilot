@@ -1,7 +1,7 @@
 api:
   image:
     repository: data-platform-copilot-api
-    tag: v0.18.1
+    tag: v0.18.2
     pullPolicy: IfNotPresent
   env:
     COPILOT_AUTH_MODE: "header"
@@ -22,7 +22,7 @@ api:
 ui:
   image:
     repository: data-platform-copilot-ui
-    tag: v0.18.1
+    tag: v0.18.2
     pullPolicy: IfNotPresent
   env:
     API_URL: "http://data-platform-copilot-api:8001"

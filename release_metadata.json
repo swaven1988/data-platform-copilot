@@ -1,10 +1,10 @@
 {
-  "version": "v0.18.1",
-  "git_tag": "v0.18.1",
-  "commit": "f9f25785815c69cb02d52c98da6d2c079b126b60",
-  "packaging_manifest_hash": "2311481ecc30b32dc76c84e9d748b393a52a6019420dca29b7dbe471a07a81c2",
+  "version": "v0.18.2",
+  "git_tag": "v0.18.2",
+  "commit": "2eadcca932c648057525eb9cfe9902093fb74210",
+  "built_at_utc": "2026-03-01T06:06:08.497494Z",
+  "packaging_manifest_hash": "47732b95feaeeef5160d77f0944559009d1869241574cc62c9da7ed40d701104",
   "openapi_hash": "eb6df8b60baba22f7b42a6f56b86c2da85e5fb67c7f62a8b8fa493086253944c",
-  "built_at_utc": "2026-03-01T05:16:25.939127Z",
-  "packaging_manifest_sha256": "2311481ecc30b32dc76c84e9d748b393a52a6019420dca29b7dbe471a07a81c2",
+  "packaging_manifest_sha256": "47732b95feaeeef5160d77f0944559009d1869241574cc62c9da7ed40d701104",
   "openapi_snapshot_sha256": "eb6df8b60baba22f7b42a6f56b86c2da85e5fb67c7f62a8b8fa493086253944c"
 }
