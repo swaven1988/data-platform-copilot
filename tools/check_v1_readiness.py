@@ -13,6 +13,7 @@ REQUIRED_FILES = [
     "packaging_manifest.json",
     "tests/snapshots/openapi_snapshot.json",
     "release_metadata.json",
+    "frontend/package.json",
 ]
 
 
@@ -35,6 +36,11 @@ def main() -> int:
     v = (repo / "VERSION").read_text(encoding="utf-8").strip() if (repo / "VERSION").exists() else ""
     if not v.startswith("v"):
         failures.append("invalid_version_format:VERSION must start with 'v'")
+
+    # Frontend build artifact
+    dist = repo / "frontend" / "dist"
+    if not dist.is_dir() or not any(dist.iterdir()):
+        failures.append("frontend_dist_missing_or_empty:run 'cd frontend && npm run build'")
 
     # OpenAPI snapshot parity
     rc, out = _run([sys.executable, "-m", "pytest", "-q", "tests/test_openapi_snapshot.py"],)
