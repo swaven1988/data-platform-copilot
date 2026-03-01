@@ -23,3 +23,25 @@ spec:
             - name: {{ $k }}
               value: "{{ $v }}"
             {{- end }}
+            - name: LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "data-platform-copilot.fullname" . }}-secrets
+                  key: llm-api-key
+                  optional: true
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health/live
+              port: 8001
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health/ready
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3

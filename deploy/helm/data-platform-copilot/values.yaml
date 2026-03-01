@@ -32,3 +32,9 @@ ingress:
   className: ""
   host: "copilot.local"
   tls: []
+
+secrets:
+  # Set create: true and provide llmApiKey to create a K8s Secret automatically.
+  # For production, prefer external secret management (e.g. External Secrets Operator).
+  create: false
+  llmApiKey: ""

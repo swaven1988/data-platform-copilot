@@ -1149,6 +1149,11 @@
       "size": 813
     },
     {
+      "path": "deploy/helm/data-platform-copilot/templates/secret.yaml",
+      "sha256": "41b86259c6021977b08bdaa686e6f7d073a66f76e31fb973617db99105cc4380",
+      "size": 249
+    },
+    {
       "path": "deploy/helm/data-platform-copilot/templates/ui-deployment.yaml",
       "sha256": "b9f9a5cf676ac4d3f0509b0abb886034dac515ee8f26d9206f0839164defab58",
       "size": 735
@@ -1175,8 +1180,8 @@
     },
     {
       "path": "deploy/nginx/prod-gateway.conf",
-      "sha256": "7ec97e4e8abeb2555403ff33badc766c44a6db3e31c2712dbdd298acadf88ffb",
-      "size": 2080
+      "sha256": "3606b87d2b361efacd355cefefd35a89a670d07a20255c26141d64a2d394c2ae",
+      "size": 2209
     },
     {
       "path": "deploy/secrets/admin_token.txt",
@@ -1230,7 +1235,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "b62010ec9ee11a8001907b2abcf954eb41fba6a44361710bdad6123d6b392dfe",
+      "sha256": "c5973162ea3f438955e84843de5fb6444fec54bdbae7585f6dac8e63ea81d64c",
       "size": 59995
     },
     {
