@@ -1115,8 +1115,8 @@
     },
     {
       "path": "deploy/docker-compose.dev.yml",
-      "sha256": "aea8157ce5180a58094f8bb4dcb0e7068810719329e0b6bc0899f9d22636eced",
-      "size": 1217
+      "sha256": "e1f30adee9a751e0a5bc49ae16f1063cc7fafdb9b495f117e65dd5d3fc6a9437",
+      "size": 1569
     },
     {
       "path": "deploy/docker-compose.prod.yml",
@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "42de87f1337b8e58862b03b524016bcb18725e6c185a45019cd185e4e3c4155e",
+      "sha256": "5d9ca636851be13fedee4ae47fc1007c5ac6845866f5e98734599a13d7eded33",
       "size": 59994
     },
     {
