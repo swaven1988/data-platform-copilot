@@ -30,8 +30,8 @@
     },
     {
       "path": "Makefile",
-      "sha256": "7f4fd6dfe452702faa59eb44e6a049e851dc3388792f33c0d74066cdc5b434c4",
-      "size": 1079
+      "sha256": "a4a36f579df2e84b0e3252d3122710dcd6c95ed310a83681f18e55a1540fb34e",
+      "size": 1171
     },
     {
       "path": "README.md",
@@ -75,8 +75,8 @@
     },
     {
       "path": "app/api/endpoints/build_approvals.py",
-      "sha256": "4935973c0892100e509706e4c844ab5a48f515f07fb4dae9f7642b7ac49eaba9",
-      "size": 1636
+      "sha256": "e672cfe62a51f4af44a261d25a20086599f0590967c9ae70eba0914db8773b81",
+      "size": 2644
     },
     {
       "path": "app/api/endpoints/build_v2_impl.py",
@@ -435,8 +435,8 @@
     },
     {
       "path": "app/core/build_approval.py",
-      "sha256": "876382e6ab2dae02d3a259eedb1131eb5d4e45b697d1921849de33103275a9dc",
-      "size": 2769
+      "sha256": "9e8a0aead06926f6beb38b65aa3fde4ac5e541af7b361cf300ac7a0dc7db5515",
+      "size": 4829
     },
     {
       "path": "app/core/build_plan/advisors.py",
@@ -1230,8 +1230,8 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "960b2a5b4390bee4a4728b1237c076d23a454e668dccc8f141427ded5b142a4f",
-      "size": 59809
+      "sha256": "9b6b0b8cf28fe6b9b36706e5fc5ade5e257d08ab657d2b2f182cffadd051875e",
+      "size": 59994
     },
     {
       "path": "project_file_paths.txt",
@@ -1325,8 +1325,8 @@
     },
     {
       "path": "tests/test_build_approvals_api.py",
-      "sha256": "516f9756e86fa150fb1696c930ce482d28309f78691f53e7976f7adc93b96b36",
-      "size": 1656
+      "sha256": "f0bc8328df46533df70b0da806abf262451932474c31c78f59152aa48c6ca922",
+      "size": 3532
     },
     {
       "path": "tests/test_build_v2_contract.py",
@@ -1705,8 +1705,8 @@
     },
     {
       "path": "tools/build_release_tarball.py",
-      "sha256": "d328fbeffba6754a9f3039b49575bfb7b4ae799bdbe0ef016acdcd9178819344",
-      "size": 3724
+      "sha256": "b842a04f436ef75b1bf89ccaba85a6bf39bba33d4ab7fd0422f3ced1b9030c56",
+      "size": 4214
     },
     {
       "path": "tools/check_v1_readiness.py",

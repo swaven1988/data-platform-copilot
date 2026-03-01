@@ -72,3 +72,11 @@ def test_execution_lifecycle_store_persisted_to_workspace(tmp_path, monkeypatch)
     assert obj["kind"] == "execution_lifecycle_store"
     assert run_id in obj["runs"]
 
+
+def test_periodic_reconcile_wiring_present():
+    """Smoke: lifespan is wired and reconcile loop is defined."""
+    import app.api.main as m
+
+    assert hasattr(m, "_periodic_reconcile"), "Periodic reconcile task must be defined"
+    assert hasattr(m, "_lifespan"), "Lifespan context manager must be defined"
+

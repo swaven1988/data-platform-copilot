@@ -4900,7 +4900,102 @@
         ]
       }
     },
+    "/api/v2/build/approvals/{job_name}": {
+      "get": {
+        "description": "List all stored approvals for a job (across all plan hashes).",
+        "operationId": "list_approvals_api_v2_build_approvals__job_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_name",
+            "required": true,
+            "schema": {
+              "title": "Job Name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response List Approvals Api V2 Build Approvals  Job Name  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Approvals",
+        "tags": [
+          "build_approvals"
+        ]
+      }
+    },
     "/api/v2/build/approvals/{job_name}/{plan_hash}": {
+      "delete": {
+        "description": "Revoke (delete) an existing approval. Requires admin role.",
+        "operationId": "revoke_approval_api_v2_build_approvals__job_name___plan_hash__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_name",
+            "required": true,
+            "schema": {
+              "title": "Job Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "plan_hash",
+            "required": true,
+            "schema": {
+              "title": "Plan Hash",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Revoke Approval Api V2 Build Approvals  Job Name   Plan Hash  Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revoke Approval",
+        "tags": [
+          "build_approvals"
+        ]
+      },
       "get": {
         "operationId": "get_approval_api_v2_build_approvals__job_name___plan_hash__get",
         "parameters": [

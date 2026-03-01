@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import os
+import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import Response
@@ -75,16 +78,61 @@ from app.core.execution.lifecycle import reconcile_shared_store
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(
-    title="Data Platform Copilot API",
-    version="0.1.0",
+
+_reconcile_logger = logging.getLogger("copilot.reconcile")
+
+
+def _safe_int_env(name: str, default: int) -> int:
+    try:
+        return int((os.getenv(name) or str(default)).strip())
+    except (TypeError, ValueError, AttributeError):
+        return int(default)
+
+
+_RECONCILE_INTERVAL_SECONDS = _safe_int_env(
+    "COPILOT_EXEC_RECONCILE_INTERVAL_SECONDS", 60
 )
 
 
-@app.on_event("startup")
-def _startup_reconcile_stale_runs() -> None:
-    stale_after_seconds = int((os.getenv("COPILOT_EXEC_RECONCILE_STALE_SECONDS") or "3600").strip())
-    reconcile_shared_store(stale_after_seconds=stale_after_seconds)
+async def _periodic_reconcile() -> None:
+    """Background task: reconcile stale runs every COPILOT_EXEC_RECONCILE_INTERVAL_SECONDS."""
+    while True:
+        await asyncio.sleep(_RECONCILE_INTERVAL_SECONDS)
+        stale_after = _safe_int_env("COPILOT_EXEC_RECONCILE_STALE_SECONDS", 3600)
+        try:
+            n = reconcile_shared_store(stale_after_seconds=stale_after)
+            if n > 0:
+                _reconcile_logger.info(
+                    "Periodic reconcile: moved %d stale runs to terminal state", n
+                )
+        except Exception:
+            _reconcile_logger.warning("Periodic reconcile failed", exc_info=True)
+
+
+@asynccontextmanager
+async def _lifespan(app):
+    # Startup: run one immediate reconcile + launch periodic task
+    stale_after = _safe_int_env("COPILOT_EXEC_RECONCILE_STALE_SECONDS", 3600)
+    try:
+        reconcile_shared_store(stale_after_seconds=stale_after)
+    except Exception:
+        _reconcile_logger.warning("Startup reconcile failed", exc_info=True)
+    task = asyncio.create_task(_periodic_reconcile())
+    try:
+        yield
+    finally:
+        # Shutdown: cancel the background task cleanly
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+app = FastAPI(
+    title="Data Platform Copilot API",
+    version="0.1.0",
+    lifespan=_lifespan,
+)
 
 # ------------------------------------------------------------
 # Middleware stack (ORDER MATTERS) — canonical
