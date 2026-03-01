@@ -83,10 +83,11 @@ Endpoints span v1, v2, and v3. The Build API has three versions (`build.py`, `bu
 
 ### CI Gates
 
-The CI pipeline (`ci.yml`) enforces three additional gates beyond `pytest`:
+The CI pipeline (`ci.yml`) enforces four gates beyond `pytest`:
 1. Packaging manifest drift — `gen_packaging_manifest.py --check`
 2. OpenAPI snapshot match — `test_openapi_snapshot.py`
 3. V1 readiness gate — `check_v1_readiness.py` (runs on every push to main)
+4. Frontend lint + Playwright e2e smoke — `npm run lint && npm run e2e` (runs in parallel `frontend` job)
 
 Adding new endpoints or changing the API schema requires regenerating the snapshot (`make snapshot`) before CI passes.
 
