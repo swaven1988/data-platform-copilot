@@ -26,6 +26,13 @@ EXTRA_EXCLUDE_PATTERNS = [
     "**/-d",
     "**/.git/**",
     "**/workspace/**",
+    # Node / frontend build artifacts
+    "**/node_modules/**",
+    "frontend/.vite/**",
+    # Agent working documents — not source
+    "antigravity_prompt*.md",
+    # Defensive exclusion for legacy bootstrap scripts
+    "install.cmd",
 ]
 
 

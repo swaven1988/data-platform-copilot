@@ -18,3 +18,22 @@ def test_tarball_includes_regular_project_files():
     assert not _is_excluded("tools/gen_packaging_manifest.py")
     assert not _is_excluded("tests/test_openapi_snapshot.py")
 
+
+def test_tarball_excludes_node_artifacts():
+    assert _is_excluded("frontend/node_modules/react/index.js")
+    assert _is_excluded("node_modules/lodash/lodash.js")
+    assert _is_excluded("frontend/.vite/deps/react.js")
+
+
+def test_tarball_excludes_agent_working_docs():
+    assert _is_excluded("antigravity_prompt_v5.md")
+    assert _is_excluded("antigravity_prompt_v4.md")
+    assert _is_excluded("antigravity_prompt_v99.md")
+
+
+def test_tarball_still_includes_source_md():
+    assert not _is_excluded("CLAUDE.md")
+    assert not _is_excluded("KNOWN_LIMITATIONS.md")
+    assert not _is_excluded("README.md")
+    assert not _is_excluded("docs/RUNBOOK.md")
+

@@ -1120,8 +1120,8 @@
     },
     {
       "path": "deploy/docker-compose.prod.yml",
-      "sha256": "758fbc086bcab388fd8ba0be457df1f9a222e8788b0fff7c13302df1bfa20ee0",
-      "size": 2934
+      "sha256": "7c8b1bf507ba02d1bed2c07bd9ce8405d0273a9f7c0fa562ae808ccfbb829167",
+      "size": 2969
     },
     {
       "path": "deploy/helm/data-platform-copilot/Chart.yaml",
@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "47732b95feaeeef5160d77f0944559009d1869241574cc62c9da7ed40d701104",
+      "sha256": "6d7f76152cb6eedf63681693390971c11e6fa04b53d07d440f3c0a271db36dc5",
       "size": 59994
     },
     {
