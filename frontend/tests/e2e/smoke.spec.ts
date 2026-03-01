@@ -8,6 +8,7 @@ const PAGES: Array<{ path: string; title: RegExp }> = [
     { path: "/billing", title: /Billing/i },
     { path: "/health", title: /System Health|Health/i },
     { path: "/audit", title: /Audit Log/i },
+    { path: "/approvals", title: /Build Approvals|Approvals/i },
 ];
 
 test.describe("Core page smoke", () => {
