@@ -11,6 +11,7 @@ import Preflight from "./pages/Preflight";
 import Billing from "./pages/Billing";
 import Health from "./pages/Health";
 import AuditLog from "./pages/AuditLog";
+import Approvals from "./pages/Approvals";
 
 const tenant = localStorage.getItem("COPILOT_TENANT") || "default";
 const token = localStorage.getItem("COPILOT_TOKEN") || "";
@@ -58,6 +59,7 @@ export default function App() {
               <Route path="/billing" element={<Billing />} />
               <Route path="/health" element={<Health />} />
               <Route path="/audit" element={<AuditLog />} />
+              <Route path="/approvals" element={<Approvals />} />
             </Routes>
           </main>
         </div>

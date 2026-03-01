@@ -8,6 +8,7 @@ import {
     Activity,
     ScrollText,
     Zap,
+    ClipboardCheck,
 } from "lucide-react";
 
 const navItems = [
@@ -18,6 +19,7 @@ const navItems = [
     { to: "/billing", label: "Billing", icon: CreditCard },
     { to: "/health", label: "Health", icon: Activity },
     { to: "/audit", label: "Audit Log", icon: ScrollText },
+    { to: "/approvals", label: "Approvals", icon: ClipboardCheck },
 ];
 
 export default function Sidebar() {

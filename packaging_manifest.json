@@ -20,8 +20,8 @@
   "files": [
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "bbee4faf32543726cc4b52c3770bd31a6412505bfbf7ab696d904829b36bd4c9",
-      "size": 1362
+      "sha256": "644d8518f32302f2d2a3f1d64d0b62eba50c22825b29fcf484e4cc029518a793",
+      "size": 1299
     },
     {
       "path": ".github/workflows/release.yml",
@@ -1120,8 +1120,8 @@
     },
     {
       "path": "deploy/docker-compose.prod.yml",
-      "sha256": "b57aea3f4beb919d9a6a020cf4a736104a59789be6e9b7e545299f20bba18bfb",
-      "size": 1990
+      "sha256": "eeb24d481d57f89b6f80bddd3dffc6b9b1d1b0dfbbed6a2e38a394e17863e4a9",
+      "size": 2392
     },
     {
       "path": "deploy/helm/data-platform-copilot/Chart.yaml",
@@ -1160,8 +1160,8 @@
     },
     {
       "path": "deploy/helm/data-platform-copilot/values.yaml",
-      "sha256": "8508ed019eaf8848473dd595ec7ede7fe312b9a69b6d15da4315453e9d3e537e",
-      "size": 474
+      "sha256": "dcf4caf3953bfcf48ac2fa98ae1d89ce313bd9b9746e1b33792abefb6324289e",
+      "size": 944
     },
     {
       "path": "deploy/nginx/dev-gateway.conf",
@@ -1210,8 +1210,8 @@
     },
     {
       "path": "docs/RUNBOOK.md",
-      "sha256": "d32e95cb8c7f9f5d5be1fdc5f2cbe0a7d725966f7dc71cf26cfbb3abe28ba28d",
-      "size": 1371
+      "sha256": "d0aa8604e3100e1b757f8bfb33358ffbf423a0649c3f736fc84820e2338ad39f",
+      "size": 4330
     },
     {
       "path": "docs/production_checklist.md",
@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "301756f63332aef61dbcd33273e39f8ae45de9cb7c7ae9f0134625d2c1f22a45",
+      "sha256": "c1936b6de6a50e2f74063b5e3970245bcd34ab0e8dfff89636c97aca8427ede6",
       "size": 59994
     },
     {

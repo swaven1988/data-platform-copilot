@@ -280,6 +280,50 @@ export async function getAuditLogEntries(): Promise<AuditLogRecord[]> {
   return [];
 }
 
+export interface ApprovalRecord {
+  job_name: string;
+  plan_hash: string;
+  approver: string;
+  notes: string;
+  approved: boolean;
+  approved_at: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ApprovalCreateRequest {
+  job_name: string;
+  plan_hash: string;
+  approver: string;
+  notes?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export async function createApproval(req: ApprovalCreateRequest): Promise<ApprovalRecord> {
+  const response = await api.post<{ ok: boolean; approval: ApprovalRecord }>(
+    "/api/v2/build/approvals",
+    req,
+  );
+  return response.data.approval;
+}
+
+export async function getApproval(jobName: string, planHash: string): Promise<ApprovalRecord> {
+  const response = await api.get<{ ok: boolean; approval: ApprovalRecord }>(
+    `/api/v2/build/approvals/${jobName}/${planHash}`,
+  );
+  return response.data.approval;
+}
+
+export async function listApprovals(jobName: string): Promise<ApprovalRecord[]> {
+  const response = await api.get<{ ok: boolean; job_name: string; approvals: ApprovalRecord[] }>(
+    `/api/v2/build/approvals/${jobName}`,
+  );
+  return response.data.approvals;
+}
+
+export async function revokeApproval(jobName: string, planHash: string): Promise<void> {
+  await api.delete(`/api/v2/build/approvals/${jobName}/${planHash}`);
+}
+
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   const e = error as ApiErrorLike;
   const detail = e?.response?.data?.detail;
