@@ -24,6 +24,38 @@ def main() -> int:
     ap.add_argument("--out", default="packaging_manifest.json", help="Output path (default packaging_manifest.json)")
     args = ap.parse_args()
 
+    # Keep project_tree.txt current before manifest generation
+    tree_path = PROJECT_ROOT / "project_tree.txt"
+    try:
+        import subprocess as _sp
+
+        result = _sp.run(
+            [
+                "find",
+                ".",
+                "-not",
+                "-path",
+                "./.git/*",
+                "-not",
+                "-name",
+                "*.pyc",
+                "-not",
+                "-path",
+                "./__pycache__/*",
+                "-type",
+                "f",
+                "-print",
+            ],
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if result.returncode == 0:
+            tree_path.write_text(result.stdout, encoding="utf-8")
+    except Exception:
+        pass  # non-fatal
+
     out_path = PROJECT_ROOT / args.out
     current = generate_packaging_manifest(project_root=PROJECT_ROOT)
 
