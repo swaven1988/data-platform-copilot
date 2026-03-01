@@ -86,7 +86,7 @@ Endpoints span v1, v2, and v3. The Build API has three versions (`build.py`, `bu
 The CI pipeline (`ci.yml`) enforces three additional gates beyond `pytest`:
 1. Packaging manifest drift — `gen_packaging_manifest.py --check`
 2. OpenAPI snapshot match — `test_openapi_snapshot.py`
-3. V1 readiness (manual trigger) — `check_v1_readiness.py`
+3. V1 readiness gate — `check_v1_readiness.py` (runs on every push to main)
 
 Adding new endpoints or changing the API schema requires regenerating the snapshot (`make snapshot`) before CI passes.
 
@@ -115,4 +115,5 @@ Releases are triggered by pushing a `v*` tag. The workflow: tests → manifest c
 | `COPILOT_RATE_LIMIT_RPM` | `120` | Requests per minute limit |
 | `COPILOT_EXEC_RECONCILE_INTERVAL_SECONDS` | `60` | Stale run reconciliation interval |
 | `COPILOT_TENANT_STRICT` | — | Enforce tenant header on all requests |
-| `AI_MODEL` | — | LLM model selection for AI gateway |
+| `LLM_API_KEY` | — | API key for LLM provider (inject via secret in production) |
+| `AI_MODEL` | `gpt-4o-mini` | LLM model selection for AI gateway |
