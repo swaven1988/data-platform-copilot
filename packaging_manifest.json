@@ -1230,7 +1230,7 @@
     },
     {
       "path": "packaging_manifest.json",
-      "sha256": "6d7f76152cb6eedf63681693390971c11e6fa04b53d07d440f3c0a271db36dc5",
+      "sha256": "56b4987f838e5e700d2f49ce2d41fe8a4e8322d4980423c1fa4ca99a0dbfe4d2",
       "size": 59994
     },
     {
@@ -1610,8 +1610,8 @@
     },
     {
       "path": "tests/test_release_tarball_manifest_excludes.py",
-      "sha256": "44d7b2553ede5a908d61050c8d96503487b1e499a61cae7811b45e2d476a8e85",
-      "size": 769
+      "sha256": "e5324544125156460219ad0ed50a9429537a9919bb11017b1fc106a6c8d3e19b",
+      "size": 1446
     },
     {
       "path": "tests/test_release_verify.py",
@@ -1705,8 +1705,8 @@
     },
     {
       "path": "tools/build_release_tarball.py",
-      "sha256": "b842a04f436ef75b1bf89ccaba85a6bf39bba33d4ab7fd0422f3ced1b9030c56",
-      "size": 4214
+      "sha256": "9a2eece251efacdf3d27b52eaa90ac6a316b39292b3350dd91a55f68f32760ce",
+      "size": 4459
     },
     {
       "path": "tools/check_v1_readiness.py",
