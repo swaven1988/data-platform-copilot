@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import { Settings } from "lucide-react";
 import Sidebar from "./components/Sidebar";
 import Toast from "./components/Toast";
@@ -12,6 +12,7 @@ import Billing from "./pages/Billing";
 import Health from "./pages/Health";
 import AuditLog from "./pages/AuditLog";
 import Approvals from "./pages/Approvals";
+import Logo from "./assets/logo.png";
 
 const tenant = localStorage.getItem("COPILOT_TENANT") || "default";
 const token = localStorage.getItem("COPILOT_TOKEN") || "";
@@ -23,11 +24,14 @@ export default function App() {
       <div className="app-shell">
         {/* Header */}
         <header className="app-header">
-          <div className="app-header__left">
+          <Link to="/" className="app-header__left" style={{ textDecoration: 'none' }}>
+            <div className="app-header__logo">
+              <img src={Logo} alt="Data Platform Copilot Logo" />
+            </div>
             <div className="app-header__wordmark">
               Data Platform <span>Copilot</span>
             </div>
-          </div>
+          </Link>
           <div className="app-header__right">
             <Badge variant="neutral">{tenant}</Badge>
             <Badge variant={role === "admin" ? "accent" : "neutral"}>{role}</Badge>
